@@ -1,0 +1,12 @@
+fastapi==0.104.1
+uvicorn==0.24.0
+python-multipart==0.0.6
+torch==2.1.1
+torchaudio==2.1.1
+librosa==0.10.1
+numpy==1.24.3
+huggingface-hub==0.19.4
+Jinja2==3.1.2
+python-jose==3.3.0
+requests==2.31.0
+gunicorn==21.2.0
