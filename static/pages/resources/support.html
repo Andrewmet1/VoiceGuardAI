@@ -233,13 +233,13 @@
                     
                     <div class="issue-card">
                         <h3><i class="fas fa-battery-quarter"></i> Battery Drain Issues</h3>
-                        <p>Some users may experience higher than expected battery usage when running VoiceGuardAI in the background.</p>
+                        <p>Some users may experience higher than expected battery usage when using VoiceGuardAI.</p>
                         <div class="solution">
                             <h4>Solution:</h4>
                             <ol>
                                 <li>Update to the latest version of the app, which includes battery optimization improvements</li>
                                 <li>In the app settings, enable "Power Saving Mode" which reduces background processing</li>
-                                <li>Configure the app to only activate during calls rather than constant monitoring</li>
+                                <li>Close the app when not actively scanning calls</li>
                                 <li>Check for other apps running in the background that might be contributing to battery drain</li>
                             </ol>
                         </div>
@@ -247,7 +247,7 @@
                     
                     <div class="issue-card">
                         <h3><i class="fas fa-microphone-slash"></i> Microphone Access Problems</h3>
-                        <p>VoiceGuardAI requires microphone permissions to analyze call audio for scam detection.</p>
+                        <p>VoiceGuardAI requires microphone permissions to analyze speakerphone audio when you initiate a scan.</p>
                         <div class="solution">
                             <h4>Solution:</h4>
                             <ol>
@@ -262,15 +262,15 @@
                     
                     <div class="issue-card">
                         <h3><i class="fas fa-exclamation-triangle"></i> False Positive Detections</h3>
-                        <p>Sometimes VoiceGuardAI may incorrectly flag legitimate calls as potential scams.</p>
+                        <p>Sometimes VoiceGuardAI may incorrectly flag legitimate calls as potential scams during your scan.</p>
                         <div class="solution">
                             <h4>Solution:</h4>
                             <ol>
+                                <li>Make sure the caller is on speakerphone and speaking clearly when you tap "Scan Caller"</li>
                                 <li>Update to the latest version which includes improved detection algorithms</li>
                                 <li>Add frequent contacts to your "Trusted Callers" list in the app settings</li>
                                 <li>Adjust the sensitivity level in Settings > Detection Sensitivity</li>
                                 <li>Report false positives through the app to help improve our AI model</li>
-                                <li>Use the "Mark as Safe" feature when a legitimate call is incorrectly flagged</li>
                             </ol>
                         </div>
                     </div>
@@ -286,6 +286,21 @@
                                 <li>Clear the app cache (Android: Settings > Apps > VoiceGuardAI > Storage > Clear Cache)</li>
                                 <li>Ensure your device has sufficient free storage space</li>
                                 <li>If problems persist, try uninstalling and reinstalling the app</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="issue-card">
+                        <h3><i class="fas fa-volume-up"></i> Speakerphone Detection Issues</h3>
+                        <p>Some users may experience difficulty with the app detecting voice when using speakerphone.</p>
+                        <div class="solution">
+                            <h4>Solution:</h4>
+                            <ol>
+                                <li>Ensure your phone's speaker volume is turned up to at least 70%</li>
+                                <li>Hold your phone 8-12 inches away from the caller's voice source</li>
+                                <li>Reduce background noise when performing a voice scan</li>
+                                <li>Wait until the caller has been speaking for at least 5 seconds before tapping "Scan Caller"</li>
+                                <li>If detection fails, try tapping "Scan Again" for a second sample</li>
                             </ol>
                         </div>
                     </div>
