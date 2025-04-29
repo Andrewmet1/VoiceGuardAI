@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support - VoiceGuardAI</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Get help and support for your VoiceGuardAI app. Find troubleshooting guides, common issues, and ways to contact our support team.">
+    <meta name="keywords" content="voiceguardai support, voice security help, ai scam detection support, voice protection help">
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="../../images/favicon.svg" type="image/svg+xml">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../css/styles.css">
+    
+    <style>
+        /* Page-specific styles */
+        .page-header {
+            padding: 120px 0 60px;
+            background: var(--gradient);
+            color: white;
+            text-align: center;
+        }
+        
+        .page-content {
+            padding: 60px 0;
+        }
+        
+        .support-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .support-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        @media (max-width: 768px) {
+            .support-options {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .support-option {
+            padding: 30px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .support-option:hover {
+            transform: translateY(-5px);
+        }
+        
+        .support-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(var(--primary-rgb), 0.1);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.5rem;
+        }
+        
+        .support-option h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .support-option p {
+            margin-bottom: 20px;
+            color: var(--gray);
+        }
+        
+        .common-issues {
+            margin-bottom: 60px;
+        }
+        
+        .common-issues h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .issue-card {
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+        }
+        
+        .issue-card h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .issue-card h3 i {
+            margin-right: 10px;
+        }
+        
+        .issue-card p {
+            margin-bottom: 15px;
+        }
+        
+        .issue-card .solution {
+            background: white;
+            padding: 15px;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .issue-card .solution h4 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .support-cta {
+            text-align: center;
+            padding: 40px;
+            background: var(--gradient);
+            color: white;
+            border-radius: var(--radius);
+        }
+        
+        .support-cta h2 {
+            margin-bottom: 20px;
+        }
+        
+        .support-cta p {
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .support-cta .btn {
+            background: white;
+            color: var(--primary);
+        }
+        
+        .support-cta .btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header id="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="../../index.html" class="logo">
+                    <img src="../../images/logo.svg" alt="VoiceGuardAI Logo">
+                    VoiceGuardAI
+                </a>
+                
+                <button class="mobile-toggle" id="mobile-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="../../index.html#features">Features</a></li>
+                    <li><a href="../../index.html#how-it-works">How It Works</a></li>
+                    <li><a href="blog.html">Blog</a></li>
+                    <li><a href="support.html">Support</a></li>
+                    <li><a href="../../index.html#download" class="btn">Download</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Support Center</h1>
+            <p>We're here to help you get the most out of VoiceGuardAI</p>
+        </div>
+    </section>
+
+    <!-- Page Content -->
+    <section class="page-content">
+        <div class="container">
+            <div class="support-container">
+                <div class="support-options">
+                    <div class="support-option">
+                        <div class="support-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h3>Knowledge Base</h3>
+                        <p>Browse our comprehensive guides and tutorials to learn how to use VoiceGuardAI effectively.</p>
+                        <a href="#" class="btn btn-outline">View Guides</a>
+                    </div>
+                    
+                    <div class="support-option">
+                        <div class="support-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h3>Live Chat</h3>
+                        <p>Chat with our support team in real-time for immediate assistance with your questions.</p>
+                        <a href="#" class="btn btn-outline">Start Chat</a>
+                    </div>
+                    
+                    <div class="support-option">
+                        <div class="support-icon">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                        <h3>Submit a Ticket</h3>
+                        <p>Create a support ticket for complex issues that require detailed investigation by our team.</p>
+                        <a href="#" class="btn btn-outline">Open Ticket</a>
+                    </div>
+                </div>
+                
+                <div class="common-issues">
+                    <h2>Common Issues & Solutions</h2>
+                    
+                    <div class="issue-card">
+                        <h3><i class="fas fa-battery-quarter"></i> Battery Drain Issues</h3>
+                        <p>Some users may experience higher than expected battery usage when running VoiceGuardAI in the background.</p>
+                        <div class="solution">
+                            <h4>Solution:</h4>
+                            <ol>
+                                <li>Update to the latest version of the app, which includes battery optimization improvements</li>
+                                <li>In the app settings, enable "Power Saving Mode" which reduces background processing</li>
+                                <li>Configure the app to only activate during calls rather than constant monitoring</li>
+                                <li>Check for other apps running in the background that might be contributing to battery drain</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="issue-card">
+                        <h3><i class="fas fa-microphone-slash"></i> Microphone Access Problems</h3>
+                        <p>VoiceGuardAI requires microphone permissions to analyze call audio for scam detection.</p>
+                        <div class="solution">
+                            <h4>Solution:</h4>
+                            <ol>
+                                <li>Go to your device's Settings > Apps > VoiceGuardAI > Permissions</li>
+                                <li>Ensure microphone access is enabled</li>
+                                <li>For iOS: Settings > Privacy > Microphone > Enable for VoiceGuardAI</li>
+                                <li>For Android: Settings > Apps > VoiceGuardAI > Permissions > Microphone > Allow</li>
+                                <li>Restart your device after changing permissions</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="issue-card">
+                        <h3><i class="fas fa-exclamation-triangle"></i> False Positive Detections</h3>
+                        <p>Sometimes VoiceGuardAI may incorrectly flag legitimate calls as potential scams.</p>
+                        <div class="solution">
+                            <h4>Solution:</h4>
+                            <ol>
+                                <li>Update to the latest version which includes improved detection algorithms</li>
+                                <li>Add frequent contacts to your "Trusted Callers" list in the app settings</li>
+                                <li>Adjust the sensitivity level in Settings > Detection Sensitivity</li>
+                                <li>Report false positives through the app to help improve our AI model</li>
+                                <li>Use the "Mark as Safe" feature when a legitimate call is incorrectly flagged</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="issue-card">
+                        <h3><i class="fas fa-sync-alt"></i> App Crashes or Freezes</h3>
+                        <p>If the app becomes unresponsive or crashes unexpectedly during use.</p>
+                        <div class="solution">
+                            <h4>Solution:</h4>
+                            <ol>
+                                <li>Force close the app and restart it</li>
+                                <li>Update to the latest version from your app store</li>
+                                <li>Clear the app cache (Android: Settings > Apps > VoiceGuardAI > Storage > Clear Cache)</li>
+                                <li>Ensure your device has sufficient free storage space</li>
+                                <li>If problems persist, try uninstalling and reinstalling the app</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="support-cta">
+                    <h2>Still Need Help?</h2>
+                    <p>Our dedicated support team is ready to assist you with any issues or questions you may have about VoiceGuardAI. We're committed to providing you with the best possible experience.</p>
+                    <a href="contact.html" class="btn">Contact Support Team</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>VoiceGuardAI</h3>
+                    <p>Protecting your voice identity with advanced AI technology.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="../../index.html">Home</a></li>
+                        <li><a href="../../index.html#features">Features</a></li>
+                        <li><a href="../../index.html#how-it-works">How It Works</a></li>
+                        <li><a href="../../index.html#download">Download</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="faqs.html">FAQs</a></li>
+                        <li><a href="support.html">Support</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <ul class="footer-links">
+                        <li><a href="../legal/privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="../legal/terms-of-service.html">Terms of Service</a></li>
+                        <li><a href="../legal/cookie-policy.html">Cookie Policy</a></li>
+                        <li><a href="../legal/gdpr-compliance.html">GDPR Compliance</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2025 VoiceGuardAI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile Navigation Toggle
+        const mobileToggle = document.getElementById('mobile-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        mobileToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            mobileToggle.innerHTML = navLinks.classList.contains('active') 
+                ? '<i class="fas fa-times"></i>' 
+                : '<i class="fas fa-bars"></i>';
+        });
+        
+        // Header scroll effect
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('header-scrolled');
+            } else {
+                header.classList.remove('header-scrolled');
+            }
+        });
+    </script>
+</body>
+</html>

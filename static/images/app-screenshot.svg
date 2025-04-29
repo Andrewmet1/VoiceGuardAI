@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="600" viewBox="0 0 300 600">
+  <defs>
+    <linearGradient id="screenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e" />
+      <stop offset="100%" style="stop-color:#16213e" />
+    </linearGradient>
+    <linearGradient id="alertGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4361ee" />
+      <stop offset="100%" style="stop-color:#4cc9f0" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="15" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Phone body with shadow -->
+  <rect x="25" y="10" width="250" height="580" rx="30" ry="30" fill="#f8f9fa" stroke="#e0e0e0" stroke-width="2" filter="url(#shadow)"/>
+  
+  <!-- Screen -->
+  <rect x="35" y="40" width="230" height="520" rx="15" ry="15" fill="url(#screenGrad)"/>
+  
+  <!-- Home button/notch -->
+  <rect x="110" y="22" width="80" height="8" rx="4" ry="4" fill="#e0e0e0"/>
+  <circle cx="150" cy="570" r="12" fill="#e0e0e0"/>
+  
+  <!-- App UI Elements -->
+  <!-- Status bar -->
+  <rect x="45" y="55" width="210" height="25" fill="rgba(255,255,255,0.1)" rx="4" ry="4"/>
+  <text x="55" y="72" font-family="Arial" font-size="12" fill="white">9:41 AM</text>
+  <text x="170" y="72" font-family="Arial" font-size="12" fill="white">VoiceGuard</text>
+  
+  <!-- Dashboard header -->
+  <text x="45" y="105" font-family="Arial" font-size="18" font-weight="bold" fill="white">Dashboard</text>
+  
+  <!-- Protection status -->
+  <rect x="45" y="120" width="210" height="80" rx="10" ry="10" fill="url(#alertGrad)"/>
+  <circle cx="80" cy="160" r="20" fill="white"/>
+  <text x="73" y="167" font-family="Arial" font-size="20" fill="#4361ee">✓</text>
+  <text x="110" y="150" font-family="Arial" font-size="16" font-weight="bold" fill="white">Protection Active</text>
+  <text x="110" y="175" font-family="Arial" font-size="12" fill="white">All calls are being monitored</text>
+  
+  <!-- Stats section -->
+  <text x="45" y="225" font-family="Arial" font-size="14" font-weight="bold" fill="white">This Week</text>
+  
+  <!-- Stats cards -->
+  <rect x="45" y="240" width="100" height="80" rx="8" ry="8" fill="rgba(255,255,255,0.1)"/>
+  <text x="60" y="270" font-family="Arial" font-size="24" font-weight="bold" fill="#ef476f">12</text>
+  <text x="60" y="290" font-family="Arial" font-size="12" fill="white">Scams Blocked</text>
+  
+  <rect x="155" y="240" width="100" height="80" rx="8" ry="8" fill="rgba(255,255,255,0.1)"/>
+  <text x="170" y="270" font-family="Arial" font-size="24" font-weight="bold" fill="#06d6a0">43</text>
+  <text x="170" y="290" font-family="Arial" font-size="12" fill="white">Safe Calls</text>
+  
+  <!-- Recent activity -->
+  <text x="45" y="345" font-family="Arial" font-size="14" font-weight="bold" fill="white">Recent Activity</text>
+  
+  <!-- Activity list -->
+  <rect x="45" y="360" width="210" height="50" rx="8" ry="8" fill="rgba(255,255,255,0.1)"/>
+  <circle cx="70" cy="385" r="12" fill="#ef476f"/>
+  <text x="66" y="390" font-family="Arial" font-size="12" fill="white">❌</text>
+  <text x="90" y="380" font-family="Arial" font-size="12" fill="white">Unknown Caller</text>
+  <text x="90" y="395" font-family="Arial" font-size="10" fill="rgba(255,255,255,0.7)">AI Voice (99%) - Today</text>
+  
+  <rect x="45" y="420" width="210" height="50" rx="8" ry="8" fill="rgba(255,255,255,0.1)"/>
+  <circle cx="70" cy="445" r="12" fill="#06d6a0"/>
+  <text x="66" y="450" font-family="Arial" font-size="12" fill="white">✓</text>
+  <text x="90" y="440" font-family="Arial" font-size="12" fill="white">Mom</text>
+  <text x="90" y="455" font-family="Arial" font-size="10" fill="rgba(255,255,255,0.7)">Human Voice (100%) - Today</text>
+  
+  <rect x="45" y="480" width="210" height="50" rx="8" ry="8" fill="rgba(255,255,255,0.1)"/>
+  <circle cx="70" cy="505" r="12" fill="#ef476f"/>
+  <text x="66" y="510" font-family="Arial" font-size="12" fill="white">❌</text>
+  <text x="90" y="500" font-family="Arial" font-size="12" fill="white">Unknown Caller</text>
+  <text x="90" y="515" font-family="Arial" font-size="10" fill="rgba(255,255,255,0.7)">AI Voice (97%) - Yesterday</text>
+</svg>

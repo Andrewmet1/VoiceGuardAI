@@ -3,10 +3,7 @@ import sys
 import base64
 import json
 import logging
-import librosa
 import numpy as np
-import soundfile as sf
-import torch
 import requests
 import socket
 import time
@@ -20,6 +17,13 @@ import tempfile
 import subprocess
 import traceback
 
+# Import torch but delay loading heavy libraries
+import torch
+
+# Delay these imports - they'll be imported when needed
+# import librosa
+# import soundfile as sf
+
 # Configure logging
 logging.basicConfig(
     level=logging.DEBUG,
@@ -32,9 +36,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants and paths
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))  # /training
-SRC_DIR = os.path.dirname(CURRENT_DIR)  # /src
-PROJECT_ROOT = os.path.dirname(SRC_DIR)  # /VoiceGuard
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))  # /api
+PROJECT_ROOT = os.path.dirname(CURRENT_DIR)  # /VoiceGuardAI_Test
 STATIC_DIR = os.path.join(PROJECT_ROOT, "static")
 TEMP_DIR = os.path.join(PROJECT_ROOT, "temp")
 VOICEGUARD_MODEL_PATH = os.path.join(PROJECT_ROOT, "voiceguard_model.pth")
@@ -86,6 +89,9 @@ async def root():
 def prepare_audio_for_huggingface(audio_path: str) -> str:
     """Prepares and encodes a real WAV file for Hugging Face."""
     try:
+        import librosa
+        import soundfile as sf
+        
         # Load and resample audio
         waveform, sr = librosa.load(audio_path, sr=SAMPLE_RATE, mono=True)
         encoded_wav = os.path.join(TEMP_DIR, "encoded_for_hf.wav")
@@ -117,6 +123,7 @@ def test_hf_connection() -> bool:
         
         # Save as WAV file
         test_wav_path = os.path.join(TEMP_DIR, "test_audio.wav")
+        import soundfile as sf
         sf.write(test_wav_path, test_audio, sample_rate, format="WAV", subtype="PCM_16")
         
         # Encode for API
@@ -143,138 +150,28 @@ def test_hf_connection() -> bool:
         logger.error(traceback.format_exc())
         return False
 
-# Test connection on startup
-hf_api_ready = test_hf_connection()
+# Add a new endpoint to test HF connection on demand
+@app.get("/api/test-hf-connection")
+async def test_hf_connection_endpoint():
+    """Test connection to Hugging Face API."""
+    result = test_hf_connection()
+    if result:
+        return {"status": "success", "message": "Connection to Hugging Face API successful"}
+    else:
+        return {"status": "error", "message": "Failed to connect to Hugging Face API"}
 
-# Initialize VoiceGuard model
-voiceguard_model = None
+# Initialize HF connection status
+hf_api_ready = None
 
-if os.path.exists(VOICEGUARD_MODEL_PATH):
-    try:
-        # Define model architecture
-        class VoiceGuardModel(torch.nn.Module):
-            def __init__(self):
-                super().__init__()
-                # First conv block
-                self.conv1 = torch.nn.Conv1d(20, 64, 3, padding=1)  # Input channels = 20 (MFCC features)
-                self.bn1 = torch.nn.BatchNorm1d(64)
-                
-                # Second conv block
-                self.conv2 = torch.nn.Conv1d(64, 128, 3, padding=1)
-                self.bn2 = torch.nn.BatchNorm1d(128)
-                
-                # Third conv block
-                self.conv3 = torch.nn.Conv1d(128, 256, 3, padding=1)
-                self.bn3 = torch.nn.BatchNorm1d(256)
-                
-                # Pooling and dropout
-                self.pool = torch.nn.MaxPool1d(2)
-                self.adaptive_pool = torch.nn.AdaptiveAvgPool1d(1)  # Squeeze time dimension to 1
-                self.dropout = torch.nn.Dropout(0.5)
-                
-                # Fully connected layers
-                self.fc1 = torch.nn.Linear(256, 128)  # After adaptive pooling, input is 256
-                self.fc2 = torch.nn.Linear(128, 64)
-                self.fc3 = torch.nn.Linear(64, 2)  # Binary classification
-
-            def forward(self, x):
-                # Input shape: [batch_size, n_mfcc=20, time_steps=256]
-                
-                # Conv blocks with batch norm
-                x = self.pool(torch.relu(self.bn1(self.conv1(x))))  # [batch_size, 64, 128]
-                x = self.pool(torch.relu(self.bn2(self.conv2(x))))  # [batch_size, 128, 64]
-                x = self.pool(torch.relu(self.bn3(self.conv3(x))))  # [batch_size, 256, 32]
-                
-                # Adaptive pooling to get fixed size
-                x = self.adaptive_pool(x)  # [batch_size, 256, 1]
-                
-                # Flatten to match fc1 input size
-                x = x.view(x.size(0), -1)  # [batch_size, 256]
-                
-                # Fully connected layers
-                x = self.dropout(torch.relu(self.fc1(x)))  # [batch_size, 128]
-                x = self.dropout(torch.relu(self.fc2(x)))  # [batch_size, 64]
-                x = self.fc3(x)  # [batch_size, 2]
-                
-                return x
-
-        # Create model and load state dict
-        voiceguard_model = VoiceGuardModel()
-        
-        # Load state dict
-        state_dict = torch.load(VOICEGUARD_MODEL_PATH, map_location='cpu')
-        
-        # Debug state dict keys and shapes
-        logger.info("VoiceGuard state dict keys and shapes:")
-        for key, tensor in state_dict.items():
-            logger.info(f"  - {key}: {tensor.shape}")
-            
-        # Compare model and state dict keys
-        model_keys = set(voiceguard_model.state_dict().keys())
-        state_dict_keys = set(state_dict.keys())
-        missing_keys = model_keys - state_dict_keys
-        extra_keys = state_dict_keys - model_keys
-        
-        if missing_keys:
-            logger.error(f"Missing keys in state dict: {missing_keys}")
-        if extra_keys:
-            logger.error(f"Extra keys in state dict: {extra_keys}")
-            
-        try:
-            # Load state dict and set to eval mode
-            voiceguard_model.load_state_dict(state_dict)
-            voiceguard_model.eval()
-            logger.info("VoiceGuard model loaded successfully")
-        except Exception as e:
-            logger.error(f"Failed to load state dict: {str(e)}")
-            logger.error(f"Error type: {type(e).__name__}")
-            logger.error(f"Full error: {repr(e)}")
-            raise
-    except Exception as e:
-        logger.error(f"Failed to load VoiceGuard model: {str(e)}")
-        logger.error(f"Error type: {type(e).__name__}")
-        logger.error(f"Full error: {repr(e)}")
-        voiceguard_model = None
-
-def convert_to_wav(input_file: str, output_file: str, sample_rate: int = SAMPLE_RATE) -> bool:
-    """Convert audio file to WAV format with specified sample rate."""
-    try:
-        cmd = [
-            'ffmpeg', '-y',
-            '-i', input_file,
-            '-acodec', 'pcm_s16le',
-            '-ac', '1',
-            '-ar', str(sample_rate),
-            output_file
-        ]
-        subprocess.run(cmd, check=True, capture_output=True)
-        return True
-    except Exception as e:
-        logger.error(f"Error converting audio: {str(e)}")
-        return False
-
-def prepare_audio_for_voiceguard(audio_path: str) -> torch.Tensor:
-    """Process audio for VoiceGuard model - returns MFCC features."""
-    try:
-        # Load and resample audio
-        waveform, sr = librosa.load(audio_path, sr=SAMPLE_RATE, mono=True)
-        
-        # Extract MFCC features
-        mfcc = librosa.feature.mfcc(y=waveform, sr=sr, n_mfcc=20)
-        
-        # Convert to tensor
-        mfcc_tensor = torch.FloatTensor(mfcc)
-        
-        # Add batch dimension
-        mfcc_tensor = mfcc_tensor.unsqueeze(0)  # Shape: [1, 20, T]
-        
-        return mfcc_tensor
-    except Exception as e:
-        logger.error(f"Error preparing audio for VoiceGuard: {str(e)}")
-        raise
-
-def query_huggingface_api(audio_data: dict) -> tuple[float, float]:
-    """Query Hugging Face API for deepfake detection with retry logic."""
+# Modify the query_huggingface_api function to test connection if needed
+def query_huggingface_api(audio_data: dict) -> Tuple[Optional[float], Optional[float]]:
+    """Query Hugging Face API for deepfake detection."""
+    global hf_api_ready
+    
+    # If we haven't tested the connection yet, do it now
+    if hf_api_ready is None:
+        hf_api_ready = test_hf_connection()
+    
     MAX_RETRIES = 3
     RETRY_DELAY = 5  # seconds
     
@@ -338,12 +235,155 @@ def query_huggingface_api(audio_data: dict) -> tuple[float, float]:
     
     return None, None
 
+# Initialize VoiceGuard model
+voiceguard_model = None
+
+# Define model architecture for later use
+class VoiceGuardModel(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        # First conv block
+        self.conv1 = torch.nn.Conv1d(20, 64, 3, padding=1)  # Input channels = 20 (MFCC features)
+        self.bn1 = torch.nn.BatchNorm1d(64)
+        
+        # Second conv block
+        self.conv2 = torch.nn.Conv1d(64, 128, 3, padding=1)
+        self.bn2 = torch.nn.BatchNorm1d(128)
+        
+        # Third conv block
+        self.conv3 = torch.nn.Conv1d(128, 256, 3, padding=1)
+        self.bn3 = torch.nn.BatchNorm1d(256)
+        
+        # Pooling and dropout
+        self.pool = torch.nn.MaxPool1d(2)
+        self.adaptive_pool = torch.nn.AdaptiveAvgPool1d(1)  # Squeeze time dimension to 1
+        self.dropout = torch.nn.Dropout(0.5)
+        
+        # Fully connected layers
+        self.fc1 = torch.nn.Linear(256, 128)  # After adaptive pooling, input is 256
+        self.fc2 = torch.nn.Linear(128, 64)
+        self.fc3 = torch.nn.Linear(64, 2)  # Binary classification
+
+    def forward(self, x):
+        # Input shape: [batch_size, n_mfcc=20, time_steps=256]
+        
+        # Conv blocks with batch norm
+        x = self.pool(torch.relu(self.bn1(self.conv1(x))))  # [batch_size, 64, 128]
+        x = self.pool(torch.relu(self.bn2(self.conv2(x))))  # [batch_size, 128, 64]
+        x = self.pool(torch.relu(self.bn3(self.conv3(x))))  # [batch_size, 256, 32]
+        
+        # Adaptive pooling to get fixed size
+        x = self.adaptive_pool(x)  # [batch_size, 256, 1]
+        
+        # Flatten to match fc1 input size
+        x = x.view(x.size(0), -1)  # [batch_size, 256]
+        
+        # Fully connected layers
+        x = self.dropout(torch.relu(self.fc1(x)))  # [batch_size, 128]
+        x = self.dropout(torch.relu(self.fc2(x)))  # [batch_size, 64]
+        x = self.fc3(x)  # [batch_size, 2]
+        
+        return x
+
+# Function to load the model only when needed
+def load_voiceguard_model():
+    global voiceguard_model
+    
+    # If model is already loaded, return it
+    if voiceguard_model is not None:
+        return voiceguard_model
+    
+    # Check if model file exists
+    if not os.path.exists(VOICEGUARD_MODEL_PATH):
+        logger.warning(f"⚠️ VoiceGuard model not found at: {VOICEGUARD_MODEL_PATH}")
+        return None
+    
+    try:
+        # Create model and load state dict
+        model = VoiceGuardModel()
+        
+        # Load state dict
+        state_dict = torch.load(VOICEGUARD_MODEL_PATH, map_location='cpu')
+        
+        # Debug state dict keys and shapes
+        logger.info("VoiceGuard state dict keys and shapes:")
+        for key, tensor in state_dict.items():
+            logger.info(f"  - {key}: {tensor.shape}")
+            
+        # Compare model and state dict keys
+        model_keys = set(model.state_dict().keys())
+        state_dict_keys = set(state_dict.keys())
+        missing_keys = model_keys - state_dict_keys
+        extra_keys = state_dict_keys - model_keys
+        
+        if missing_keys:
+            logger.error(f"Missing keys in state dict: {missing_keys}")
+        if extra_keys:
+            logger.error(f"Extra keys in state dict: {extra_keys}")
+            
+        try:
+            # Load state dict and set to eval mode
+            model.load_state_dict(state_dict)
+            model.eval()
+            logger.info("✅ VoiceGuard model loaded successfully")
+            voiceguard_model = model
+            return model
+        except Exception as e:
+            logger.error(f"❌ Failed to load state dict: {str(e)}")
+            logger.error(f"Error type: {type(e).__name__}")
+            logger.error(f"Full error: {repr(e)}")
+            return None
+    except Exception as e:
+        logger.error(f"❌ Failed to load VoiceGuard model: {str(e)}")
+        logger.error(f"Error type: {type(e).__name__}")
+        logger.error(f"Full error: {repr(e)}")
+        return None
+
+def convert_to_wav(input_file: str, output_file: str, sample_rate: int = SAMPLE_RATE) -> bool:
+    """Convert audio file to WAV format with specified sample rate."""
+    try:
+        cmd = [
+            'ffmpeg', '-y',
+            '-i', input_file,
+            '-acodec', 'pcm_s16le',
+            '-ac', '1',
+            '-ar', str(sample_rate),
+            output_file
+        ]
+        subprocess.run(cmd, check=True, capture_output=True)
+        return True
+    except Exception as e:
+        logger.error(f"Error converting audio: {str(e)}")
+        return False
+
+def prepare_audio_for_voiceguard(audio_path: str) -> torch.Tensor:
+    """Process audio for VoiceGuard model - returns MFCC features."""
+    try:
+        import librosa
+        
+        # Load and resample audio
+        waveform, sr = librosa.load(audio_path, sr=SAMPLE_RATE, mono=True)
+        
+        # Extract MFCC features
+        mfcc = librosa.feature.mfcc(y=waveform, sr=sr, n_mfcc=20)
+        
+        # Convert to tensor
+        mfcc_tensor = torch.FloatTensor(mfcc)
+        
+        # Add batch dimension
+        mfcc_tensor = mfcc_tensor.unsqueeze(0)  # Shape: [1, 20, T]
+        
+        return mfcc_tensor
+    except Exception as e:
+        logger.error(f"Error preparing audio for VoiceGuard: {str(e)}")
+        raise
+
 def predict_voiceguard(audio_tensor: torch.Tensor) -> tuple[float, float]:
     """Get predictions from VoiceGuard model."""
     try:
         with torch.no_grad():
             # Get model predictions
-            outputs = voiceguard_model(audio_tensor)
+            outputs = load_voiceguard_model()(audio_tensor)
             probabilities = torch.softmax(outputs, dim=1)
             
             # Extract genuine and spoof probabilities
@@ -387,7 +427,9 @@ async def predict(file: UploadFile):
         vg_genuine = None
         vg_spoof = None
         
-        if voiceguard_model:
+        # Try to load the VoiceGuard model if it's not already loaded
+        model = load_voiceguard_model()
+        if model:
             try:
                 audio_tensor = prepare_audio_for_voiceguard(wav_path)
                 vg_genuine, vg_spoof = predict_voiceguard(audio_tensor)
@@ -400,8 +442,42 @@ async def predict(file: UploadFile):
         # Create response
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
-        # Format response
+        # Calculate overall prediction based on both models
+        # Higher weight to Hugging Face (80%) and lower weight to VoiceGuard (20%) if available
+        hf_spoof_score = float(hf_spoof) * 100  # Convert to percentage
+        
+        # Determine if this is likely AI-generated (spoof) or human
+        is_spoof = hf_spoof_score > 50
+        prediction = "spoof" if is_spoof else "human"
+        
+        # Calculate confidence score (0-100)
+        confidence = hf_spoof_score if is_spoof else (100 - hf_spoof_score)
+        
+        # Create message based on prediction
+        message = "AI-Generated Voice Detected" if is_spoof else "Human Voice Detected"
+        
+        # Format response to match frontend expectations
         response = {
+            "timestamp": timestamp,
+            "prediction": prediction,
+            "confidence": confidence,
+            "message": message,
+            "model_details": {
+                "huggingface": {
+                    "enabled": True,
+                    "genuine": float(hf_genuine) * 100,  # Convert to percentage
+                    "spoof": float(hf_spoof) * 100  # Convert to percentage
+                },
+                "voiceguard": {
+                    "enabled": vg_genuine is not None and vg_spoof is not None,
+                    "genuine": float(vg_genuine) if vg_genuine is not None else 0,
+                    "spoof": float(vg_spoof) if vg_spoof is not None else 0
+                }
+            }
+        }
+        
+        # Store original format for recent analyses
+        recent_analysis = {
             "timestamp": timestamp,
             "huggingface": {
                 "genuine": float(hf_genuine),
@@ -411,13 +487,13 @@ async def predict(file: UploadFile):
         
         # Add VoiceGuard results if available
         if vg_genuine is not None and vg_spoof is not None:
-            response["voiceguard"] = {
+            recent_analysis["voiceguard"] = {
                 "genuine": float(vg_genuine),
                 "spoof": float(vg_spoof)
             }
         
         # Add to recent analyses
-        recent_analyses.insert(0, response)
+        recent_analyses.insert(0, recent_analysis)
         if len(recent_analyses) > 5:
             recent_analyses.pop()
         

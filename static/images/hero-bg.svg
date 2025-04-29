@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4361ee;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#4cc9f0;stop-opacity:0.8" />
+    </linearGradient>
+    <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1"/>
+    </pattern>
+    <filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="30" />
+    </filter>
+  </defs>
+  
+  <!-- Background gradient -->
+  <rect width="100%" height="100%" fill="url(#grad1)"/>
+  
+  <!-- Grid pattern -->
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+  
+  <!-- Abstract digital elements -->
+  <g opacity="0.2">
+    <!-- Digital circles -->
+    <circle cx="300" cy="300" r="200" fill="white" filter="url(#blur)"/>
+    <circle cx="1600" cy="800" r="250" fill="white" filter="url(#blur)"/>
+    <circle cx="1000" cy="200" r="150" fill="white" filter="url(#blur)"/>
+    
+    <!-- Connection lines -->
+    <path d="M 200,200 L 800,600 L 1400,300 L 1800,700" stroke="white" stroke-width="2" fill="none" opacity="0.3"/>
+    <path d="M 100,800 L 600,400 L 1200,700 L 1700,200" stroke="white" stroke-width="2" fill="none" opacity="0.3"/>
+    
+    <!-- Digital nodes -->
+    <circle cx="200" cy="200" r="5" fill="white"/>
+    <circle cx="800" cy="600" r="5" fill="white"/>
+    <circle cx="1400" cy="300" r="5" fill="white"/>
+    <circle cx="1800" cy="700" r="5" fill="white"/>
+    <circle cx="100" cy="800" r="5" fill="white"/>
+    <circle cx="600" cy="400" r="5" fill="white"/>
+    <circle cx="1200" cy="700" r="5" fill="white"/>
+    <circle cx="1700" cy="200" r="5" fill="white"/>
+  </g>
+</svg>
