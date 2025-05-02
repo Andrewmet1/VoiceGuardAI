@@ -48,7 +48,8 @@ os.makedirs(TEMP_DIR, exist_ok=True)
 # Audio settings
 SAMPLE_RATE = 16000
 HF_API_URL = "https://api-inference.huggingface.co/models/Heem2/Deepfake-audio-detection"
-HF_TOKEN = os.getenv("HUGGING_FACE_TOKEN", "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")
+HF_TOKEN = "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"
+logger.info(f"✅ HF_API_TOKEN: {HF_TOKEN[:10]}***" if HF_TOKEN else "❌ HF_API_TOKEN not loaded")
 
 # Setup FastAPI with CORS
 app = FastAPI(title="VoiceGuard API")
@@ -132,6 +133,7 @@ def test_hf_connection() -> bool:
         
         # Test API
         headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+        logger.info(f"🔐 Authorization header: {headers['Authorization'][:20]}...")
         logger.info("Sending test request to Hugging Face API...")
         response = requests.post(HF_API_URL, headers=headers, json=test_payload)
         
