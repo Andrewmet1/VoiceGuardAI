@@ -317,7 +317,8 @@ async def predict(file: UploadFile):
         
         # Compute combined score
         if vg_genuine is not None and vg_spoof is not None:
-            combined_genuine = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100 / 2 + vg_genuine / 2
+            # 80% weight to Hugging Face, 20% weight to VoiceGuard
+            combined_genuine = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100 * 0.8 + vg_genuine * 0.2
             combined_spoof = 100.0 - combined_genuine
             final_result = "Human" if combined_genuine > combined_spoof else "AI"
             
