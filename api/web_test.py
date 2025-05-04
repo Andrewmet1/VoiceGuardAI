@@ -17,13 +17,6 @@ import tempfile
 import subprocess
 import traceback
 
-# Import torch but delay loading heavy libraries
-import torch
-
-# Delay these imports - they'll be imported when needed
-# import librosa
-# import soundfile as sf
-
 # Configure logging
 logging.basicConfig(
     level=logging.DEBUG,
@@ -34,6 +27,17 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+# Get token directly from environment variable (hardcoded for debugging)
+HF_TOKEN = "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"
+logger.info(f"✅ HF_API_TOKEN: {HF_TOKEN[:10]}***" if HF_TOKEN else "❌ HF_API_TOKEN not loaded")
+
+# Import torch but delay loading heavy libraries
+import torch
+
+# Delay these imports - they'll be imported when needed
+# import librosa
+# import soundfile as sf
 
 # Constants and paths
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))  # /api
@@ -48,8 +52,6 @@ os.makedirs(TEMP_DIR, exist_ok=True)
 # Audio settings
 SAMPLE_RATE = 16000
 HF_API_URL = "https://api-inference.huggingface.co/models/Heem2/Deepfake-audio-detection"
-HF_TOKEN = "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"
-logger.info(f"✅ HF_API_TOKEN: {HF_TOKEN[:10]}***" if HF_TOKEN else "❌ HF_API_TOKEN not loaded")
 
 # Setup FastAPI with CORS
 app = FastAPI(title="VoiceGuard API")
@@ -166,8 +168,11 @@ async def test_hf_connection_endpoint():
 hf_api_ready = None
 
 # Modify the query_huggingface_api function to test connection if needed
-def query_huggingface_api(audio_data: dict) -> Tuple[Optional[float], Optional[float]]:
-    """Query Hugging Face API for deepfake detection."""
+def query_huggingface_api(audio_data: dict) -> Tuple[Optional[str], Optional[float]]:
+    """Query Hugging Face API for deepfake detection.
+    Returns a tuple of (result, confidence) where result is either "AI" or "Human".
+    Returns (None, None) if the API call fails.
+    """
     global hf_api_ready
     
     # If we haven't tested the connection yet, do it now
@@ -177,16 +182,20 @@ def query_huggingface_api(audio_data: dict) -> Tuple[Optional[float], Optional[f
     MAX_RETRIES = 3
     RETRY_DELAY = 5  # seconds
     
+    # Ensure we have a token
+    if not HF_TOKEN:
+        logger.error("❌ HF_API_TOKEN not set. Cannot query Hugging Face API.")
+        return None, None
+    
     headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+    
+    # Log audio payload size
+    audio_size = len(audio_data.get("inputs", "")) if isinstance(audio_data.get("inputs"), str) else 0
+    logger.info(f"Audio payload size: {audio_size} bytes")
     
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             logger.info(f"🎯 Attempt {attempt}/{MAX_RETRIES}: Querying Hugging Face API...")
-            
-            # Log request details
-            logger.info(f"Request URL: {HF_API_URL}")
-            logger.info(f"Request payload type: {type(audio_data)}")
-            logger.info(f"Request payload keys: {audio_data.keys()}")
             
             # Make request
             response = requests.post(HF_API_URL, headers=headers, json=audio_data)
@@ -200,24 +209,30 @@ def query_huggingface_api(audio_data: dict) -> Tuple[Optional[float], Optional[f
                 result = response.json()
                 logger.info(f"Parsed response: {result}")
                 
-                # Extract scores - handle different label formats
-                try:
-                    # Try standard format first
-                    genuine_score = next(r["score"] for r in result if r["label"] == "REAL")
-                    spoof_score = next(r["score"] for r in result if r["label"] == "FAKE")
-                except StopIteration:
-                    # Try alternative format
-                    try:
-                        genuine_score = next(r["score"] for r in result if r["label"] == "HumanVoice")
-                        spoof_score = next(r["score"] for r in result if r["label"] == "AIVoice")
-                    except StopIteration:
-                        # If all else fails, extract from any format
-                        scores = {item["label"].lower(): item["score"] for item in result}
-                        genuine_score = scores.get("real", scores.get("humanvoice", 0.5))
-                        spoof_score = scores.get("fake", scores.get("aivoice", 0.5))
+                # Extract scores from the format [{"label": "AIVoice", "score": 0.633}, {"label": "HumanVoice", "score": 0.367}]
+                ai_score = 0.0
+                human_score = 0.0
                 
-                logger.info(f"✅ Scores - Genuine: {genuine_score*100:.1f}%, Spoof: {spoof_score*100:.1f}%")
-                return genuine_score, spoof_score
+                for item in result:
+                    label = item.get("label", "").lower()
+                    score = item.get("score", 0.0)
+                    
+                    if "ai" in label or "fake" in label:
+                        ai_score = score
+                    elif "human" in label or "real" in label:
+                        human_score = score
+                
+                # Determine final result based on highest score
+                if ai_score > human_score:
+                    final_result = "AI"
+                    confidence = ai_score
+                else:
+                    final_result = "Human"
+                    confidence = human_score
+                
+                # Log the final result with rounded confidence for readability
+                logger.info(f"✅ Final result: {final_result} with confidence {round(confidence*100, 1)}%")
+                return final_result, confidence
                 
             elif response.status_code == 503:
                 logger.warning(f"🕓 Model not ready (503). Attempt {attempt}/{MAX_RETRIES}. Waiting {RETRY_DELAY} seconds...")
@@ -236,6 +251,137 @@ def query_huggingface_api(audio_data: dict) -> Tuple[Optional[float], Optional[f
             return None, None
     
     return None, None
+
+@app.post("/api/predict")
+async def predict(file: UploadFile):
+    """Analyze audio file using Hugging Face API and VoiceGuard model."""
+    try:
+        # Save uploaded file
+        input_path = os.path.join(TEMP_DIR, "input_audio")
+        with open(input_path, "wb") as f:
+            f.write(await file.read())
+        
+        # Convert to WAV format
+        wav_path = os.path.join(TEMP_DIR, "audio_16k.wav")
+        if not convert_to_wav(input_path, wav_path):
+            raise HTTPException(status_code=500, detail="Failed to convert audio format")
+        
+        # Process audio for Hugging Face API
+        hf_b64 = prepare_audio_for_huggingface(wav_path)
+        hf_payload = {"inputs": hf_b64}
+        
+        # Query Hugging Face API - this ensures a fresh analysis for every request
+        hf_result, hf_confidence = query_huggingface_api(hf_payload)
+        
+        # If Hugging Face fails, return error with 503 status
+        if hf_result is None or hf_confidence is None:
+            logger.error("Hugging Face API unavailable - returning 503")
+            raise HTTPException(
+                status_code=503,
+                detail={"error": "HF model unavailable"}
+            )
+        
+        # Process audio for VoiceGuard if available (secondary path)
+        vg_genuine = None
+        vg_spoof = None
+        
+        # Try to load the VoiceGuard model if it's not already loaded
+        model = load_voiceguard_model()
+        if model:
+            try:
+                audio_tensor = prepare_audio_for_voiceguard(wav_path)
+                vg_genuine, vg_spoof = predict_voiceguard(audio_tensor)
+                logger.info(f"VoiceGuard scores - Genuine: {vg_genuine:.1f}%, Spoof: {vg_spoof:.1f}%")
+                
+                # Determine VoiceGuard result for internal validation
+                vg_result = "Human" if vg_genuine > vg_spoof else "AI"
+                vg_confidence = max(vg_genuine, vg_spoof) / 100.0
+                logger.info(f"VoiceGuard result: {vg_result} with confidence {vg_confidence:.3f}")
+                
+                # Log agreement/disagreement between models
+                if vg_result == hf_result:
+                    logger.info(f"✅ Models AGREE: Both predict {hf_result}")
+                else:
+                    logger.warning(f"⚠️ Models DISAGREE: HF={hf_result}, VG={vg_result}")
+            except Exception as e:
+                logger.error(f"VoiceGuard prediction failed: {str(e)}")
+                logger.error(traceback.format_exc())
+                # Continue without VoiceGuard
+        
+        # Create simplified response - only result and confidence from Hugging Face
+        # This keeps the API contract simple while preserving internal dual-path scoring
+        response = {
+            "result": hf_result,
+            "confidence": hf_confidence
+        }
+        
+        # Log the response
+        print("Returning API response:", response)
+        
+        # Store in recent analyses for debugging (includes both models when available)
+        recent_analysis = {
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "huggingface": {
+                "result": hf_result,
+                "confidence": hf_confidence
+            }
+        }
+        
+        # Add VoiceGuard results if available
+        if vg_genuine is not None and vg_spoof is not None:
+            recent_analysis["voiceguard"] = {
+                "genuine": float(vg_genuine) / 100.0,  # Convert to 0-1 scale
+                "spoof": float(vg_spoof) / 100.0,
+                "result": vg_result,
+                "confidence": vg_confidence
+            }
+        
+        # Add to recent analyses
+        recent_analyses.insert(0, recent_analysis)
+        if len(recent_analyses) > 5:
+            recent_analyses.pop()
+        
+        return response
+        
+    except HTTPException as e:
+        # Re-raise HTTP exceptions (like 503)
+        raise
+    except Exception as e:
+        logger.error(f"Error in predict endpoint: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+    finally:
+        # Cleanup temp files
+        for file in ['input_audio', 'audio_16k.wav', 'encoded_for_hf.wav']:
+            try:
+                os.remove(os.path.join(TEMP_DIR, file))
+            except:
+                pass
+
+@app.get("/api/recent")
+async def get_recent():
+    """Get recent analysis results."""
+    return recent_analyses
+
+# Store recent analyses (max 5)
+recent_analyses = []
+
+def convert_to_wav(input_file: str, output_file: str, sample_rate: int = SAMPLE_RATE) -> bool:
+    """Convert audio file to WAV format with specified sample rate."""
+    try:
+        cmd = [
+            'ffmpeg', '-y',
+            '-i', input_file,
+            '-acodec', 'pcm_s16le',
+            '-ac', '1',
+            '-ar', str(sample_rate),
+            output_file
+        ]
+        subprocess.run(cmd, check=True, capture_output=True)
+        return True
+    except Exception as e:
+        logger.error(f"Error converting audio: {str(e)}")
+        return False
 
 # Initialize VoiceGuard model
 voiceguard_model = None
@@ -341,23 +487,6 @@ def load_voiceguard_model():
         logger.error(f"Full error: {repr(e)}")
         return None
 
-def convert_to_wav(input_file: str, output_file: str, sample_rate: int = SAMPLE_RATE) -> bool:
-    """Convert audio file to WAV format with specified sample rate."""
-    try:
-        cmd = [
-            'ffmpeg', '-y',
-            '-i', input_file,
-            '-acodec', 'pcm_s16le',
-            '-ac', '1',
-            '-ar', str(sample_rate),
-            output_file
-        ]
-        subprocess.run(cmd, check=True, capture_output=True)
-        return True
-    except Exception as e:
-        logger.error(f"Error converting audio: {str(e)}")
-        return False
-
 def prepare_audio_for_voiceguard(audio_path: str) -> torch.Tensor:
     """Process audio for VoiceGuard model - returns MFCC features."""
     try:
@@ -397,138 +526,6 @@ def predict_voiceguard(audio_tensor: torch.Tensor) -> tuple[float, float]:
     except Exception as e:
         logger.error(f"Error getting VoiceGuard predictions: {str(e)}")
         return None, None
-
-@app.post("/api/predict")
-async def predict(file: UploadFile):
-    """Analyze audio file using both VoiceGuard and Hugging Face."""
-    try:
-        # Save uploaded file
-        input_path = os.path.join(TEMP_DIR, "input_audio")
-        with open(input_path, "wb") as f:
-            f.write(await file.read())
-        
-        # Convert to WAV format
-        wav_path = os.path.join(TEMP_DIR, "audio_16k.wav")
-        if not convert_to_wav(input_path, wav_path):
-            raise HTTPException(status_code=500, detail="Failed to convert audio format")
-        
-        # Process audio for Hugging Face (primary, required)
-        hf_b64 = prepare_audio_for_huggingface(wav_path)
-        hf_payload = {"inputs": hf_b64}
-        hf_genuine, hf_spoof = query_huggingface_api(hf_payload)
-        
-        # If Hugging Face fails, return error with 503 status
-        if hf_genuine is None or hf_spoof is None:
-            logger.error("Hugging Face API unavailable - returning 503")
-            raise HTTPException(
-                status_code=503,
-                detail="Voice analysis service unavailable - the model is warming up"
-            )
-        
-        # Process audio for VoiceGuard if available (secondary, optional)
-        vg_genuine = None
-        vg_spoof = None
-        
-        # Try to load the VoiceGuard model if it's not already loaded
-        model = load_voiceguard_model()
-        if model:
-            try:
-                audio_tensor = prepare_audio_for_voiceguard(wav_path)
-                vg_genuine, vg_spoof = predict_voiceguard(audio_tensor)
-                logger.info(f"VoiceGuard scores - Genuine: {vg_genuine:.1f}%, Spoof: {vg_spoof:.1f}%")
-            except Exception as e:
-                logger.error(f"VoiceGuard prediction failed: {str(e)}")
-                logger.error(traceback.format_exc())
-                # Continue without VoiceGuard
-        
-        # Create response
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        # Calculate overall prediction based on both models
-        # Higher weight to Hugging Face (80%) and lower weight to VoiceGuard (20%) if available
-        hf_spoof_score = float(hf_spoof) * 100  # Convert to percentage
-        
-        # Determine if this is likely AI-generated (spoof) or human
-        is_spoof = hf_spoof_score > 50
-        prediction = "spoof" if is_spoof else "human"
-        
-        # Calculate confidence score (0-100)
-        confidence = hf_spoof_score if is_spoof else (100 - hf_spoof_score)
-        
-        # Create message based on prediction
-        message = "AI-Generated Voice Detected" if is_spoof else "Human Voice Detected"
-        
-        # Format response to match frontend expectations
-        response = {
-            "timestamp": timestamp,
-            "prediction": prediction,
-            "confidence": confidence,
-            "message": message,
-            "model_details": {
-                "huggingface": {
-                    "enabled": True,
-                    "genuine": float(hf_genuine) * 100,  # Convert to percentage
-                    "spoof": float(hf_spoof) * 100  # Convert to percentage
-                },
-                "voiceguard": {
-                    "enabled": vg_genuine is not None and vg_spoof is not None,
-                    "genuine": float(vg_genuine) if vg_genuine is not None else 0,
-                    "spoof": float(vg_spoof) if vg_spoof is not None else 0
-                }
-            }
-        }
-        
-        # Add top-level voiceguard scores for mobile app compatibility
-        response["voiceguard"] = {
-            "genuine_score": float(vg_genuine) if vg_genuine is not None else 0,
-            "spoof_score": float(vg_spoof) if vg_spoof is not None else 0
-        }
-        
-        # Store original format for recent analyses
-        recent_analysis = {
-            "timestamp": timestamp,
-            "huggingface": {
-                "genuine": float(hf_genuine),
-                "spoof": float(hf_spoof)
-            }
-        }
-        
-        # Add VoiceGuard results if available
-        if vg_genuine is not None and vg_spoof is not None:
-            recent_analysis["voiceguard"] = {
-                "genuine": float(vg_genuine),
-                "spoof": float(vg_spoof)
-            }
-        
-        # Add to recent analyses
-        recent_analyses.insert(0, recent_analysis)
-        if len(recent_analyses) > 5:
-            recent_analyses.pop()
-        
-        return response
-        
-    except HTTPException as e:
-        # Re-raise HTTP exceptions (like 503)
-        raise
-    except Exception as e:
-        logger.error(f"Error in predict endpoint: {str(e)}")
-        logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
-    finally:
-        # Cleanup temp files
-        for file in ['input_audio', 'audio_16k.wav', 'encoded_for_hf.wav']:
-            try:
-                os.remove(os.path.join(TEMP_DIR, file))
-            except:
-                pass
-
-@app.get("/api/recent")
-async def get_recent():
-    """Get recent analysis results."""
-    return recent_analyses
-
-# Store recent analyses (max 5)
-recent_analyses = []
 
 if __name__ == "__main__":
     # Find an available port if 8009 is in use
