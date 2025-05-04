@@ -530,20 +530,18 @@ async def get_recent():
 # Store recent analyses (max 5)
 recent_analyses = []
 
-# Direct uvicorn runner - commented out for Gunicorn compatibility
-# if __name__ == "__main__":
-#     # Find an available port if 8009 is in use
-#     port = 8009
-#     try:
-#         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-#             s.bind(('0.0.0.0', port))
-#     except OSError:
-#         # Port is in use, find an available one
-#         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-#             s.bind(('0.0.0.0', 0))
-#             port = s.getsockname()[1]
-#         logger.info(f"Port 8009 is in use, using fallback port {port}")
-#     
-#     import uvicorn
-#     logger.info(f"Starting server on port {port}")
-#     uvicorn.run(app, host="0.0.0.0", port=port)
+if __name__ == "__main__":
+    # Find an available port if 8009 is in use
+    port = 8009
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(('0.0.0.0', port))
+    except OSError:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(('0.0.0.0', 0))
+            port = s.getsockname()[1]
+        logger.info(f"Port 8009 is in use, using fallback port {port}")
+
+    import uvicorn
+    logger.info(f"🚀 Starting VoiceGuard server on port {port}")
+    uvicorn.run(app, host="0.0.0.0", port=port)
