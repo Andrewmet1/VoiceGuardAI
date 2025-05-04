@@ -478,6 +478,12 @@ async def predict(file: UploadFile):
             }
         }
         
+        # Add top-level voiceguard scores for mobile app compatibility
+        response["voiceguard"] = {
+            "genuine_score": float(vg_genuine) if vg_genuine is not None else 0,
+            "spoof_score": float(vg_spoof) if vg_spoof is not None else 0
+        }
+        
         # Store original format for recent analyses
         recent_analysis = {
             "timestamp": timestamp,
