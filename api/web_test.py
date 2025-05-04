@@ -315,6 +315,21 @@ async def predict(file: UploadFile):
             "confidence": hf_confidence
         }
         
+        # Compute combined score
+        if vg_genuine is not None and vg_spoof is not None:
+            combined_genuine = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100 / 2 + vg_genuine / 2
+            combined_spoof = 100.0 - combined_genuine
+            final_result = "Human" if combined_genuine > combined_spoof else "AI"
+            
+            logger.info(f"✅ Scores - Genuine: {combined_genuine:.1f}%, Spoof: {combined_spoof:.1f}%")
+
+            # Add to response
+            response["combined_score"] = {
+                "genuine_score": round(combined_genuine / 100, 4),
+                "spoof_score": round(combined_spoof / 100, 4),
+                "result": final_result
+            }
+        
         # Log the response
         print("Returning API response:", response)
         
