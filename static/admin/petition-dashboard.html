@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petition Admin Dashboard | VoiceGuardAI</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(90deg, #4263eb 0%, #60a5fa 100%);
+            color: white;
+            padding: 2rem 0;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stats-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #4263eb;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-card .label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .data-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .data-card h3 {
+            margin-bottom: 1.5rem;
+            color: #343a40;
+            font-weight: 600;
+        }
+        
+        .login-form {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #343a40;
+        }
+        
+        .dashboard-content {
+            padding: 2rem 0;
+        }
+        
+        #signatureTable th, #signatureTable td {
+            vertical-align: middle;
+        }
+        
+        .reason-text {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .reason-text.expanded {
+            white-space: normal;
+            overflow: visible;
+        }
+        
+        .expand-btn {
+            cursor: pointer;
+            color: #4263eb;
+        }
+    </style>
+</head>
+<body>
+    <div id="login-container">
+        <div class="login-form">
+            <h2>Admin Dashboard</h2>
+            <form id="login-form">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+                <div class="text-danger mt-3" id="login-error" style="display: none;">
+                    Invalid username or password
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="dashboard-container" style="display: none;">
+        <header class="dashboard-header">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1>Petition Admin Dashboard</h1>
+                    <button id="logout-btn" class="btn btn-outline-light">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <div class="dashboard-content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="number" id="total-signatures">0</div>
+                            <div class="label">Total Signatures</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="number" id="completion-percentage">0%</div>
+                            <div class="label">Goal Completion</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="number" id="daily-signatures">0</div>
+                            <div class="label">Signatures Today</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="data-card mt-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="mb-0">Petition Signatures</h3>
+                        <div>
+                            <button id="email-export-btn" class="btn btn-outline-primary me-2">
+                                <i class="fas fa-envelope me-2"></i>Export Email List
+                            </button>
+                            <button id="refresh-btn" class="btn btn-primary">
+                                <i class="fas fa-sync-alt me-2"></i>Refresh Data
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table id="signatureTable" class="table table-striped" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Country</th>
+                                    <th>Reason</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="signatures-tbody">
+                                <!-- Signature data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+    
+    <script>
+        // Admin credentials (in a real app, this would be handled server-side)
+        // For demo purposes only - in production, use proper authentication
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'voiceguard2025';
+        
+        $(document).ready(function() {
+            // Handle login form submission
+            $('#login-form').on('submit', function(e) {
+                e.preventDefault();
+                
+                const username = $('#username').val();
+                const password = $('#password').val();
+                
+                if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                    // Show dashboard
+                    $('#login-container').hide();
+                    $('#dashboard-container').show();
+                    
+                    // Load data
+                    loadDashboardData();
+                } else {
+                    // Show error
+                    $('#login-error').show();
+                }
+            });
+            
+            // Handle logout
+            $('#logout-btn').on('click', function() {
+                $('#dashboard-container').hide();
+                $('#login-container').show();
+                $('#login-error').hide();
+                $('#username').val('');
+                $('#password').val('');
+            });
+            
+            // Handle refresh button
+            $('#refresh-btn').on('click', function() {
+                loadDashboardData();
+            });
+            
+            // Handle email export
+            $('#email-export-btn').on('click', function() {
+                exportEmailList();
+            });
+            
+            // Initialize DataTable
+            let dataTable;
+            
+            function initializeDataTable() {
+                if ($.fn.DataTable.isDataTable('#signatureTable')) {
+                    $('#signatureTable').DataTable().destroy();
+                }
+                
+                dataTable = $('#signatureTable').DataTable({
+                    order: [[4, 'desc']], // Sort by date descending
+                    pageLength: 25,
+                    lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                    dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'csv',
+                            text: '<i class="fas fa-file-csv me-2"></i>Export CSV',
+                            className: 'btn btn-sm btn-outline-secondary',
+                            exportOptions: {
+                                columns: [0, 1, 2, 3, 4]
+                            }
+                        },
+                        {
+                            extend: 'excel',
+                            text: '<i class="fas fa-file-excel me-2"></i>Export Excel',
+                            className: 'btn btn-sm btn-outline-secondary',
+                            exportOptions: {
+                                columns: [0, 1, 2, 3, 4]
+                            }
+                        }
+                    ]
+                });
+            }
+            
+            // Load dashboard data
+            function loadDashboardData() {
+                fetch('/api/petition/admin/data')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch data');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        updateDashboardStats(data);
+                        populateSignatureTable(data.signatures);
+                    })
+                    .catch(error => {
+                        console.error('Error loading dashboard data:', error);
+                        // For demo purposes, load sample data
+                        loadSampleData();
+                    });
+            }
+            
+            // Update dashboard statistics
+            function updateDashboardStats(data) {
+                $('#total-signatures').text(data.count.toLocaleString());
+                
+                const percentage = Math.min(Math.round((data.count / 50000) * 100), 100);
+                $('#completion-percentage').text(percentage + '%');
+                
+                // Calculate signatures today
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const todaySignatures = data.signatures.filter(sig => {
+                    const sigDate = new Date(sig.timestamp * 1000);
+                    return sigDate >= today;
+                }).length;
+                
+                $('#daily-signatures').text(todaySignatures);
+            }
+            
+            // Populate signature table
+            function populateSignatureTable(signatures) {
+                const tbody = $('#signatures-tbody');
+                tbody.empty();
+                
+                signatures.forEach(sig => {
+                    const date = new Date(sig.timestamp * 1000);
+                    const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                    
+                    const reasonText = sig.reason || 'No reason provided';
+                    const reasonDisplay = reasonText.length > 50 
+                        ? `<div class="reason-text">${reasonText} <span class="expand-btn">[+]</span></div>`
+                        : reasonText;
+                    
+                    const row = `
+                        <tr data-id="${sig.id || ''}">
+                            <td>${sig.name}</td>
+                            <td>${sig.email}</td>
+                            <td>${sig.country || '-'}</td>
+                            <td>${reasonDisplay}</td>
+                            <td>${formattedDate}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-danger delete-btn">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    
+                    tbody.append(row);
+                });
+                
+                // Initialize DataTable after populating
+                initializeDataTable();
+                
+                // Handle expand/collapse for long reasons
+                $('.expand-btn').on('click', function() {
+                    const reasonText = $(this).parent();
+                    reasonText.toggleClass('expanded');
+                    $(this).text(reasonText.hasClass('expanded') ? '[-]' : '[+]');
+                });
+                
+                // Handle delete button
+                $('.delete-btn').on('click', function() {
+                    const row = $(this).closest('tr');
+                    const id = row.data('id');
+                    
+                    if (confirm('Are you sure you want to delete this signature?')) {
+                        deleteSignature(id, row);
+                    }
+                });
+            }
+            
+            // Delete signature
+            function deleteSignature(id, row) {
+                // In a real app, this would call the API to delete the signature
+                fetch(`/api/petition/admin/delete/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete signature');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Remove row from table
+                        dataTable.row(row).remove().draw();
+                        
+                        // Update stats
+                        const currentCount = parseInt($('#total-signatures').text().replace(/,/g, ''));
+                        $('#total-signatures').text((currentCount - 1).toLocaleString());
+                        
+                        const percentage = Math.min(Math.round(((currentCount - 1) / 50000) * 100), 100);
+                        $('#completion-percentage').text(percentage + '%');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting signature:', error);
+                    alert('Failed to delete signature. Please try again.');
+                    
+                    // For demo purposes, remove the row anyway
+                    dataTable.row(row).remove().draw();
+                });
+            }
+            
+            // Export email list
+            function exportEmailList() {
+                fetch('/api/petition/admin/emails')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch email list');
+                        }
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = 'petition_emails.csv';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    })
+                    .catch(error => {
+                        console.error('Error exporting email list:', error);
+                        alert('Failed to export email list. Please try again.');
+                        
+                        // For demo purposes, create a sample CSV
+                        const sampleEmails = [
+                            'john.doe@example.com',
+                            'jane.smith@example.com',
+                            'robert.johnson@example.com'
+                        ].join('\n');
+                        
+                        const blob = new Blob([sampleEmails], { type: 'text/csv' });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = 'petition_emails_sample.csv';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    });
+            }
+            
+            // Load sample data for demo purposes
+            function loadSampleData() {
+                const sampleData = {
+                    count: 128,
+                    signatures: [
+                        {
+                            name: "John Doe",
+                            email: "john.doe@example.com",
+                            country: "United States",
+                            reason: "I was almost scammed by a voice deepfake claiming to be my son. We need better protection.",
+                            timestamp: Date.now() / 1000 - 3600
+                        },
+                        {
+                            name: "Jane Smith",
+                            email: "jane.smith@example.com",
+                            country: "Canada",
+                            reason: "As someone working in cybersecurity, I believe real-time protection is essential for vulnerable populations.",
+                            timestamp: Date.now() / 1000 - 7200
+                        },
+                        {
+                            name: "Robert Johnson",
+                            email: "robert.johnson@example.com",
+                            country: "United Kingdom",
+                            reason: "My grandmother was scammed out of £5,000 by someone impersonating me. This technology is desperately needed.",
+                            timestamp: Date.now() / 1000 - 10800
+                        },
+                        {
+                            name: "Maria Garcia",
+                            email: "maria.garcia@example.com",
+                            country: "Spain",
+                            reason: null,
+                            timestamp: Date.now() / 1000 - 14400
+                        },
+                        {
+                            name: "Wei Zhang",
+                            email: "wei.zhang@example.com",
+                            country: "Australia",
+                            reason: "I work with elderly clients who are frequently targeted by these scams. Real-time protection would be invaluable.",
+                            timestamp: Date.now() / 1000 - 18000
+                        }
+                    ]
+                };
+                
+                updateDashboardStats(sampleData);
+                populateSignatureTable(sampleData.signatures);
+            }
+        });
+    </script>
+</body>
+</html>

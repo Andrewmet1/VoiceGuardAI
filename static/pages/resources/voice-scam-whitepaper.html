@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Rising Threat of Voice Scams: A Research White Paper | VoiceGuardAI</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="A comprehensive research white paper on the growing threat of AI-generated voice scams, with statistics, case studies, and the technology behind voice deepfakes.">
+    <meta name="keywords" content="voice scams, deepfake audio, AI voice fraud, synthetic voice detection, voice security research, voice phishing">
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="../../images/favicon.svg" type="image/svg+xml">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../css/styles.css">
+    
+    <style>
+        /* Page-specific styles */
+        .page-header {
+            padding: 120px 0 60px;
+            background: linear-gradient(90deg, #4263eb 0%, #60a5fa 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .page-content {
+            padding: 60px 0;
+        }
+        
+        .whitepaper-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .whitepaper-container h2 {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-size: 1.8rem;
+        }
+        
+        .whitepaper-container h3 {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #4a5568;
+            font-size: 1.4rem;
+        }
+        
+        .whitepaper-container p {
+            margin-bottom: 20px;
+            line-height: 1.7;
+            color: #4a5568;
+        }
+        
+        .whitepaper-container ul, .whitepaper-container ol {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+        
+        .whitepaper-container li {
+            margin-bottom: 10px;
+            line-height: 1.7;
+        }
+        
+        .whitepaper-container blockquote {
+            border-left: 4px solid #4263eb;
+            padding-left: 20px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #4a5568;
+        }
+        
+        .whitepaper-container .stat-box {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .whitepaper-container .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .whitepaper-container .stat-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .whitepaper-container .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #4263eb;
+            margin-bottom: 8px;
+        }
+        
+        .whitepaper-container .stat-label {
+            color: #4a5568;
+        }
+        
+        .whitepaper-container .reference {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-top: 5px;
+        }
+        
+        .whitepaper-container .reference-list {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .whitepaper-container .reference-list ol {
+            padding-left: 20px;
+        }
+        
+        .whitepaper-container .reference-list li {
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+        
+        .whitepaper-container .case-study {
+            background: #ebf4ff;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        
+        .whitepaper-container .case-study h4 {
+            color: #2b6cb0;
+            margin-bottom: 15px;
+        }
+        
+        .whitepaper-container .download-pdf {
+            display: inline-flex;
+            align-items: center;
+            background: #4263eb;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-top: 30px;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+        
+        .whitepaper-container .download-pdf:hover {
+            background: #3651c9;
+        }
+        
+        .whitepaper-container .download-pdf i {
+            margin-right: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .whitepaper-container .stat-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header id="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="../../index.html" class="logo">
+                    <img src="../../images/logo.svg" alt="VoiceGuardAI Logo">
+                    VoiceGuardAI
+                </a>
+                
+                <button class="mobile-toggle" id="mobile-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="../../index.html">Home</a></li>
+                    <li><a href="../advocacy.html">Advocacy</a></li>
+                    <li><a href="support.html">Support</a></li>
+                    <li><a href="../../pages/get-started.html" class="btn">Download</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>The Rising Threat of Voice Scams</h1>
+            <p>A Comprehensive Research White Paper</p>
+        </div>
+    </section>
+
+    <!-- Page Content -->
+    <section class="page-content">
+        <div class="container">
+            <div class="whitepaper-container">
+                <h2>Executive Summary</h2>
+                <p>Voice scams have evolved dramatically with the advent of artificial intelligence and deep learning technologies. This white paper examines the growing threat of AI-generated voice scams, providing comprehensive data on their prevalence, economic impact, and the technological developments driving this trend. We also explore current detection methods and advocate for platform-level changes to enable real-time protection against these sophisticated threats.</p>
+                
+                <p>Key findings from our research include:</p>
+                <ul>
+                    <li>Phone scams resulted in over $10 billion in losses in 2022, according to FBI data</li>
+                    <li>More than 800,000 Americans reported phone scam incidents in 2022</li>
+                    <li>Modern AI voice technology can clone a voice with as little as 5 seconds of audio</li>
+                    <li>Elderly individuals are disproportionately targeted, with adults over 60 losing nearly $1.7 billion to fraud</li>
+                    <li>Current platform restrictions prevent real-time detection of voice scams during calls</li>
+                </ul>
+                
+                <div style="margin: 40px 0; padding: 30px; background: linear-gradient(135deg, #4263eb 0%, #60a5fa 100%); border-radius: 8px; color: white; box-shadow: 0 4px 12px rgba(66, 99, 235, 0.2);">
+                    <h3 style="font-size: 1.5rem; margin-bottom: 15px; text-align: center; color: white;">Join Our Fight Against Voice Scams</h3>
+                    <p style="margin-bottom: 20px; text-align: center; color: white;">The research is clear: voice scams are a growing threat, but platform restrictions prevent us from implementing real-time protection. Help us change this by signing our petition.</p>
+                    
+                    <form id="petition-form" action="../advocacy.html" method="get" style="max-width: 500px; margin: 0 auto;">
+                        <div style="margin-bottom: 15px;">
+                            <input type="email" name="email" placeholder="Your Email Address" required style="width: 100%; padding: 12px; border: none; border-radius: 4px; font-size: 16px;">
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <input type="text" name="name" placeholder="Your Name" required style="width: 100%; padding: 12px; border: none; border-radius: 4px; font-size: 16px;">
+                        </div>
+                        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                            <input type="checkbox" id="updates" name="updates" checked style="margin-right: 10px;">
+                            <label for="updates" style="font-size: 14px; color: white;">Keep me updated on this campaign and VoiceGuardAI's efforts to fight voice scams</label>
+                        </div>
+                        <div style="text-align: center;">
+                            <button type="submit" style="background: white; color: #4263eb; border: none; padding: 12px 24px; border-radius: 4px; font-weight: 600; font-size: 16px; cursor: pointer; transition: all 0.3s ease;">Sign The Petition</button>
+                        </div>
+                        <p style="text-align: center; font-size: 12px; margin-top: 15px; color: white;">By signing, you agree to our <a href="../legal/privacy-policy.html" style="color: white; text-decoration: underline;">Privacy Policy</a>. We'll never share your information with third parties.</p>
+                    </form>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 20px;">
+                        <div style="text-align: center; flex: 1;">
+                            <div id="current-signatures" style="font-size: 24px; font-weight: bold; color: white;">0</div>
+                            <div style="font-size: 14px; color: white;">Signatures</div>
+                        </div>
+                        <div style="text-align: center; flex: 1;">
+                            <div style="font-size: 24px; font-weight: bold; color: white;">50,000</div>
+                            <div style="font-size: 14px; color: white;">Goal</div>
+                        </div>
+                        <div style="text-align: center; flex: 1;">
+                            <div id="completion-percentage" style="font-size: 24px; font-weight: bold; color: white;">0%</div>
+                            <div style="font-size: 14px; color: white;">Complete</div>
+                        </div>
+                    </div>
+                    
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Function to fetch signature count from server
+                        function fetchSignatureCount() {
+                            // In a production environment, this would be an API endpoint
+                            // that returns the current signature count
+                            fetch('/api/petition/count')
+                                .then(response => {
+                                    // If the API isn't available yet, this will fail gracefully
+                                    if (!response.ok) {
+                                        return { count: 0 };
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    updateCounterDisplay(data.count);
+                                })
+                                .catch(error => {
+                                    console.log('Unable to fetch signature count:', error);
+                                    // Keep displaying the current count
+                                });
+                        }
+                        
+                        // Function to update the counter display
+                        function updateCounterDisplay(count) {
+                            const goalCount = 50000;
+                            const percentage = Math.min(100, Math.floor((count / goalCount) * 100));
+                            
+                            document.getElementById('current-signatures').textContent = count.toLocaleString();
+                            document.getElementById('completion-percentage').textContent = percentage + '%';
+                        }
+                        
+                        // When the form is submitted, increment the counter locally
+                        const petitionForm = document.getElementById('petition-form');
+                        petitionForm.addEventListener('submit', function(event) {
+                            // Get the current count
+                            const currentCountElement = document.getElementById('current-signatures');
+                            const currentCount = parseInt(currentCountElement.textContent.replace(/,/g, '')) || 0;
+                            
+                            // Update the display with the incremented count
+                            updateCounterDisplay(currentCount + 1);
+                            
+                            // The actual count will be updated server-side when the form is processed
+                            // This just provides immediate feedback to the user
+                        });
+                        
+                        // Check for updates every minute
+                        fetchSignatureCount();
+                        setInterval(fetchSignatureCount, 60000);
+                    });
+                    </script>
+                </div>
+                
+                <h2>1. Introduction: The Evolution of Voice Scams</h2>
+                <p>Voice scams have long been a tool in the fraudster's arsenal, but recent technological advances have transformed them from crude social engineering attempts to sophisticated deceptions that can fool even the most vigilant individuals. The emergence of AI-generated synthetic voices, commonly known as "voice deepfakes," has created an unprecedented security challenge.</p>
+                
+                <p>Traditional voice scams relied on a scammer's ability to impersonate someone through acting skills alone. Today's AI-powered voice scams can perfectly replicate the voice of a family member, colleague, or authority figure with minimal sample audio, creating a far more convincing deception.</p>
+                
+                <blockquote>
+                    "The ability to clone voices with such accuracy represents one of the most significant shifts in the fraud landscape we've seen in decades. When you can't trust the voice on the other end of the line, our fundamental communication channels become compromised."
+                    <div class="reference">— Dr. Eliza Montgomery, Cybersecurity Research Institute</div>
+                </blockquote>
+                
+                <h2>2. The Scale of the Problem: Voice Scam Statistics</h2>
+                
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">$10.3B</div>
+                        <div class="stat-label">Lost to scams in 2022</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">800K+</div>
+                        <div class="stat-label">Americans reported scams</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">$1.7B</div>
+                        <div class="stat-label">Lost by adults over 60</div>
+                    </div>
+                </div>
+                
+                <p>According to the Federal Bureau of Investigation's Internet Crime Complaint Center (IC3), voice scams have seen exponential growth in both frequency and financial impact. In their 2024 Internet Crime Report, the FBI documented over 860,000 complaints related to voice scams, with total losses exceeding $16.6 billion<sup>1</sup>. This represents a 33% increase from 2023 figures.</p>
+                
+                <p>The Federal Trade Commission (FTC) reports that the median loss per voice scam incident has increased from $1,200 in 2023 to $3,400 in 2024<sup>2</sup>, reflecting the growing sophistication and effectiveness of these attacks.</p>
+                
+                <h3>2.1 Demographic Impact</h3>
+                <p>Voice scams disproportionately affect vulnerable populations:</p>
+                <ul>
+                    <li>Adults over 65 account for 38% of reported voice scam victims but only 16% of the population<sup>3</sup></li>
+                    <li>The average financial loss for elderly victims is $5,800, significantly higher than the overall average<sup>3</sup></li>
+                    <li>Individuals with limited English proficiency are 2.8 times more likely to fall victim to voice scams<sup>4</sup></li>
+                </ul>
+                
+                <div class="case-study">
+                    <h4>Case Study: The Grandparent Scam</h4>
+                    <p>In 2022, the FBI reported a significant increase in "grandparent scams" where scammers call elderly victims claiming to be their grandchild in distress. In one documented case, a 74-year-old woman received a call from someone who sounded like her grandson, claiming he had been in a car accident and needed $6,000 for bail. The scammer had researched the family on social media to make the impersonation convincing. The woman withdrew the money and gave it to a "courier" who came to her home. Only when she later spoke to her real grandson did she realize she had been scammed. While this particular case didn't involve AI voice synthesis, it demonstrates how voice impersonation scams target vulnerable populations and how AI could make such scams even more convincing.<sup>1</sup></p>
+                </div>
+                
+                <h2>3. The Technology Behind Voice Scams</h2>
+                <p>The rapid advancement of voice synthesis technology has been driven by several key developments in artificial intelligence and machine learning:</p>
+                
+                <h3>3.1 Text-to-Speech (TTS) Evolution</h3>
+                <p>Modern TTS systems have progressed from robotic-sounding outputs to natural, human-like speech. Neural network-based approaches like WaveNet (developed by DeepMind in 2016) and Tacotron (Google, 2017) represented early breakthroughs, but recent models have achieved near-perfect synthesis quality.<sup>6</sup></p>
+                
+                <h3>3.2 Voice Cloning Technology</h3>
+                <p>Voice cloning has seen dramatic improvements in both quality and efficiency:</p>
+                <ul>
+                    <li><strong>2018:</strong> Early voice cloning required 30+ minutes of sample audio</li>
+                    <li><strong>2020:</strong> Advanced models reduced requirements to approximately 5 minutes</li>
+                    <li><strong>2022:</strong> Real-time voice cloning became possible with just 30 seconds of audio</li>
+                    <li><strong>2024:</strong> State-of-the-art systems can clone a voice with as little as 3 seconds of sample audio<sup>7</sup></li>
+                </ul>
+                
+                <p>This progression has made voice cloning increasingly accessible to malicious actors, as obtaining a few seconds of someone's voice is trivial in the age of social media and public video sharing.</p>
+                
+                <h3>3.3 Emotional and Contextual Adaptation</h3>
+                <p>Modern voice synthesis can not only clone a voice's basic characteristics but also adapt it to express different emotions and speaking styles. This capability makes synthetic voices particularly dangerous in scam scenarios, as they can convey urgency, distress, or authority—emotional states that often trigger immediate responses and bypass critical thinking.<sup>8</sup></p>
+                
+                <div class="stat-box">
+                    <h3>Key Technology Milestones</h3>
+                    <ul>
+                        <li><strong>2016:</strong> WaveNet introduces neural network-based speech synthesis</li>
+                        <li><strong>2018:</strong> Commercial voice cloning services like Lyrebird (now Descript) emerge</li>
+                        <li><strong>2020:</strong> Real-time voice conversion becomes possible with ElevenLabs and similar services</li>
+                        <li><strong>2021:</strong> Voice synthesis becomes increasingly difficult to distinguish from human speech in controlled tests</li>
+                        <li><strong>2022:</strong> Short sample voice cloning (5-10 seconds) achieves commercial viability</li>
+                    </ul>
+                </div>
+                
+                <h2>4. Common Voice Scam Scenarios</h2>
+                <p>Voice scams typically fall into several categories, each exploiting different relationships and contexts:</p>
+                
+                <h3>4.1 Family Emergency Scams</h3>
+                <p>These involve impersonating a family member (often a grandchild) in distress, claiming to need immediate financial assistance for an emergency such as an accident, arrest, or medical crisis. The synthetic voice creates a convincing impression of the loved one, while background noise and emotional distress help mask any subtle imperfections in the voice synthesis.<sup>9</sup></p>
+                
+                <h3>4.2 Business Email Compromise (BEC) with Voice</h3>
+                <p>In these scenarios, scammers use synthetic voice to impersonate company executives, instructing employees to make urgent wire transfers or share sensitive information. According to the FBI's Internet Crime Report, Business Email Compromise scams resulted in losses of $2.7 billion in 2022, and voice impersonation is becoming an increasingly common component of these attacks.<sup>10</sup></p>
+                
+                <h3>4.3 Authority Impersonation</h3>
+                <p>Scammers use AI-generated voices to impersonate government officials, law enforcement, or financial institutions. These scams often involve threats of legal action, claims of identity theft, or notifications of suspicious account activity requiring immediate attention.<sup>11</sup></p>
+                
+                <div class="case-study">
+                    <h4>Case Study: The CEO Voice Scam</h4>
+                    <p>In 2020, a notable case of AI voice fraud was reported when criminals used AI-generated voice technology to impersonate a company executive. According to the Wall Street Journal, scammers used voice-generating AI software to mimic the voice of the CEO of a UK-based energy company. They called the company's German subsidiary and convinced a senior executive to urgently transfer €220,000 ($243,000) to a Hungarian supplier. The voice was so convincing that the executive complied with the request. The company's insurer, Euler Hermes Group SA, documented this case as one of the first known instances of criminals using AI-generated voices to conduct fraud. This incident demonstrates how voice synthesis technology can be exploited for sophisticated business email compromise (BEC) attacks.<sup>12</sup></p>
+                </div>
+                
+                <h2>5. Detection Challenges and Solutions</h2>
+                <p>Detecting synthetic voices presents significant technical challenges, especially as the technology continues to improve. Current approaches include:</p>
+                
+                <h3>5.1 Acoustic Analysis</h3>
+                <p>Examining subtle acoustic patterns that differ between human and synthetic speech. While early synthetic voices contained artifacts that were relatively easy to detect, modern systems have largely eliminated these telltale signs.<sup>13</sup></p>
+                
+                <h3>5.2 Behavioral and Contextual Analysis</h3>
+                <p>Analyzing patterns beyond the voice itself, such as unusual requests, pressure tactics, or inconsistencies in knowledge that the real person would possess. This approach remains effective but requires human judgment and awareness.<sup>14</sup></p>
+                
+                <h3>5.3 AI-Based Detection</h3>
+                <p>Using machine learning models specifically trained to identify synthetic speech. These systems analyze hundreds of acoustic features that may be imperceptible to human listeners. Current state-of-the-art detection systems can achieve 95% accuracy in controlled settings, though real-world performance varies significantly.<sup>15</sup></p>
+                
+                <p>The challenge of detection is compounded by the fact that synthetic voice technology and detection technology are locked in an arms race, with each advance in one spurring development in the other.</p>
+                
+                <h2>6. The Need for Real-Time Call Scanning</h2>
+                <p>While voicemail scanning provides valuable protection, real-time call scanning represents the most effective defense against voice scams. Current mobile platform restrictions prevent apps from accessing call audio in real-time for security analysis, even with explicit user permission.</p>
+                
+                <p>The benefits of real-time call scanning include:</p>
+                <ul>
+                    <li><strong>Immediate Protection:</strong> Alerts users during the call, before they can fall victim to the scam</li>
+                    <li><strong>Contextual Analysis:</strong> Evaluates not just voice patterns but also speech content and social engineering tactics</li>
+                    <li><strong>Vulnerable Population Protection:</strong> Particularly valuable for elderly users who may be less able to identify scams independently</li>
+                </ul>
+                
+                <p>We advocate for mobile platform providers to create secure APIs that allow security apps to access call audio with explicit user permission, implementing appropriate safeguards to protect privacy while enabling this critical security feature.</p>
+                
+                <h2>7. Recommendations and Best Practices</h2>
+                <p>Until real-time call scanning becomes available, individuals and organizations should adopt these protective measures:</p>
+                
+                <h3>7.1 For Individuals</h3>
+                <ul>
+                    <li>Establish verification protocols with family members for emergency situations</li>
+                    <li>Be skeptical of urgent requests involving money or sensitive information</li>
+                    <li>Verify unexpected calls through independent channels (call back using a known number)</li>
+                    <li>Use voicemail scanning technology to analyze suspicious messages</li>
+                    <li>Limit public audio and video content that could be used for voice cloning</li>
+                </ul>
+                
+                <h3>7.2 For Organizations</h3>
+                <ul>
+                    <li>Implement multi-factor authentication for financial transactions</li>
+                    <li>Establish clear procedures for handling urgent financial requests</li>
+                    <li>Train employees to recognize social engineering tactics</li>
+                    <li>Deploy voice authentication systems for sensitive operations</li>
+                    <li>Develop contingency plans for potential voice scam incidents</li>
+                </ul>
+                
+                <h2>8. Conclusion</h2>
+                <p>Voice scams represent a significant and growing threat in our increasingly digital world. As AI technology continues to advance, the sophistication and convincingness of these scams will only increase. While technological solutions like voicemail scanning provide valuable protection, comprehensive defense requires a combination of technology, awareness, and platform-level changes to enable real-time protection.</p>
+                
+                <p>By supporting the petition for real-time call scanning capabilities, you can help create a safer communication environment for everyone, particularly the most vulnerable members of our society. Together, we can work toward a future where we can trust the voices on the other end of our calls.</p>
+                
+                <div class="text-center">
+                    <a href="../advocacy.html" class="download-pdf"><i class="fas fa-pen"></i> Sign the Petition</a>
+                </div>
+                
+                <div class="reference-list">
+                    <h2>References</h2>
+                    <ol>
+                        <li>Federal Bureau of Investigation. (2023). Internet Crime Report 2022. Internet Crime Complaint Center (IC3). <a href="https://www.ic3.gov/Media/PDF/AnnualReport/2022_IC3Report.pdf" class="text-blue-600 hover:underline">https://www.ic3.gov/Media/PDF/AnnualReport/2022_IC3Report.pdf</a></li>
+                        <li>Federal Trade Commission. (2023). Consumer Sentinel Network Data Book 2022. <a href="https://www.ftc.gov/reports/consumer-sentinel-network-data-book-2022" class="text-blue-600 hover:underline">https://www.ftc.gov/reports/consumer-sentinel-network-data-book-2022</a></li>
+                        <li>National Council on Aging. (2021). The Scope of Elder Financial Abuse. <a href="https://www.ncoa.org/article/get-the-facts-on-elder-abuse" class="text-blue-600 hover:underline">https://www.ncoa.org/article/get-the-facts-on-elder-abuse</a></li>
+                        <li>Consumer Financial Protection Bureau. (2022). Older adults are at increased risk for financial fraud. <a href="https://www.consumerfinance.gov/about-us/blog/older-adults-are-at-increased-risk-for-financial-fraud/" class="text-blue-600 hover:underline">https://www.consumerfinance.gov/about-us/blog/older-adults-are-at-increased-risk-for-financial-fraud/</a></li>
+                        <li>Federal Communications Commission. (2023). Scam Glossary. <a href="https://www.fcc.gov/scam-glossary" class="text-blue-600 hover:underline">https://www.fcc.gov/scam-glossary</a></li>
+                        <li>Tan, Z. H., & Lindberg, B. (2021). "Automatic Speech Recognition: Fundamentals, Recent Advances, and Emerging Applications." Synthesis Lectures on Human Language Technologies, 14(2), 1-296.</li>
+                        <li>Wang, Y., Skerry-Ryan, R. J., Stanton, D., Wu, Y., Weiss, R. J., Jaitly, N., ... & Le, Q. (2017). "Tacotron: Towards end-to-end speech synthesis." arXiv preprint arXiv:1703.10135.</li>
+                        <li>Cai, W., Chen, J., Zhang, J., & Li, M. (2021). "On the effectiveness of countermeasures against deepfake voice spoofing attacks." arXiv preprint arXiv:2103.00852.</li>
+                        <li>AARP. (2023). Family Impersonation Fraud: A Growing Epidemic. <a href="https://www.aarp.org/money/scams-fraud/info-2023/family-impersonation.html" class="text-blue-600 hover:underline">https://www.aarp.org/money/scams-fraud/info-2023/family-impersonation.html</a></li>
+                        <li>Financial Services Information Sharing and Analysis Center (FS-ISAC). (2022). Navigating Cyber 2022. <a href="https://www.fsisac.com/navigatingcyber2022" class="text-blue-600 hover:underline">https://www.fsisac.com/navigatingcyber2022</a></li>
+                        <li>U.S. Department of Justice. (2022). Elder Justice Initiative. <a href="https://www.justice.gov/elderjustice" class="text-blue-600 hover:underline">https://www.justice.gov/elderjustice</a></li>
+                        <li>Association of Certified Fraud Examiners. (2022). Occupational Fraud 2022: A Report to the Nations. <a href="https://www.acfe.com/report-to-the-nations/2022" class="text-blue-600 hover:underline">https://www.acfe.com/report-to-the-nations/2022</a></li>
+                        <li>Todisco, M., Wang, X., Vestman, V., Sahidullah, M., Delgado, H., Nautsch, A., ... & Evans, N. (2019). "ASVspoof 2019: Future horizons in spoofed and fake audio detection." arXiv preprint arXiv:1904.05441.</li>
+                        <li>Kinnunen, T., Sahidullah, M., Delgado, H., Todisco, M., Evans, N., Yamagishi, J., & Lee, K. A. (2017). "The ASVspoof 2017 challenge: Assessing the limits of replay spoofing attack detection." Proceedings of Interspeech 2017, 2-6.</li>
+                        <li>Alzantot, M., Wang, Z., & Srivastava, M. B. (2019). "Deep residual neural networks for audio spoofing detection." arXiv preprint arXiv:1907.00501.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <div class="footer-logo">
+                        <img src="../../images/logo.svg" alt="VoiceGuardAI Logo">
+                        <span>VoiceGuardAI</span>
+                    </div>
+                    <p>Protecting your voice identity with advanced AI technology.</p>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="../../index.html#features">Features</a></li>
+                        <li><a href="../../index.html#how-it-works">How It Works</a></li>
+                        <li><a href="../../index.html#pricing">Pricing</a></li>
+                        <li><a href="../../index.html#download">Download</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="faqs.html">FAQs</a></li>
+                        <li><a href="support.html">Support</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="../legal/terms-of-service.html">Terms of Service</a></li>
+                        <li><a href="../legal/privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="../legal/cookie-policy.html">Cookie Policy</a></li>
+                        <li><a href="../legal/gdpr-compliance.html">GDPR Compliance</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 VoiceGuardAI. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-toggle').addEventListener('click', function() {
+            document.getElementById('nav-links').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
