@@ -366,24 +366,30 @@ def run_second_model_inference(wav_path: str) -> Tuple[Optional[str], Optional[f
             entropy_factor = min(entropy_factor, 0.9)  # Cap entropy factor to prevent overweighting
             combined_factors = (entropy_factor + pattern_factor + prosody_factor + temporal_factor) / 4
             
-            # More balanced scoring formula with reduced bias
-            human_score = 0.5 - (0.4 * combined_factors)  # Reduced from 0.5 to 0.4 multiplier
+            # Significantly more balanced scoring formula with strong human bias
+            human_score = 0.65 - (0.3 * combined_factors)  # Increased human bias from 0.5 to 0.65, reduced multiplier
             ai_score = 1.0 - human_score
             
-            # Apply a very small bias only for extremely regular patterns (clear AI indicator)
-            if pattern_factor > 0.8 and temporal_factor > 0.7:
-                logger.warning("Detected highly regular patterns - possible robo-call")
-                ai_bias = 0.03  # Reduced bias from 0.05 to 0.03
+            # Apply a bias only for extremely clear AI patterns
+            # Much stricter criteria for applying AI bias
+            if pattern_factor > 0.9 and temporal_factor > 0.85 and normalized_entropy < 0.2:
+                logger.warning("Detected extremely regular patterns - possible robo-call")
+                ai_bias = 0.02  # Very small bias
                 human_score = max(0.0, human_score - ai_bias)
                 ai_score = min(1.0, ai_score + ai_bias)
+                
+            # Apply a human bias to counteract the model's tendency toward AI classification
+            human_bias = 0.15  # Strong human bias
+            human_score = min(1.0, human_score + human_bias)
+            ai_score = max(0.0, 1.0 - human_score)
             
             logger.info(f"✅ WavLM analysis - mean: {hidden_mean:.3f}, std: {hidden_std:.3f}, range: {spectral_range:.3f}")
             logger.info(f"WavLM entropy: {entropy_estimate:.3f}, pattern: {pattern_score:.3f}, prosody: {normalized_dim_variance:.3f}, temporal: {normalized_temporal_variance:.3f}")
             logger.info(f"WavLM scores with robo-call bias - Human: {human_score:.3f}, AI: {ai_score:.3f}")
             
-            # More balanced threshold to avoid misclassifying human voices
-            # Increase the threshold to reduce false positives on human voices
-            if ai_score > 0.65:  # More conservative threshold (was 0.25)
+            # Much more conservative threshold to strongly favor human classification
+            # Significantly increased threshold to prevent false positives on human voices
+            if ai_score > 0.85:  # Very conservative threshold (was 0.65)
                 standardized_result = "AI"
                 confidence = ai_score
             else:
