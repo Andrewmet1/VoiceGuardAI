@@ -436,55 +436,90 @@ async def predict(file: UploadFile):
         if not convert_to_wav(input_path, wav_path):
             raise HTTPException(status_code=500, detail="Failed to convert audio format")
         
-        # Use local Hugging Face model if available, otherwise fall back to API
+        # Initialize variables
+        hf_result = None
+        hf_confidence = None
+        second_result = None
+        second_confidence = None
+        
+        # Try local model first, fall back to API if needed
         if use_local_hf_model:
-            # Run local Hugging Face inference
-            logger.info("Using local Hugging Face model for inference")
             hf_result, hf_confidence = run_local_hf_inference(wav_path)
+            
+            # Run WavLM model if available (separately from the primary model)
+            if use_second_model:
+                try:
+                    second_result, second_confidence = run_second_model_inference(wav_path)
+                    if second_result and second_confidence is not None:
+                        logger.info(f"WavLM model result: {second_result} with confidence {second_confidence:.3f}")
+                except Exception as e:
+                    logger.error(f"Error running WavLM model: {str(e)}")
+                    second_result = None
+                    second_confidence = None
+        
+        # If local model failed, try the API
+        if hf_result is None:
+            # Check if we've already tested the API connection
+            if hf_api_ready is None:
+                test_hf_connection()
+            
+            if hf_api_ready:
+                # Prepare audio for Hugging Face API
+                hf_audio_data = prepare_audio_for_huggingface(wav_path)
+                
+                # Query Hugging Face API
+                hf_result, hf_confidence = query_huggingface_api(hf_audio_data)
+            else:
+                logger.warning("Skipping Hugging Face API due to connection issues")
+        
+        # Process the audio file for VoiceGuard model
+        vg_audio_data = prepare_audio_for_voiceguard(wav_path)
+        
+        # Query VoiceGuard model
+        vg_result = query_voiceguard_model(vg_audio_data)
+        
+        # Extract VoiceGuard scores
+        vg_genuine = vg_result.get("genuine_percent")
+        vg_spoof = vg_result.get("spoof_percent")
+        
+        # Determine VoiceGuard result
+        if vg_genuine is not None and vg_spoof is not None:
+            vg_result_label = "Human" if vg_genuine > vg_spoof else "AI"
+            vg_confidence = vg_genuine / 100.0 if vg_result_label == "Human" else vg_spoof / 100.0
+            logger.info(f"VoiceGuard scores - Genuine: {vg_genuine:.1f}%, Spoof: {vg_spoof:.1f}%")
+            logger.info(f"VoiceGuard result: {vg_result_label} with confidence {vg_confidence:.3f}")
         else:
-            # Process audio for Hugging Face API
-            logger.info("Using Hugging Face API for inference")
-            hf_b64 = prepare_audio_for_huggingface(wav_path)
-            hf_payload = {"inputs": hf_b64}
-            hf_result, hf_confidence = query_huggingface_api(hf_payload)
+            vg_result_label = None
+            vg_confidence = None
+            logger.error("VoiceGuard model did not return valid scores")
         
-        # If Hugging Face inference fails (both local and API), return error
-        if hf_result is None or hf_confidence is None:
-            logger.error("Hugging Face model unavailable - returning 503")
-            raise HTTPException(
-                status_code=503,
-                detail={"error": "HF model unavailable"}
-            )
-        
-        # Process audio for VoiceGuard if available (secondary path)
-        vg_genuine = None
-        vg_spoof = None
-        
-        # Try to load the VoiceGuard model if it's not already loaded
-        model = load_voiceguard_model()
-        if model:
-            try:
-                audio_tensor = prepare_audio_for_voiceguard(wav_path)
-                vg_genuine, vg_spoof = predict_voiceguard(audio_tensor)
-                logger.info(f"VoiceGuard scores - Genuine: {vg_genuine:.1f}%, Spoof: {vg_spoof:.1f}%")
-                
-                # Determine VoiceGuard result for internal validation
-                vg_result = "Human" if vg_genuine > vg_spoof else "AI"
-                vg_confidence = max(vg_genuine, vg_spoof) / 100.0
-                logger.info(f"VoiceGuard result: {vg_result} with confidence {vg_confidence:.3f}")
-                
-                # Log agreement/disagreement between models with detailed scores
-                if vg_result == hf_result:
-                    logger.info(f"✅ Models AGREE: Both predict {hf_result}")
+        # Check if models agree
+        if hf_result and vg_result_label:
+            if hf_result == vg_result_label:
+                logger.info(f"✅ Models AGREE: Both predict {hf_result}")
+            else:
+                logger.warning(f"⚠️ Models DISAGREE: HF predicts {hf_result}, VG predicts {vg_result_label}")
+            
+            # Add WavLM model agreement info if available
+            if second_result:
+                if second_result == hf_result and second_result == vg_result_label:
+                    logger.info(f"✅ All three models AGREE: They all predict {second_result}")
+                elif second_result != hf_result and second_result != vg_result_label:
+                    logger.warning(f"⚠️ WavLM disagrees with both models: WavLM predicts {second_result}")
                 else:
-                    logger.warning(f"⚠️ Models DISAGREE: HF={hf_result} ({hf_confidence:.3f}), VG={vg_result} ({vg_confidence:.3f})")
-                
-                # Log raw scores from both models for better diagnostics
-                logger.info(f"Raw scores - HF: {hf_result}={hf_confidence:.3f}, VG: Human={vg_genuine/100:.3f}, AI={vg_spoof/100:.3f}")
-            except Exception as e:
-                logger.error(f"VoiceGuard prediction failed: {str(e)}")
-                logger.error(traceback.format_exc())
-                # Continue without VoiceGuard
+                    # WavLM agrees with one model
+                    agreeing_model = "HF" if second_result == hf_result else "VG"
+                    logger.info(f"WavLM agrees with {agreeing_model} model: Both predict {second_result}")
+        
+        # Log raw scores
+        if hf_result == "Human":
+            logger.info(f"Raw scores - HF: Human={hf_confidence:.3f}, VG: Human={vg_genuine/100:.3f}, AI={vg_spoof/100:.3f}")
+        else:
+            logger.info(f"Raw scores - HF: AI={hf_confidence:.3f}, VG: Human={vg_genuine/100:.3f}, AI={vg_spoof/100:.3f}")
+            
+        # Add WavLM scores to log if available
+        if second_result and second_confidence is not None:
+            logger.info(f"WavLM score: {second_result}={second_confidence:.3f}")
         
         # Create simplified response - only result and confidence from Hugging Face
         # This keeps the API contract simple while preserving internal dual-path scoring
@@ -493,19 +528,30 @@ async def predict(file: UploadFile):
             "confidence": hf_confidence
         }
         
+        # Initialize second model variables to avoid undefined errors
+        second_result = None
+        second_confidence = None
+        
         # Compute combined score
         if vg_genuine is not None and vg_spoof is not None:
-            # If we're using the second model and have valid results, give it more weight (60%)
-            if use_second_model and second_result is not None and second_confidence is not None:
-                # 20% weight to Hugging Face, 20% weight to VoiceGuard, 60% to WavLM model
-                hf_genuine = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100
-                second_genuine = (second_confidence if second_result == "Human" else 1 - second_confidence) * 100
-                combined_genuine = hf_genuine * 0.2 + vg_genuine * 0.2 + second_genuine * 0.6
-                logger.info(f"Using three-model weighted score: HF={hf_genuine:.1f}% (20%), VG={vg_genuine:.1f}% (20%), WavLM={second_genuine:.1f}% (60%)")
-                logger.info(f"Final combined score: {combined_genuine:.1f}% genuine, {100-combined_genuine:.1f}% AI")
-            else:
-                # Original 80/20 weighting if second model isn't available or didn't detect AI
-                combined_genuine = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100 * 0.8 + vg_genuine * 0.2
+            try:
+                # If we're using the second model and have valid results, give it more weight (60%)
+                if use_second_model and 'second_result' in locals() and 'second_confidence' in locals() and second_result is not None and second_confidence is not None:
+                    # 20% weight to Hugging Face, 20% weight to VoiceGuard, 60% to WavLM model
+                    hf_genuine = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100
+                    second_genuine = (second_confidence if second_result == "Human" else 1 - second_confidence) * 100
+                    combined_genuine = hf_genuine * 0.2 + vg_genuine * 0.2 + second_genuine * 0.6
+                    logger.info(f"Using three-model weighted score: HF={hf_genuine:.1f}% (20%), VG={vg_genuine:.1f}% (20%), WavLM={second_genuine:.1f}% (60%)")
+                    logger.info(f"Final combined score: {combined_genuine:.1f}% genuine, {100-combined_genuine:.1f}% AI")
+                else:
+                    # Original 80/20 weighting if second model isn't available or didn't detect AI
+                    combined_genuine = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100 * 0.8 + vg_genuine * 0.2
+                    logger.info(f"Using two-model weighted score: HF={hf_confidence*100:.1f}% (80%), VG={vg_genuine:.1f}% (20%)")
+            except Exception as e:
+                logger.error(f"Error in combined score calculation: {str(e)}")
+                # Fallback to simple average if there's an error
+                combined_genuine = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100 * 0.5 + vg_genuine * 0.5
+                logger.info(f"Using fallback score calculation due to error: {combined_genuine:.1f}%")
                 
             combined_spoof = 100.0 - combined_genuine
             final_result = "Human" if combined_genuine > combined_spoof else "AI"
