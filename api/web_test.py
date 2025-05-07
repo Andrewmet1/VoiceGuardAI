@@ -381,9 +381,9 @@ def run_second_model_inference(wav_path: str) -> Tuple[Optional[str], Optional[f
             logger.info(f"WavLM entropy: {entropy_estimate:.3f}, pattern: {pattern_score:.3f}, prosody: {normalized_dim_variance:.3f}, temporal: {normalized_temporal_variance:.3f}")
             logger.info(f"WavLM scores with robo-call bias - Human: {human_score:.3f}, AI: {ai_score:.3f}")
             
-            # Very low threshold to be extremely sensitive to robo-calls
-            # We'd rather have false positives than miss AI-generated voices
-            if ai_score > 0.25:  # Very aggressive threshold
+            # More balanced threshold to avoid misclassifying human voices
+            # Increase the threshold to reduce false positives on human voices
+            if ai_score > 0.65:  # More conservative threshold (was 0.25)
                 standardized_result = "AI"
                 confidence = ai_score
             else:
@@ -521,7 +521,7 @@ async def predict(file: UploadFile):
             
         # No need for VoiceGuard or HF models - using WavLM exclusively
         
-        # Create response with WavLM model results only
+        # Calculate human and AI confidence scores
         human_confidence = wavlm_confidence if wavlm_result == "Human" else 1.0 - wavlm_confidence
         ai_confidence = wavlm_confidence if wavlm_result == "AI" else 1.0 - wavlm_confidence
         
@@ -529,65 +529,76 @@ async def predict(file: UploadFile):
         logger.info(f"WavLM scores - Human: {human_confidence:.3f}, AI: {ai_confidence:.3f}")
         logger.info(f"WavLM result: {wavlm_result} with confidence {wavlm_confidence:.3f}")
         
-        # Create simplified response with only WavLM results
+        # Create response with original format for compatibility
         response = {
             "result": wavlm_result,
             "confidence": wavlm_confidence,
-            "human_score": human_confidence,
-            "ai_score": ai_confidence,
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            "models": {
+                "wavlm": {
+                    "result": wavlm_result,
+                    "confidence": wavlm_confidence
+                }
+            }
+        }
+        
+        # Add combined score section to maintain compatibility
+        human_score_pct = human_confidence * 100
+        ai_score_pct = ai_confidence * 100
+        
+        response["combined_score"] = {
+            "genuine_score": round(human_confidence, 4),
+            "spoof_score": round(ai_confidence, 4),
+            "result": wavlm_result
         }
         
         # Enhance WavLM detection for robo-calls
         # Apply additional analysis for better human voice detection
-        if wavlm_result == "AI" and ai_confidence > 0.7:
+        if wavlm_result == "AI" and ai_confidence > 0.8:  # Increased from 0.7 to 0.8
             logger.info("High confidence AI detection - likely robo-call")
-        elif wavlm_result == "Human" and human_confidence < 0.6:
-            # Low confidence human detection - apply additional scrutiny
-            logger.warning("Low confidence human detection - applying additional scrutiny")
+        elif wavlm_result == "AI" and ai_confidence < 0.7:  # Added check for low confidence AI
+            # Low confidence AI detection - be more conservative
+            logger.warning("Low confidence AI detection - applying additional scrutiny")
             
-            # For borderline cases, we can be more conservative
-            if human_confidence < 0.55:
-                # Override to AI for very low confidence human detections
-                wavlm_result = "AI"
-                wavlm_confidence = 1.0 - human_confidence  # Invert the confidence
-                logger.info(f"Reclassified as AI due to low human confidence: {human_confidence:.3f}")
+            # For borderline cases, favor human classification
+            if ai_confidence < 0.68:  # Very close to threshold
+                # Override to Human for low confidence AI detections
+                wavlm_result = "Human"
+                wavlm_confidence = 1.0 - ai_confidence  # Invert the confidence
+                logger.info(f"Reclassified as Human due to low AI confidence: {ai_confidence:.3f}")
                 
                 # Update the response
                 response["result"] = wavlm_result
                 response["confidence"] = wavlm_confidence
-                response["human_score"] = 1.0 - wavlm_confidence
-                response["ai_score"] = wavlm_confidence
+                response["models"]["wavlm"]["result"] = wavlm_result
+                response["models"]["wavlm"]["confidence"] = wavlm_confidence
+                
+                # Update combined score
+                response["combined_score"]["genuine_score"] = round(wavlm_confidence, 4)
+                response["combined_score"]["spoof_score"] = round(1.0 - wavlm_confidence, 4)
+                response["combined_score"]["result"] = wavlm_result
         
         logger.info(f"✅ Final result: {response['result']} with confidence {response['confidence']:.3f}")
-        
-        # Add detailed analysis to the response
-        response["analysis"] = {
-            "model": "WavLM",
-            "version": "1.0",
-            "threshold": 0.55,
-            "detection_type": "enhanced" if wavlm_result == "AI" and ai_confidence > 0.7 else "standard"
-        }
         
         # Log the response
         print("Returning API response:", response)
         
-        # Store in recent analyses for debugging (WavLM model only)
+        # Store in recent analyses for debugging (format compatible with original code)
         recent_analysis = {
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "wavlm": {
                 "result": wavlm_result,
-                "confidence": wavlm_confidence,
-                "human_score": human_confidence,
-                "ai_score": ai_confidence
-            },
-            "analysis": response["analysis"]
+                "confidence": wavlm_confidence
+            }
         }
+        
+        # Add combined score to recent analysis
+        if "combined_score" in response:
+            recent_analysis["combined"] = response["combined_score"]
             
         # Store the analysis
-        recent_analyses.append(recent_analysis)
-        if len(recent_analyses) > 10:
-            recent_analyses.pop(0)  # Keep only the 10 most recent analyses
+        recent_analyses.insert(0, recent_analysis)
+        if len(recent_analyses) > 5:
+            recent_analyses.pop()  # Keep only the 5 most recent analyses (original limit)
         
         return response
         
