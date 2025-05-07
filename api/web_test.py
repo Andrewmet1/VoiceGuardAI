@@ -95,8 +95,9 @@ def prepare_audio_for_huggingface(audio_path: str) -> str:
         import librosa
         import soundfile as sf
         
-        # Load and resample audio
-        waveform, sr = librosa.load(audio_path, sr=SAMPLE_RATE, mono=True)
+        # Load and resample audio - limit to 5 seconds for better performance
+        max_duration = 5  # seconds
+        waveform, sr = librosa.load(audio_path, sr=SAMPLE_RATE, mono=True, duration=max_duration)
         encoded_wav = os.path.join(TEMP_DIR, "encoded_for_hf.wav")
         
         # Write as PCM 16-bit WAV with explicit format
@@ -508,8 +509,9 @@ def prepare_audio_for_voiceguard(audio_path: str) -> torch.Tensor:
     try:
         import librosa
         
-        # Load and resample audio
-        waveform, sr = librosa.load(audio_path, sr=SAMPLE_RATE, mono=True)
+        # Load and resample audio - limit to 5 seconds for better performance
+        max_duration = 5  # seconds
+        waveform, sr = librosa.load(audio_path, sr=SAMPLE_RATE, mono=True, duration=max_duration)
         
         # Extract MFCC features
         mfcc = librosa.feature.mfcc(y=waveform, sr=sr, n_mfcc=20)
