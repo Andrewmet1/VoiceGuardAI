@@ -1,7 +1,6 @@
 import os
 import logging
 from transformers import WavLMModel, AutoFeatureExtractor
-from huggingface_hub import login
 
 # Configure logging
 logging.basicConfig(
@@ -18,15 +17,10 @@ MODEL_ID = "microsoft/wavlm-large"
 CACHE_DIR = os.path.join(PROJECT_ROOT, "hf_model_cache_2")
 
 def main():
-    # Get Hugging Face API token from environment variable
-    hf_token = os.environ.get("HF_API_TOKEN")
-    if not hf_token:
-        logger.warning("⚠️ HF_API_TOKEN environment variable not set. Some models may not be accessible.")
-    else:
-        # Login to Hugging Face Hub
-        logger.info("Logging in to Hugging Face Hub...")
-        login(token=hf_token)
-        logger.info("✅ Successfully logged in to Hugging Face Hub")
+    # No login required for public models
+    logger.info("Proceeding with downloading public model without authentication...")
+    # Set environment variable to disable warnings about symlinks
+    os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
     
     # Create cache directory if it doesn't exist
     os.makedirs(CACHE_DIR, exist_ok=True)
