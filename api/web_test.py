@@ -484,13 +484,14 @@ async def predict(file: UploadFile):
         
         # Compute combined score
         if vg_genuine is not None and vg_spoof is not None:
-            # If we're using the second model and it detected AI with high confidence, give it more weight
-            if use_second_model and second_result == "AI" and second_confidence > 0.8:
-                # 70% weight to Hugging Face, 20% weight to VoiceGuard, 10% to second model
+            # If we're using the second model, give it more weight (60%)
+            if use_second_model:
+                # 20% weight to Hugging Face, 20% weight to VoiceGuard, 60% to WavLM model
                 hf_genuine = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100
                 second_genuine = (second_confidence if second_result == "Human" else 1 - second_confidence) * 100
-                combined_genuine = hf_genuine * 0.7 + vg_genuine * 0.2 + second_genuine * 0.1
-                logger.info(f"Using three-model weighted score: HF={hf_genuine:.1f}%, VG={vg_genuine:.1f}%, Second={second_genuine:.1f}%")
+                combined_genuine = hf_genuine * 0.2 + vg_genuine * 0.2 + second_genuine * 0.6
+                logger.info(f"Using three-model weighted score: HF={hf_genuine:.1f}% (20%), VG={vg_genuine:.1f}% (20%), WavLM={second_genuine:.1f}% (60%)")
+                logger.info(f"Final combined score: {combined_genuine:.1f}% genuine, {100-combined_genuine:.1f}% AI")
             else:
                 # Original 80/20 weighting if second model isn't available or didn't detect AI
                 combined_genuine = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100 * 0.8 + vg_genuine * 0.2
