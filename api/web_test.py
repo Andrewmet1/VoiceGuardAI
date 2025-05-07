@@ -309,22 +309,46 @@ def run_second_model_inference(wav_path: str) -> Tuple[Optional[str], Optional[f
             range_ratio = (hidden_max - hidden_min) / (hidden_std + 1e-6)
             entropy_estimate = hidden_std / (abs(hidden_mean) + 1e-6)
             
+            # Calculate additional features that might help with AI detection
+            # 1. Spectral flatness - AI voices often have more uniform spectral distribution
+            spectral_range = hidden_max - hidden_min
+            spectral_flatness = hidden_std / (spectral_range + 1e-6)
+            
+            # 2. Pattern regularity - AI voices often have more regular patterns
+            # Look at the autocorrelation of the hidden states
+            hidden_flat = hidden_states.flatten()
+            hidden_mean = hidden_flat.mean().item()
+            hidden_centered = hidden_flat - hidden_mean
+            
+            # Calculate a pattern regularity score
+            pattern_score = 0.0
+            if hidden_centered.shape[0] > 1:
+                # Use the standard deviation as a simple measure of regularity
+                # More regular patterns (AI) have lower std dev relative to their range
+                pattern_score = 1.0 - min(1.0, (hidden_std / (spectral_range + 1e-6) * 5.0))
+            
             # Normalize entropy estimate to a reasonable range (0-1)
             # For WavLM, entropy estimates can be very high for human speech
             normalized_entropy = min(1.0, entropy_estimate / 100.0)
             
-            # Real human speech tends to have higher entropy and variability
-            # AI speech tends to be more regular with lower entropy
-            # Invert the normalized entropy to get AI score (higher = more likely AI)
-            ai_score = 1.0 - normalized_entropy
-            human_score = normalized_entropy
+            # Combine multiple factors for AI detection:
+            # - Lower entropy suggests AI (weight: 50%)
+            # - Higher pattern regularity suggests AI (weight: 30%)
+            # - Lower spectral flatness suggests AI (weight: 20%)
+            ai_score = (1.0 - normalized_entropy) * 0.5 + pattern_score * 0.3 + (1.0 - spectral_flatness) * 0.2
+            human_score = 1.0 - ai_score
             
-            logger.info(f"✅ WavLM analysis - mean: {hidden_mean:.3f}, std: {hidden_std:.3f}, range: {hidden_max-hidden_min:.3f}")
-            logger.info(f"WavLM entropy estimate: {entropy_estimate:.3f}, normalized: {normalized_entropy:.3f}")
+            # Cap scores between 0 and 1
+            ai_score = max(0.0, min(1.0, ai_score))
+            human_score = max(0.0, min(1.0, human_score))
+            
+            logger.info(f"✅ WavLM analysis - mean: {hidden_mean:.3f}, std: {hidden_std:.3f}, range: {spectral_range:.3f}")
+            logger.info(f"WavLM entropy: {entropy_estimate:.3f}, pattern score: {pattern_score:.3f}, spectral flatness: {spectral_flatness:.3f}")
             logger.info(f"WavLM scores - Human: {human_score:.3f}, AI: {ai_score:.3f}")
             
-            # Determine if it's AI or human based on our heuristic
-            if ai_score > 0.65:  # Threshold can be adjusted based on testing
+            # Lower threshold to be more sensitive to AI voices
+            # Modern AI voices can be very convincing, so we need to be more aggressive
+            if ai_score > 0.35:  # Reduced from 0.65 to be more sensitive
                 standardized_result = "AI"
                 confidence = ai_score
             else:
