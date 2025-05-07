@@ -331,24 +331,49 @@ def run_second_model_inference(wav_path: str) -> Tuple[Optional[str], Optional[f
             # For WavLM, entropy estimates can be very high for human speech
             normalized_entropy = min(1.0, entropy_estimate / 100.0)
             
-            # Combine multiple factors for AI detection:
-            # - Lower entropy suggests AI (weight: 50%)
-            # - Higher pattern regularity suggests AI (weight: 30%)
-            # - Lower spectral flatness suggests AI (weight: 20%)
-            ai_score = (1.0 - normalized_entropy) * 0.5 + pattern_score * 0.3 + (1.0 - spectral_flatness) * 0.2
+            # Calculate additional features specifically for robo-call detection
+            
+            # 1. Prosody variation - human speech has more natural prosody variation
+            # Calculate variance across different dimensions of hidden states
+            dim_variances = torch.var(hidden_states, dim=1).mean().item()
+            normalized_dim_variance = min(1.0, dim_variances * 10.0)  # Normalize to 0-1 range
+            
+            # 2. Temporal consistency - AI speech often has more consistent timing
+            # Calculate the variance of differences between adjacent time steps
+            if hidden_states.shape[1] > 1:
+                temporal_diffs = torch.diff(hidden_states, dim=1)
+                temporal_variance = torch.var(temporal_diffs).item()
+                normalized_temporal_variance = min(1.0, temporal_variance * 10.0)
+            else:
+                normalized_temporal_variance = 0.5  # Default if not enough time steps
+            
+            # 3. Formant analysis - AI speech often has less natural formant transitions
+            # Use the pattern score as a proxy for formant naturalness
+            formant_naturalness = pattern_score
+            
+            # Combine multiple factors for AI detection with weights optimized for robo-calls:
+            # - Lower entropy suggests AI (weight: 30%)
+            # - Higher pattern regularity suggests AI (weight: 20%)
+            # - Lower prosody variation suggests AI (weight: 25%)
+            # - Lower temporal variance suggests AI (weight: 25%)
+            ai_score = ((1.0 - normalized_entropy) * 0.3 + 
+                       pattern_score * 0.2 + 
+                       (1.0 - normalized_dim_variance) * 0.25 + 
+                       (1.0 - normalized_temporal_variance) * 0.25)
+            
+            # Apply a bias toward AI detection for robo-call scenarios
+            # This makes the system more aggressive in flagging potential AI voices
+            ai_bias = 0.15  # Bias factor
+            ai_score = min(1.0, ai_score + ai_bias)
             human_score = 1.0 - ai_score
             
-            # Cap scores between 0 and 1
-            ai_score = max(0.0, min(1.0, ai_score))
-            human_score = max(0.0, min(1.0, human_score))
-            
             logger.info(f"✅ WavLM analysis - mean: {hidden_mean:.3f}, std: {hidden_std:.3f}, range: {spectral_range:.3f}")
-            logger.info(f"WavLM entropy: {entropy_estimate:.3f}, pattern score: {pattern_score:.3f}, spectral flatness: {spectral_flatness:.3f}")
-            logger.info(f"WavLM scores - Human: {human_score:.3f}, AI: {ai_score:.3f}")
+            logger.info(f"WavLM entropy: {entropy_estimate:.3f}, pattern: {pattern_score:.3f}, prosody: {normalized_dim_variance:.3f}, temporal: {normalized_temporal_variance:.3f}")
+            logger.info(f"WavLM scores with robo-call bias - Human: {human_score:.3f}, AI: {ai_score:.3f}")
             
-            # Lower threshold to be more sensitive to AI voices
-            # Modern AI voices can be very convincing, so we need to be more aggressive
-            if ai_score > 0.35:  # Reduced from 0.65 to be more sensitive
+            # Very low threshold to be extremely sensitive to robo-calls
+            # We'd rather have false positives than miss AI-generated voices
+            if ai_score > 0.25:  # Very aggressive threshold
                 standardized_result = "AI"
                 confidence = ai_score
             else:
@@ -555,44 +580,89 @@ async def predict(file: UploadFile):
         if second_result and second_confidence is not None:
             logger.info(f"WavLM score: {second_result}={second_confidence:.3f}")
         
-        # Create simplified response - only result and confidence from Hugging Face
-        # This keeps the API contract simple while preserving internal dual-path scoring
+        # Create response with all model results
         response = {
             "result": hf_result,
-            "confidence": hf_confidence
+            "confidence": hf_confidence,
+            "models": {
+                "huggingface": {
+                    "result": hf_result,
+                    "confidence": hf_confidence
+                }
+            }
         }
         
-        # Initialize second model variables to avoid undefined errors
-        second_result = None
-        second_confidence = None
+        # Add VoiceGuard results if available
+        if vg_genuine is not None and vg_spoof is not None:
+            response["models"]["voiceguard"] = {
+                "result": vg_result_label,
+                "confidence": vg_confidence,
+                "genuine": vg_genuine / 100.0,
+                "spoof": vg_spoof / 100.0
+            }
+            
+        # Add WavLM results if available
+        if second_result and second_confidence is not None:
+            response["models"]["wavlm"] = {
+                "result": second_result,
+                "confidence": second_confidence
+            }
         
         # Compute combined score
         if vg_genuine is not None and vg_spoof is not None:
             try:
-                # If we're using the second model and have valid results, give it more weight (60%)
-                if use_second_model and 'second_result' in locals() and 'second_confidence' in locals() and second_result is not None and second_confidence is not None:
-                    # 20% weight to Hugging Face, 20% weight to VoiceGuard, 60% to WavLM model
-                    hf_genuine = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100
-                    second_genuine = (second_confidence if second_result == "Human" else 1 - second_confidence) * 100
-                    combined_genuine = hf_genuine * 0.2 + vg_genuine * 0.2 + second_genuine * 0.6
-                    logger.info(f"Using three-model weighted score: HF={hf_genuine:.1f}% (20%), VG={vg_genuine:.1f}% (20%), WavLM={second_genuine:.1f}% (60%)")
+                # Calculate human confidence scores for each model (0-100 scale)
+                hf_human_score = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100
+                vg_human_score = vg_genuine  # Already on 0-100 scale
+                
+                # If WavLM model results are available, use the three-model weighted approach
+                if second_result is not None and second_confidence is not None:
+                    # Convert WavLM confidence to human score (0-100 scale)
+                    wavlm_human_score = (second_confidence if second_result == "Human" else 1 - second_confidence) * 100
+                    
+                    # Apply weights: 20% HF, 20% VG, 60% WavLM
+                    combined_genuine = (hf_human_score * 0.2) + (vg_human_score * 0.2) + (wavlm_human_score * 0.6)
+                    
+                    logger.info(f"Using three-model weighted score: HF={hf_human_score:.1f}% (20%), "
+                               f"VG={vg_human_score:.1f}% (20%), WavLM={wavlm_human_score:.1f}% (60%)")
                     logger.info(f"Final combined score: {combined_genuine:.1f}% genuine, {100-combined_genuine:.1f}% AI")
+                    
+                    # If WavLM strongly suggests AI but combined score still says Human, give it more weight
+                    if wavlm_human_score < 40 and combined_genuine > 50:
+                        logger.warning("WavLM strongly suggests AI - applying additional weight")
+                        # Increase WavLM influence for potential robo-calls
+                        combined_genuine = (combined_genuine * 0.7) + (wavlm_human_score * 0.3)
+                        logger.info(f"Adjusted score with WavLM bias: {combined_genuine:.1f}% genuine")
                 else:
-                    # Original 80/20 weighting if second model isn't available or didn't detect AI
-                    combined_genuine = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100 * 0.8 + vg_genuine * 0.2
-                    logger.info(f"Using two-model weighted score: HF={hf_confidence*100:.1f}% (80%), VG={vg_genuine:.1f}% (20%)")
+                    # Original 80/20 weighting if WavLM model isn't available
+                    combined_genuine = (hf_human_score * 0.8) + (vg_human_score * 0.2)
+                    logger.info(f"Using two-model weighted score: HF={hf_human_score:.1f}% (80%), VG={vg_human_score:.1f}% (20%)")
             except Exception as e:
                 logger.error(f"Error in combined score calculation: {str(e)}")
+                logger.error(traceback.format_exc())
                 # Fallback to simple average if there's an error
-                combined_genuine = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100 * 0.5 + vg_genuine * 0.5
+                hf_human_score = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100
+                combined_genuine = (hf_human_score * 0.5) + (vg_genuine * 0.5)
                 logger.info(f"Using fallback score calculation due to error: {combined_genuine:.1f}%")
                 
             combined_spoof = 100.0 - combined_genuine
-            final_result = "Human" if combined_genuine > combined_spoof else "AI"
+            
+            # Make final decision with special handling for robo-calls
+            # If WavLM strongly indicates AI (confidence > 0.4), lower the threshold for AI detection
+            if second_result == "AI" and second_confidence > 0.4:
+                # Use a lower threshold (45% instead of 50%) when WavLM detects AI
+                final_result = "Human" if combined_genuine > 55 else "AI"
+                logger.info("Using lower threshold for AI detection due to WavLM prediction")
+            else:
+                final_result = "Human" if combined_genuine > combined_spoof else "AI"
             
             logger.info(f"✅ Scores - Genuine: {combined_genuine:.1f}%, Spoof: {combined_spoof:.1f}%")
 
-            # Add to response
+            # Update the main response with the combined result
+            response["result"] = final_result
+            response["confidence"] = round(max(combined_genuine, combined_spoof) / 100, 4)
+            
+            # Add detailed combined scores to response
             response["combined_score"] = {
                 "genuine_score": round(combined_genuine / 100, 4),
                 "spoof_score": round(combined_spoof / 100, 4),
