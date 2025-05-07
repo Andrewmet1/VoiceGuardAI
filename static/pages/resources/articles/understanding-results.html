@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding Scan Results | VoiceGuardAI Knowledge Base</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Learn how to interpret VoiceGuardAI scan results and understand confidence scores to better protect yourself from voice scams.">
+    <meta name="keywords" content="voicemail scan results, AI voice detection, confidence scores, voice scam protection, deepfake detection">
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="../../../images/favicon.svg" type="image/svg+xml">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../../css/styles.css">
+    
+    <style>
+        /* Page-specific styles */
+        .page-header {
+            padding: 120px 0 60px;
+            background: linear-gradient(90deg, #4263eb 0%, #60a5fa 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .page-content {
+            padding: 60px 0;
+        }
+        
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .article-meta {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            color: #718096;
+            font-size: 14px;
+        }
+        
+        .article-meta .date {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+        
+        .article-meta .date i {
+            margin-right: 5px;
+        }
+        
+        .article-meta .author {
+            display: flex;
+            align-items: center;
+        }
+        
+        .article-meta .author i {
+            margin-right: 5px;
+        }
+        
+        .article-content h2 {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-size: 1.8rem;
+        }
+        
+        .article-content h3 {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #4a5568;
+            font-size: 1.4rem;
+        }
+        
+        .article-content p {
+            margin-bottom: 20px;
+            line-height: 1.7;
+            color: #4a5568;
+        }
+        
+        .article-content ul, .article-content ol {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+        
+        .article-content li {
+            margin-bottom: 10px;
+            line-height: 1.7;
+        }
+        
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 30px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .article-content .note {
+            background: #f0f5ff;
+            border-left: 4px solid #4263eb;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .article-content .warning {
+            background: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .article-content .tip {
+            background: #f0fff4;
+            border-left: 4px solid #38a169;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .article-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .article-navigation a {
+            display: flex;
+            align-items: center;
+            color: #4263eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .article-navigation a:hover {
+            text-decoration: underline;
+        }
+        
+        .article-navigation .prev i {
+            margin-right: 8px;
+        }
+        
+        .article-navigation .next i {
+            margin-left: 8px;
+        }
+        
+        .related-articles {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .related-articles h3 {
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+        
+        .related-articles-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .related-articles-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .related-article {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .related-article:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .related-article h4 {
+            margin-bottom: 10px;
+            color: #2d3748;
+            font-size: 18px;
+        }
+        
+        .related-article p {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .result-example {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .result-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 20px;
+        }
+        
+        .result-icon.human {
+            background: #c6f6d5;
+            color: #38a169;
+        }
+        
+        .result-icon.ai {
+            background: #fed7d7;
+            color: #e53e3e;
+        }
+        
+        .result-icon.uncertain {
+            background: #feebc8;
+            color: #dd6b20;
+        }
+        
+        .result-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .result-title.human {
+            color: #38a169;
+        }
+        
+        .result-title.ai {
+            color: #e53e3e;
+        }
+        
+        .result-title.uncertain {
+            color: #dd6b20;
+        }
+        
+        .confidence-bar {
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .confidence-level {
+            height: 100%;
+            border-radius: 5px;
+        }
+        
+        .confidence-level.high {
+            background: #48bb78;
+            width: 92%;
+        }
+        
+        .confidence-level.medium {
+            background: #e53e3e;
+            width: 85%;
+        }
+        
+        .confidence-level.low {
+            background: #dd6b20;
+            width: 60%;
+        }
+        
+        .confidence-text {
+            display: flex;
+            justify-content: space-between;
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .result-details {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .result-details h4 {
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+        
+        .result-details ul {
+            margin-bottom: 0;
+        }
+        
+        .feature-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+        }
+        
+        .feature-table th, .feature-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .feature-table th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .feature-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .feature-table td:first-child {
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header id="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="../../../index.html" class="logo">
+                    <img src="../../../images/logo.svg" alt="VoiceGuardAI Logo">
+                    VoiceGuardAI
+                </a>
+                
+                <button class="mobile-toggle" id="mobile-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="../../../index.html">Home</a></li>
+                    <li><a href="../../advocacy.html">Advocacy</a></li>
+                    <li><a href="../support.html">Support</a></li>
+                    <li><a href="../../../index.html#download" class="btn">Download</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Understanding Scan Results</h1>
+            <p>How to interpret VoiceGuardAI's analysis and make informed decisions</p>
+        </div>
+    </section>
+
+    <!-- Page Content -->
+    <section class="page-content">
+        <div class="container">
+            <div class="article-container">
+                <div class="article-meta">
+                    <div class="date">
+                        <i class="far fa-calendar-alt"></i>
+                        <span>Last Updated: May 7, 2025</span>
+                    </div>
+                    <div class="author">
+                        <i class="far fa-user"></i>
+                        <span>VoiceGuardAI Team</span>
+                    </div>
+                </div>
+                
+                <div class="article-content">
+                    <p>After scanning a voicemail with VoiceGuardAI, you'll receive a detailed analysis report. Understanding these results is crucial for making informed decisions about potential voice scams. This guide explains how to interpret the scan results, understand confidence scores, and recognize the acoustic features our AI analyzes.</p>
+                    
+                    <h2>Scan Result Classifications</h2>
+                    <p>VoiceGuardAI classifies voicemails into three main categories:</p>
+                    
+                    <div class="result-example">
+                        <div class="result-header">
+                            <div class="result-icon human">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <h3 class="result-title human">Likely Human</h3>
+                        </div>
+                        <p>Our AI has determined that the voice in this voicemail is most likely from a real human speaker.</p>
+                        <div class="confidence-text">
+                            <span>Confidence Score:</span>
+                            <span>92%</span>
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-level high"></div>
+                        </div>
+                        <div class="result-details">
+                            <h4>What This Means:</h4>
+                            <ul>
+                                <li>The voicemail exhibits natural speech patterns consistent with human speech</li>
+                                <li>No significant markers of synthetic voice generation were detected</li>
+                                <li>The audio contains expected variations in pitch, rhythm, and other natural speech characteristics</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="result-example">
+                        <div class="result-header">
+                            <div class="result-icon ai">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h3 class="result-title ai">Likely AI-Generated</h3>
+                        </div>
+                        <p>Our AI has detected characteristics consistent with synthetic or manipulated audio in this voicemail.</p>
+                        <div class="confidence-text">
+                            <span>Confidence Score:</span>
+                            <span>85%</span>
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-level medium"></div>
+                        </div>
+                        <div class="result-details">
+                            <h4>What This Means:</h4>
+                            <ul>
+                                <li>The voicemail contains patterns typically found in AI-generated or manipulated speech</li>
+                                <li>Unnatural acoustic features were detected that are uncommon in human speech</li>
+                                <li>The audio may have been created using voice cloning, text-to-speech, or other synthetic voice technologies</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="result-example">
+                        <div class="result-header">
+                            <div class="result-icon uncertain">
+                                <i class="fas fa-question"></i>
+                            </div>
+                            <h3 class="result-title uncertain">Uncertain</h3>
+                        </div>
+                        <p>Our AI has detected some suspicious patterns, but not enough to make a definitive determination.</p>
+                        <div class="confidence-text">
+                            <span>Confidence Score:</span>
+                            <span>60%</span>
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-level low"></div>
+                        </div>
+                        <div class="result-details">
+                            <h4>What This Means:</h4>
+                            <ul>
+                                <li>The voicemail contains some characteristics of both human and synthetic speech</li>
+                                <li>The audio quality may be too poor for a definitive analysis</li>
+                                <li>The sample may be too short for reliable detection</li>
+                                <li>The voice may have been partially manipulated or processed in ways that make classification difficult</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <h2>Understanding Confidence Scores</h2>
+                    <p>Each scan result includes a confidence score, which indicates how certain our AI is about its classification. Here's how to interpret these scores:</p>
+                    
+                    <table class="feature-table">
+                        <thead>
+                            <tr>
+                                <th>Confidence Range</th>
+                                <th>Interpretation</th>
+                                <th>Recommended Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>90-100%</td>
+                                <td>Very high confidence in the result</td>
+                                <td>You can generally rely on this classification</td>
+                            </tr>
+                            <tr>
+                                <td>75-89%</td>
+                                <td>High confidence, but some uncertainty</td>
+                                <td>Consider the classification reliable, but use additional verification if the content is suspicious</td>
+                            </tr>
+                            <tr>
+                                <td>60-74%</td>
+                                <td>Moderate confidence with significant uncertainty</td>
+                                <td>Use caution and additional verification methods</td>
+                            </tr>
+                            <tr>
+                                <td>Below 60%</td>
+                                <td>Low confidence, highly uncertain</td>
+                                <td>Do not rely on this classification alone; use multiple verification methods</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="note">
+                        <strong>Note:</strong> Even with high confidence scores, it's always good practice to verify the identity of callers through other means, especially if they're requesting sensitive information or financial transactions.
+                    </div>
+                    
+                    <h2>Acoustic Features Analyzed</h2>
+                    <p>VoiceGuardAI analyzes over 500 acoustic features to determine if a voice is human or AI-generated. While we don't disclose the exact algorithms used (to prevent circumvention), here are some of the general categories of features we analyze:</p>
+                    
+                    <h3>Prosodic Features</h3>
+                    <p>These relate to the rhythm, stress, and intonation of speech:</p>
+                    <ul>
+                        <li><strong>Pitch variations:</strong> Natural human speech has micro-variations in pitch that are difficult for AI to perfectly replicate</li>
+                        <li><strong>Speech rhythm:</strong> The timing between words, syllables, and pauses often differs between human and synthetic speech</li>
+                        <li><strong>Stress patterns:</strong> How emphasis is placed on different syllables and words</li>
+                    </ul>
+                    
+                    <h3>Spectral Features</h3>
+                    <p>These relate to the frequency distribution of the audio:</p>
+                    <ul>
+                        <li><strong>Harmonic structure:</strong> The pattern of harmonics in the voice</li>
+                        <li><strong>Formant transitions:</strong> How the resonant frequencies of the vocal tract change during speech</li>
+                        <li><strong>Spectral balance:</strong> The distribution of energy across different frequency ranges</li>
+                    </ul>
+                    
+                    <h3>Temporal Features</h3>
+                    <p>These relate to timing aspects of the speech:</p>
+                    <ul>
+                        <li><strong>Voice onset time:</strong> The timing between the release of a consonant and the beginning of vocal fold vibration</li>
+                        <li><strong>Articulation rate:</strong> How quickly sounds are produced</li>
+                        <li><strong>Pause patterns:</strong> The duration and placement of pauses in speech</li>
+                    </ul>
+                    
+                    <h3>Voice Quality Features</h3>
+                    <p>These relate to the quality and characteristics of the voice:</p>
+                    <ul>
+                        <li><strong>Breathiness:</strong> The amount of audible breath in the voice</li>
+                        <li><strong>Jitter and shimmer:</strong> Cycle-to-cycle variations in frequency and amplitude</li>
+                        <li><strong>Vocal fry:</strong> A low, creaky sound sometimes present in human speech</li>
+                    </ul>
+                    
+                    <h2>Factors That Can Affect Accuracy</h2>
+                    <p>Several factors can influence the accuracy of VoiceGuardAI's analysis:</p>
+                    
+                    <h3>Audio Quality</h3>
+                    <p>Poor audio quality can make it difficult to analyze the voice accurately. Factors that can affect quality include:</p>
+                    <ul>
+                        <li>Background noise</li>
+                        <li>Low recording volume</li>
+                        <li>Audio compression artifacts</li>
+                        <li>Distortion or clipping</li>
+                    </ul>
+                    
+                    <h3>Sample Length</h3>
+                    <p>Longer audio samples generally provide more accurate results:</p>
+                    <ul>
+                        <li>Less than 3 seconds: May not provide enough data for reliable analysis</li>
+                        <li>3-10 seconds: Provides moderate reliability</li>
+                        <li>More than 10 seconds: Offers the most reliable analysis</li>
+                    </ul>
+                    
+                    <h3>AI Technology Advancements</h3>
+                    <p>As AI voice synthesis technology improves, detection becomes more challenging. VoiceGuardAI is continuously updated to keep pace with these advancements, but there's always an arms race between generation and detection technologies.</p>
+                    
+                    <div class="warning">
+                        <strong>Important:</strong> No AI detection system is 100% accurate. VoiceGuardAI should be used as one tool in your overall security strategy, not as the sole determinant of whether a voicemail is legitimate.
+                    </div>
+                    
+                    <h2>What to Do After Receiving Results</h2>
+                    
+                    <h3>If Classified as "Likely Human"</h3>
+                    <p>Even if a voicemail is classified as likely human:</p>
+                    <ul>
+                        <li>Remain vigilant if the content seems suspicious</li>
+                        <li>Verify the caller's identity through other means if they're requesting sensitive information</li>
+                        <li>Be aware that very high-quality AI voices might occasionally be misclassified as human</li>
+                    </ul>
+                    
+                    <h3>If Classified as "Likely AI-Generated"</h3>
+                    <p>If a voicemail is classified as likely AI-generated:</p>
+                    <ul>
+                        <li>Do not return the call using the number provided in the voicemail</li>
+                        <li>Do not follow instructions in the voicemail, especially regarding financial transactions</li>
+                        <li>If the caller claims to be from a legitimate organization, contact that organization directly using their official contact information (not the number from the voicemail)</li>
+                        <li>Report the scam to relevant authorities</li>
+                    </ul>
+                    
+                    <h3>If Classified as "Uncertain"</h3>
+                    <p>If the result is uncertain:</p>
+                    <ul>
+                        <li>Treat the voicemail with caution</li>
+                        <li>Try scanning again with a better quality recording if possible</li>
+                        <li>Use additional verification methods before taking any action based on the voicemail</li>
+                        <li>Consider the context and content of the message - does it seem suspicious regardless of the voice?</li>
+                    </ul>
+                    
+                    <div class="tip">
+                        <strong>Pro Tip:</strong> Premium users can access our "Deep Analysis" feature, which provides more detailed information about specific acoustic features that contributed to the classification, helping you make more informed decisions.
+                    </div>
+                </div>
+                
+                <div class="article-navigation">
+                    <a href="how-to-scan-voicemail.html" class="prev">
+                        <i class="fas fa-arrow-left"></i>
+                        How to Scan a Voicemail
+                    </a>
+                    <a href="false-positives.html" class="next">
+                        Dealing with False Positives
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <div class="related-articles">
+                    <h3>Related Articles</h3>
+                    <div class="related-articles-list">
+                        <div class="related-article">
+                            <h4><a href="how-to-scan-voicemail.html">How to Scan a Voicemail</a></h4>
+                            <p>Step-by-step guide to scanning your voicemails for AI-generated voices.</p>
+                        </div>
+                        <div class="related-article">
+                            <h4><a href="false-positives.html">Dealing with False Positives</a></h4>
+                            <p>What to do when the app incorrectly flags a legitimate voicemail as AI-generated.</p>
+                        </div>
+                        <div class="related-article">
+                            <h4><a href="premium-features.html">Premium Features Explained</a></h4>
+                            <p>Discover the advanced features available to premium subscribers.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>VoiceGuardAI</h3>
+                    <p>Protecting your voice identity with advanced AI technology.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="../../../index.html">Home</a></li>
+                        <li><a href="../../../index.html#features">Features</a></li>
+                        <li><a href="../../../index.html#how-it-works">How It Works</a></li>
+                        <li><a href="../../../index.html#download">Download</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="../faqs.html">FAQs</a></li>
+                        <li><a href="../knowledge-base.html">Knowledge Base</a></li>
+                        <li><a href="../voice-scam-whitepaper.html">Voice Scam White Paper</a></li>
+                        <li><a href="../support.html">Support</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <ul class="footer-links">
+                        <li><a href="../../legal/privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="../../legal/terms-of-service.html">Terms of Service</a></li>
+                        <li><a href="../../legal/cookie-policy.html">Cookie Policy</a></li>
+                        <li><a href="../../legal/gdpr-compliance.html">GDPR Compliance</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2025 VoiceGuardAI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-toggle').addEventListener('click', function() {
+            document.getElementById('nav-links').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

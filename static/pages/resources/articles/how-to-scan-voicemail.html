@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Scan a Voicemail | VoiceGuardAI Knowledge Base</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Learn how to scan your voicemails for AI-generated voices with VoiceGuardAI. Step-by-step guide to protect yourself from voice scams.">
+    <meta name="keywords" content="voicemail scanning, voice scam protection, AI voice detection, deepfake detection, voicemail analysis">
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="../../../images/favicon.svg" type="image/svg+xml">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../../css/styles.css">
+    
+    <style>
+        /* Page-specific styles */
+        .page-header {
+            padding: 120px 0 60px;
+            background: linear-gradient(90deg, #4263eb 0%, #60a5fa 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .page-content {
+            padding: 60px 0;
+        }
+        
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .article-meta {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            color: #718096;
+            font-size: 14px;
+        }
+        
+        .article-meta .date {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+        
+        .article-meta .date i {
+            margin-right: 5px;
+        }
+        
+        .article-meta .author {
+            display: flex;
+            align-items: center;
+        }
+        
+        .article-meta .author i {
+            margin-right: 5px;
+        }
+        
+        .article-content h2 {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-size: 1.8rem;
+        }
+        
+        .article-content h3 {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #4a5568;
+            font-size: 1.4rem;
+        }
+        
+        .article-content p {
+            margin-bottom: 20px;
+            line-height: 1.7;
+            color: #4a5568;
+        }
+        
+        .article-content ul, .article-content ol {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+        
+        .article-content li {
+            margin-bottom: 10px;
+            line-height: 1.7;
+        }
+        
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 30px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .article-content .note {
+            background: #f0f5ff;
+            border-left: 4px solid #4263eb;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .article-content .warning {
+            background: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .article-content .tip {
+            background: #f0fff4;
+            border-left: 4px solid #38a169;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .article-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .article-navigation a {
+            display: flex;
+            align-items: center;
+            color: #4263eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .article-navigation a:hover {
+            text-decoration: underline;
+        }
+        
+        .article-navigation .prev i {
+            margin-right: 8px;
+        }
+        
+        .article-navigation .next i {
+            margin-left: 8px;
+        }
+        
+        .related-articles {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .related-articles h3 {
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+        
+        .related-articles-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .related-articles-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .related-article {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .related-article:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .related-article h4 {
+            margin-bottom: 10px;
+            color: #2d3748;
+            font-size: 18px;
+        }
+        
+        .related-article p {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .step {
+            display: flex;
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .step:last-child {
+            border-bottom: none;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: #4263eb;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-content h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+        
+        .step-content p {
+            margin-bottom: 15px;
+            line-height: 1.7;
+            color: #4a5568;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header id="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="../../../index.html" class="logo">
+                    <img src="../../../images/logo.svg" alt="VoiceGuardAI Logo">
+                    VoiceGuardAI
+                </a>
+                
+                <button class="mobile-toggle" id="mobile-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="../../../index.html">Home</a></li>
+                    <li><a href="../../advocacy.html">Advocacy</a></li>
+                    <li><a href="../support.html">Support</a></li>
+                    <li><a href="../../../index.html#download" class="btn">Download</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>How to Scan a Voicemail for AI-Generated Voices</h1>
+            <p>A step-by-step guide to protect yourself from voice scams</p>
+        </div>
+    </section>
+
+    <!-- Page Content -->
+    <section class="page-content">
+        <div class="container">
+            <div class="article-container">
+                <div class="article-meta">
+                    <div class="date">
+                        <i class="far fa-calendar-alt"></i>
+                        <span>Last Updated: May 7, 2025</span>
+                    </div>
+                    <div class="author">
+                        <i class="far fa-user"></i>
+                        <span>VoiceGuardAI Team</span>
+                    </div>
+                </div>
+                
+                <div class="article-content">
+                    <p>Voice scams using AI-generated voices are becoming increasingly sophisticated and difficult to detect. VoiceGuardAI helps you identify potential voice scams by analyzing voicemails for signs of synthetic or manipulated audio. This guide will walk you through the process of scanning a voicemail using our app.</p>
+                    
+                    <div class="note">
+                        <strong>Note:</strong> VoiceGuardAI requires access to your device's microphone and storage to analyze voicemails. These permissions are only used when you explicitly initiate a scan and are necessary for the app to function properly.
+                    </div>
+                    
+                    <h2>Prerequisites</h2>
+                    <ul>
+                        <li>VoiceGuardAI app installed on your device (iOS or Android)</li>
+                        <li>A suspicious voicemail you'd like to analyze</li>
+                        <li>Microphone and storage permissions granted to the app</li>
+                    </ul>
+                    
+                    <h2>Step-by-Step Guide</h2>
+                    
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Open the VoiceGuardAI App</h3>
+                            <p>Launch the VoiceGuardAI app on your smartphone. Make sure you're logged into your account. If you haven't created an account yet, you'll need to sign up first.</p>
+                            <p>On the home screen, you'll see a dashboard with options including "Scan Voicemail," "Scan History," and "Settings."</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Tap "Scan Voicemail"</h3>
+                            <p>On the app's home screen, tap the "Scan Voicemail" button. This will open the voicemail scanning interface.</p>
+                            <p>If this is your first time using the app, you may be prompted to grant microphone and storage permissions. These are required for the app to access and analyze your voicemails.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Select the Voicemail Source</h3>
+                            <p>VoiceGuardAI offers multiple ways to scan a voicemail:</p>
+                            <ul>
+                                <li><strong>Direct from Voicemail App:</strong> On compatible devices, VoiceGuardAI can access your voicemail app directly (requires additional permissions).</li>
+                                <li><strong>Upload Audio File:</strong> If you've saved the voicemail as an audio file, you can upload it from your device storage.</li>
+                                <li><strong>Record Playback:</strong> Play the voicemail on another device and let VoiceGuardAI record it through your phone's microphone.</li>
+                            </ul>
+                            <p>Select the option that works best for your situation.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>Share or Upload the Voicemail</h3>
+                            <p>Depending on the option you selected in Step 3:</p>
+                            <ul>
+                                <li>If using <strong>Direct from Voicemail App</strong>, select the voicemail you want to analyze from the list.</li>
+                                <li>If <strong>Uploading an Audio File</strong>, browse your device storage and select the saved voicemail file. VoiceGuardAI supports common audio formats including MP3, WAV, M4A, and AAC.</li>
+                                <li>If using <strong>Record Playback</strong>, tap "Start Recording" and then play the voicemail on your other device. Tap "Stop Recording" when the voicemail ends.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <h3>Wait for Analysis</h3>
+                            <p>Once the voicemail is uploaded or recorded, VoiceGuardAI will begin analyzing it. You'll see a progress indicator on the screen.</p>
+                            <p>The analysis typically takes 5-10 seconds, depending on the length of the voicemail and your internet connection speed. Our AI model processes over 500 acoustic features to identify signs of synthetic or manipulated audio.</p>
+                            <div class="tip">
+                                <strong>Tip:</strong> For optimal results, ensure the voicemail audio is clear and has minimal background noise. Longer samples (at least 3 seconds of speech) provide more accurate results.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">6</div>
+                        <div class="step-content">
+                            <h3>Review the Results</h3>
+                            <p>After the analysis is complete, VoiceGuardAI will display the results with one of the following classifications:</p>
+                            <ul>
+                                <li><strong>Likely Human:</strong> Our AI is confident that the voice in the voicemail is from a real human.</li>
+                                <li><strong>Likely AI-Generated:</strong> Our AI has detected characteristics consistent with synthetic or manipulated audio.</li>
+                                <li><strong>Uncertain:</strong> There are some suspicious patterns, but not enough to make a definitive determination.</li>
+                            </ul>
+                            <p>Along with the classification, you'll see a confidence score (percentage) indicating how certain our AI is about the result.</p>
+                            <div class="warning">
+                                <strong>Important:</strong> While VoiceGuardAI uses advanced AI technology to detect synthetic voices, no system is 100% accurate. Always use additional verification methods when dealing with suspicious calls or voicemails, especially if they involve requests for money or sensitive information.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">7</div>
+                        <div class="step-content">
+                            <h3>Take Appropriate Action</h3>
+                            <p>Based on the analysis results, you can take appropriate action:</p>
+                            <ul>
+                                <li>If the voicemail is <strong>Likely AI-Generated</strong>, be extremely cautious. Do not return the call or follow any instructions in the voicemail without verifying the sender's identity through other means.</li>
+                                <li>If the result is <strong>Uncertain</strong>, use additional verification methods before taking any action based on the voicemail.</li>
+                                <li>Even if the voicemail is classified as <strong>Likely Human</strong>, remain vigilant if the content seems suspicious or unusual.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">8</div>
+                        <div class="step-content">
+                            <h3>Report and Save (Optional)</h3>
+                            <p>After reviewing the results, you have additional options:</p>
+                            <ul>
+                                <li><strong>Save to History:</strong> Save the scan result to your history for future reference.</li>
+                                <li><strong>Report Scam:</strong> If you believe the voicemail is a scam, you can report it to help improve our detection algorithms.</li>
+                                <li><strong>Share Results:</strong> Share the scan results with others who might have received similar voicemails.</li>
+                            </ul>
+                            <p>Premium users have access to additional features, including detailed analysis reports and unlimited scan history.</p>
+                        </div>
+                    </div>
+                    
+                    <h2>Troubleshooting Common Issues</h2>
+                    
+                    <h3>Error: "Unable to Process Audio"</h3>
+                    <p>This error typically occurs when:</p>
+                    <ul>
+                        <li>The audio file is corrupted or in an unsupported format</li>
+                        <li>The voicemail is too short (less than 3 seconds of speech)</li>
+                        <li>The audio quality is too poor for analysis</li>
+                    </ul>
+                    <p>Try using a different source for the voicemail or ensure the audio is clear and of sufficient length.</p>
+                    
+                    <h3>Error: "Network Connection Required"</h3>
+                    <p>VoiceGuardAI requires an internet connection to analyze voicemails. Make sure your device is connected to Wi-Fi or has a stable mobile data connection before attempting to scan.</p>
+                    
+                    <h3>Permission Issues</h3>
+                    <p>If you're having trouble accessing your voicemails or recording audio, check that you've granted all necessary permissions to the app:</p>
+                    <ul>
+                        <li>For iOS: Settings > Privacy > Microphone > Enable for VoiceGuardAI</li>
+                        <li>For Android: Settings > Apps > VoiceGuardAI > Permissions > Enable Microphone and Storage</li>
+                    </ul>
+                    
+                    <div class="note">
+                        <strong>Privacy Note:</strong> VoiceGuardAI does not permanently store your voicemails. After analysis, the audio is immediately deleted from our servers. Only the analysis results are stored (if you choose to save them to your history).
+                    </div>
+                </div>
+                
+                <div class="article-navigation">
+                    <a href="../knowledge-base.html" class="prev">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Knowledge Base
+                    </a>
+                    <a href="understanding-results.html" class="next">
+                        Understanding Scan Results
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <div class="related-articles">
+                    <h3>Related Articles</h3>
+                    <div class="related-articles-list">
+                        <div class="related-article">
+                            <h4><a href="understanding-results.html">Understanding Scan Results</a></h4>
+                            <p>Learn how to interpret VoiceGuardAI's analysis results and confidence scores.</p>
+                        </div>
+                        <div class="related-article">
+                            <h4><a href="false-positives.html">Dealing with False Positives</a></h4>
+                            <p>What to do when the app incorrectly flags a legitimate voicemail as AI-generated.</p>
+                        </div>
+                        <div class="related-article">
+                            <h4><a href="trusted-contacts.html">Setting Up Trusted Contacts</a></h4>
+                            <p>How to create a list of trusted contacts that will bypass scanning.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>VoiceGuardAI</h3>
+                    <p>Protecting your voice identity with advanced AI technology.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="../../../index.html">Home</a></li>
+                        <li><a href="../../../index.html#features">Features</a></li>
+                        <li><a href="../../../index.html#how-it-works">How It Works</a></li>
+                        <li><a href="../../../index.html#download">Download</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="../faqs.html">FAQs</a></li>
+                        <li><a href="../knowledge-base.html">Knowledge Base</a></li>
+                        <li><a href="../voice-scam-whitepaper.html">Voice Scam White Paper</a></li>
+                        <li><a href="../support.html">Support</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <ul class="footer-links">
+                        <li><a href="../../legal/privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="../../legal/terms-of-service.html">Terms of Service</a></li>
+                        <li><a href="../../legal/cookie-policy.html">Cookie Policy</a></li>
+                        <li><a href="../../legal/gdpr-compliance.html">GDPR Compliance</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2025 VoiceGuardAI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-toggle').addEventListener('click', function() {
+            document.getElementById('nav-links').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

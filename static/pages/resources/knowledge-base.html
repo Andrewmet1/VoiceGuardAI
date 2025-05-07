@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Base - VoiceGuardAI</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Explore our knowledge base for guides, tutorials, and helpful articles about using VoiceGuardAI for voicemail scanning and voice scam protection.">
+    <meta name="keywords" content="voiceguardai knowledge base, voice security guides, ai scam detection tutorials, voicemail scanning help">
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="../../images/favicon.svg" type="image/svg+xml">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../css/styles.css">
+    
+    <style>
+        /* Page-specific styles */
+        .page-header {
+            padding: 120px 0 60px;
+            background: linear-gradient(90deg, #4263eb 0%, #60a5fa 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .page-content {
+            padding: 60px 0;
+        }
+        
+        .kb-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .kb-search {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .kb-search input {
+            width: 100%;
+            max-width: 600px;
+            padding: 15px 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .kb-categories {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        @media (max-width: 768px) {
+            .kb-categories {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .kb-category {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .kb-category:hover {
+            transform: translateY(-5px);
+        }
+        
+        .kb-category-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(66, 99, 235, 0.1);
+            color: #4263eb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 24px;
+        }
+        
+        .kb-category h3 {
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+        
+        .kb-category p {
+            color: #718096;
+            margin-bottom: 20px;
+        }
+        
+        .kb-articles {
+            margin-bottom: 60px;
+        }
+        
+        .kb-section {
+            margin-bottom: 40px;
+        }
+        
+        .kb-section h2 {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #2d3748;
+        }
+        
+        .kb-article-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .kb-article-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .kb-article {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .kb-article:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .kb-article h3 {
+            margin-bottom: 10px;
+            color: #2d3748;
+            font-size: 18px;
+        }
+        
+        .kb-article p {
+            color: #718096;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .kb-article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #a0aec0;
+        }
+        
+        .kb-article-meta .date {
+            display: flex;
+            align-items: center;
+        }
+        
+        .kb-article-meta .date i {
+            margin-right: 5px;
+        }
+        
+        .kb-article-meta .views {
+            display: flex;
+            align-items: center;
+        }
+        
+        .kb-article-meta .views i {
+            margin-right: 5px;
+        }
+        
+        .kb-popular {
+            background: #f7fafc;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 60px;
+        }
+        
+        .kb-popular h2 {
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+        
+        .kb-popular-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .kb-popular-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .kb-popular-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .kb-popular-item h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+        
+        .kb-popular-item p {
+            font-size: 14px;
+            color: #718096;
+        }
+        
+        .kb-cta {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(90deg, #4263eb 0%, #60a5fa 100%);
+            color: white;
+            border-radius: 8px;
+        }
+        
+        .kb-cta h2 {
+            margin-bottom: 15px;
+        }
+        
+        .kb-cta p {
+            margin-bottom: 20px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .kb-cta .btn {
+            background: white;
+            color: #4263eb;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .kb-cta .btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header id="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="../../index.html" class="logo">
+                    <img src="../../images/logo.svg" alt="VoiceGuardAI Logo">
+                    VoiceGuardAI
+                </a>
+                
+                <button class="mobile-toggle" id="mobile-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="../../index.html">Home</a></li>
+                    <li><a href="../advocacy.html">Advocacy</a></li>
+                    <li><a href="faqs.html">FAQs</a></li>
+                    <li><a href="support.html">Support</a></li>
+                    <li><a href="../../index.html#download" class="btn">Download</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Knowledge Base</h1>
+            <p>Find guides, tutorials, and helpful articles to get the most out of VoiceGuardAI</p>
+        </div>
+    </section>
+
+    <!-- Page Content -->
+    <section class="page-content">
+        <div class="container">
+            <div class="kb-container">
+                <!-- Search Bar -->
+                <div class="kb-search">
+                    <input type="text" placeholder="Search the knowledge base..." aria-label="Search the knowledge base">
+                </div>
+                
+                <!-- Categories -->
+                <div class="kb-categories">
+                    <div class="kb-category">
+                        <div class="kb-category-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3>Getting Started</h3>
+                        <p>Learn the basics of VoiceGuardAI and how to set up your account</p>
+                        <a href="#getting-started" class="btn btn-outline">View Articles</a>
+                    </div>
+                    
+                    <div class="kb-category">
+                        <div class="kb-category-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Voice Scanning</h3>
+                        <p>Understand how our voicemail scanning technology works</p>
+                        <a href="#voice-scanning" class="btn btn-outline">View Articles</a>
+                    </div>
+                    
+                    <div class="kb-category">
+                        <div class="kb-category-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <h3>Advanced Features</h3>
+                        <p>Explore premium features and advanced settings</p>
+                        <a href="#advanced-features" class="btn btn-outline">View Articles</a>
+                    </div>
+                </div>
+                
+                <!-- Popular Articles -->
+                <div class="kb-popular">
+                    <h2>Popular Articles</h2>
+                    <div class="kb-popular-list">
+                        <div class="kb-popular-item">
+                            <h3><a href="articles/how-to-scan-voicemail.html">How to Scan a Voicemail for AI Voice Detection</a></h3>
+                            <p>Learn the step-by-step process to analyze your voicemails for potential scams.</p>
+                        </div>
+                        
+                        <div class="kb-popular-item">
+                            <h3><a href="articles/understanding-results.html">Understanding Scan Results</a></h3>
+                            <p>How to interpret the AI analysis results and what actions to take.</p>
+                        </div>
+                        
+                        <div class="kb-popular-item">
+                            <h3><a href="articles/premium-features.html">Premium Features Explained</a></h3>
+                            <p>Discover the benefits of upgrading to our premium subscription.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Article Sections -->
+                <div class="kb-articles">
+                    <!-- Getting Started Section -->
+                    <div id="getting-started" class="kb-section">
+                        <h2>Getting Started</h2>
+                        <div class="kb-article-list">
+                            <div class="kb-article">
+                                <h3><a href="articles/installation-guide.html">Installation Guide</a></h3>
+                                <p>How to download and install VoiceGuardAI on iOS and Android devices.</p>
+                                <div class="kb-article-meta">
+                                    <span class="date"><i class="far fa-calendar-alt"></i> May 1, 2025</span>
+                                    <span class="views"><i class="far fa-eye"></i> 452 views</span>
+                                </div>
+                            </div>
+                            
+                            <div class="kb-article">
+                                <h3><span style="color: #718096;">Account Setup & Registration</span> <span class="badge" style="background: #e2e8f0; color: #718096; font-size: 12px; padding: 2px 8px; border-radius: 4px;">Coming Soon</span></h3>
+                                <p>Creating your account and configuring your profile settings.</p>
+                                <div class="kb-article-meta">
+                                    <span class="date"><i class="far fa-calendar-alt"></i> May 7, 2025</span>
+                                    <span class="views"><i class="far fa-eye"></i> 0 views</span>
+                                </div>
+                            </div>
+                            
+                            <div class="kb-article">
+                                <h3><span style="color: #718096;">Navigating the App Interface</span> <span class="badge" style="background: #e2e8f0; color: #718096; font-size: 12px; padding: 2px 8px; border-radius: 4px;">Coming Soon</span></h3>
+                                <p>A tour of the VoiceGuardAI app interface and main features.</p>
+                                <div class="kb-article-meta">
+                                    <span class="date"><i class="far fa-calendar-alt"></i> May 7, 2025</span>
+                                    <span class="views"><i class="far fa-eye"></i> 0 views</span>
+                                </div>
+                            </div>
+                            
+                            <div class="kb-article">
+                                <h3><span style="color: #718096;">App Permissions Guide</span> <span class="badge" style="background: #e2e8f0; color: #718096; font-size: 12px; padding: 2px 8px; border-radius: 4px;">Coming Soon</span></h3>
+                                <p>Understanding the permissions VoiceGuardAI needs and why they matter.</p>
+                                <div class="kb-article-meta">
+                                    <span class="date"><i class="far fa-calendar-alt"></i> May 7, 2025</span>
+                                    <span class="views"><i class="far fa-eye"></i> 0 views</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Voice Scanning Section -->
+                    <div id="voice-scanning" class="kb-section">
+                        <h2>Voice Scanning</h2>
+                        <div class="kb-article-list">
+                            <div class="kb-article">
+                                <h3><a href="articles/how-to-scan-voicemail.html">How to Scan a Voicemail</a></h3>
+                                <p>Step-by-step guide to scanning voicemails for AI-generated voices.</p>
+                                <div class="kb-article-meta">
+                                    <span class="date"><i class="far fa-calendar-alt"></i> May 7, 2025</span>
+                                    <span class="views"><i class="far fa-eye"></i> 782 views</span>
+                                </div>
+                            </div>
+                            
+                            <div class="kb-article">
+                                <h3><a href="articles/understanding-results.html">Understanding Scan Results</a></h3>
+                                <p>How to interpret the AI analysis results and confidence scores.</p>
+                                <div class="kb-article-meta">
+                                    <span class="date"><i class="far fa-calendar-alt"></i> May 7, 2025</span>
+                                    <span class="views"><i class="far fa-eye"></i> 321 views</span>
+                                </div>
+                            </div>
+                            
+                            <div class="kb-article">
+                                <h3><span style="color: #718096;">Managing Your Scan History</span> <span class="badge" style="background: #e2e8f0; color: #718096; font-size: 12px; padding: 2px 8px; border-radius: 4px;">Coming Soon</span></h3>
+                                <p>How to view, organize, and delete your previous voicemail scan results.</p>
+                                <div class="kb-article-meta">
+                                    <span class="date"><i class="far fa-calendar-alt"></i> May 7, 2025</span>
+                                    <span class="views"><i class="far fa-eye"></i> 0 views</span>
+                                </div>
+                            </div>
+                            
+                            <div class="kb-article">
+                                <h3><span style="color: #718096;">Dealing with False Positives</span> <span class="badge" style="background: #e2e8f0; color: #718096; font-size: 12px; padding: 2px 8px; border-radius: 4px;">Coming Soon</span></h3>
+                                <p>What to do when the app incorrectly flags a legitimate voicemail.</p>
+                                <div class="kb-article-meta">
+                                    <span class="date"><i class="far fa-calendar-alt"></i> May 7, 2025</span>
+                                    <span class="views"><i class="far fa-eye"></i> 0 views</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Advanced Features Section -->
+                    <div id="advanced-features" class="kb-section">
+                        <h2>Advanced Features</h2>
+                        <div class="kb-article-list">
+                            <div class="kb-article">
+                                <h3><a href="articles/premium-features.html">Premium Features Explained</a></h3>
+                                <p>A detailed overview of all the benefits included in the premium subscription.</p>
+                                <div class="kb-article-meta">
+                                    <span class="date"><i class="far fa-calendar-alt"></i> May 7, 2025</span>
+                                    <span class="views"><i class="far fa-eye"></i> 376 views</span>
+                                </div>
+                            </div>
+                            
+                            <div class="kb-article">
+                                <h3><span style="color: #718096;">Setting Up Trusted Contacts</span> <span class="badge" style="background: #e2e8f0; color: #718096; font-size: 12px; padding: 2px 8px; border-radius: 4px;">Coming Soon</span></h3>
+                                <p>How to create a list of trusted contacts that will bypass scanning.</p>
+                                <div class="kb-article-meta">
+                                    <span class="date"><i class="far fa-calendar-alt"></i> May 7, 2025</span>
+                                    <span class="views"><i class="far fa-eye"></i> 0 views</span>
+                                </div>
+                            </div>
+                            
+                            <div class="kb-article">
+                                <h3><span style="color: #718096;">Adjusting Detection Sensitivity</span> <span class="badge" style="background: #e2e8f0; color: #718096; font-size: 12px; padding: 2px 8px; border-radius: 4px;">Coming Soon</span></h3>
+                                <p>How to customize the AI sensitivity settings for your specific needs.</p>
+                                <div class="kb-article-meta">
+                                    <span class="date"><i class="far fa-calendar-alt"></i> May 7, 2025</span>
+                                    <span class="views"><i class="far fa-eye"></i> 0 views</span>
+                                </div>
+                            </div>
+                            
+                            <div class="kb-article">
+                                <h3><a href="articles/api-integration.html">API Integration for Developers</a></h3>
+                                <p>Technical guide for integrating VoiceGuardAI's API into your applications.</p>
+                                <div class="kb-article-meta">
+                                    <span class="date"><i class="far fa-calendar-alt"></i> May 28, 2023</span>
+                                    <span class="views"><i class="far fa-eye"></i> 1,543 views</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- CTA Section -->
+                <div class="kb-cta">
+                    <h2>Can't Find What You're Looking For?</h2>
+                    <p>Our support team is ready to help you with any questions or issues you may have.</p>
+                    <a href="mailto:support@voiceguardai.com" class="btn">Email Support</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <div class="footer-logo">
+                        <img src="../../images/logo.svg" alt="VoiceGuardAI Logo">
+                        <span>VoiceGuardAI</span>
+                    </div>
+                    <p>Protecting your voice identity with advanced AI technology.</p>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="../../index.html#features">Features</a></li>
+                        <li><a href="../../index.html#how-it-works">How It Works</a></li>
+                        <li><a href="../../index.html#pricing">Pricing</a></li>
+                        <li><a href="../../index.html#download">Download</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="faqs.html">FAQs</a></li>
+                        <li><a href="voice-scam-whitepaper.html">Voice Scam White Paper</a></li>
+                        <li><a href="support.html">Support</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="../legal/terms-of-service.html">Terms of Service</a></li>
+                        <li><a href="../legal/privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="../legal/cookie-policy.html">Cookie Policy</a></li>
+                        <li><a href="../legal/gdpr-compliance.html">GDPR Compliance</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2023 VoiceGuardAI. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-toggle').addEventListener('click', function() {
+            document.getElementById('nav-links').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

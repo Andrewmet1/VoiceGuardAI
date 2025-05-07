@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Installation Guide | VoiceGuardAI Knowledge Base</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Step-by-step guide to installing VoiceGuardAI on iOS and Android devices. Protect yourself from voice scams with our easy-to-use app.">
+    <meta name="keywords" content="voiceguardai installation, voice scam protection app, ai voice detection app, install voice security app">
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="../../../images/favicon.svg" type="image/svg+xml">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../../css/styles.css">
+    
+    <style>
+        /* Page-specific styles */
+        .page-header {
+            padding: 120px 0 60px;
+            background: linear-gradient(90deg, #4263eb 0%, #60a5fa 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .page-content {
+            padding: 60px 0;
+        }
+        
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .article-meta {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            color: #718096;
+            font-size: 14px;
+        }
+        
+        .article-meta .date {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+        
+        .article-meta .date i {
+            margin-right: 5px;
+        }
+        
+        .article-meta .author {
+            display: flex;
+            align-items: center;
+        }
+        
+        .article-meta .author i {
+            margin-right: 5px;
+        }
+        
+        .article-content h2 {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-size: 1.8rem;
+        }
+        
+        .article-content h3 {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #4a5568;
+            font-size: 1.4rem;
+        }
+        
+        .article-content p {
+            margin-bottom: 20px;
+            line-height: 1.7;
+            color: #4a5568;
+        }
+        
+        .article-content ul, .article-content ol {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+        
+        .article-content li {
+            margin-bottom: 10px;
+            line-height: 1.7;
+        }
+        
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 30px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .article-content .note {
+            background: #f0f5ff;
+            border-left: 4px solid #4263eb;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .article-content .warning {
+            background: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .article-content .tip {
+            background: #f0fff4;
+            border-left: 4px solid #38a169;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .article-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .article-navigation a {
+            display: flex;
+            align-items: center;
+            color: #4263eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .article-navigation a:hover {
+            text-decoration: underline;
+        }
+        
+        .article-navigation .prev i {
+            margin-right: 8px;
+        }
+        
+        .article-navigation .next i {
+            margin-left: 8px;
+        }
+        
+        .related-articles {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .related-articles h3 {
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+        
+        .related-articles-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .related-articles-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .related-article {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .related-article:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .related-article h4 {
+            margin-bottom: 10px;
+            color: #2d3748;
+            font-size: 18px;
+        }
+        
+        .related-article p {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .platform-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .platform-tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #718096;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .platform-tab.active {
+            color: #4263eb;
+            border-bottom-color: #4263eb;
+        }
+        
+        .platform-tab i {
+            margin-right: 8px;
+        }
+        
+        .platform-content {
+            display: none;
+        }
+        
+        .platform-content.active {
+            display: block;
+        }
+        
+        .step-box {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .step-box h3 {
+            display: flex;
+            align-items: center;
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+        
+        .step-box h3 .step-number {
+            width: 30px;
+            height: 30px;
+            background: #4263eb;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .step-box p {
+            margin-bottom: 15px;
+        }
+        
+        .step-box .screenshot {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .system-requirements {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .system-requirements h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+        
+        .requirements-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .requirements-table th, .requirements-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .requirements-table th {
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        .requirements-table tr:last-child td {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header id="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="../../../index.html" class="logo">
+                    <img src="../../../images/logo.svg" alt="VoiceGuardAI Logo">
+                    VoiceGuardAI
+                </a>
+                
+                <button class="mobile-toggle" id="mobile-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="../../../index.html">Home</a></li>
+                    <li><a href="../../advocacy.html">Advocacy</a></li>
+                    <li><a href="../support.html">Support</a></li>
+                    <li><a href="../../../index.html#download" class="btn">Download</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Installation Guide</h1>
+            <p>How to download and install VoiceGuardAI on iOS and Android devices</p>
+        </div>
+    </section>
+
+    <!-- Page Content -->
+    <section class="page-content">
+        <div class="container">
+            <div class="article-container">
+                <div class="article-meta">
+                    <div class="date">
+                        <i class="far fa-calendar-alt"></i>
+                        <span>Last Updated: May 1, 2025</span>
+                    </div>
+                    <div class="author">
+                        <i class="far fa-user"></i>
+                        <span>VoiceGuardAI Team</span>
+                    </div>
+                </div>
+                
+                <div class="article-content">
+                    <p>This guide will walk you through the process of downloading and installing VoiceGuardAI on your iOS or Android device. VoiceGuardAI is designed to be easy to install and use, with a straightforward setup process that gets you protected against voice scams in minutes.</p>
+                    
+                    <div class="system-requirements">
+                        <h3>System Requirements</h3>
+                        <table class="requirements-table">
+                            <tr>
+                                <th>Platform</th>
+                                <th>Minimum Requirements</th>
+                                <th>Recommended</th>
+                            </tr>
+                            <tr>
+                                <td>iOS</td>
+                                <td>iOS 13.0 or later</td>
+                                <td>iOS 15.0 or later</td>
+                            </tr>
+                            <tr>
+                                <td>Android</td>
+                                <td>Android 8.0 (Oreo) or later</td>
+                                <td>Android 10.0 or later</td>
+                            </tr>
+                            <tr>
+                                <td>Storage</td>
+                                <td>50 MB free space</td>
+                                <td>100 MB free space</td>
+                            </tr>
+                            <tr>
+                                <td>Internet</td>
+                                <td>Required for installation and analysis</td>
+                                <td>Wi-Fi recommended for updates</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="platform-tabs">
+                        <div class="platform-tab active" data-platform="ios">
+                            <i class="fab fa-apple"></i> iOS Installation
+                        </div>
+                        <div class="platform-tab" data-platform="android">
+                            <i class="fab fa-android"></i> Android Installation
+                        </div>
+                    </div>
+                    
+                    <div id="ios-content" class="platform-content active">
+                        <div class="step-box">
+                            <h3><span class="step-number">1</span> Open the App Store</h3>
+                            <p>Locate and tap the App Store icon on your iOS device's home screen.</p>
+                        </div>
+                        
+                        <div class="step-box">
+                            <h3><span class="step-number">2</span> Search for VoiceGuardAI</h3>
+                            <p>Tap the Search tab at the bottom of the screen and enter "VoiceGuardAI" in the search bar at the top. Tap the Search button on your keyboard.</p>
+                            <div class="tip">
+                                <strong>Tip:</strong> Make sure you're downloading the official VoiceGuardAI app. Look for our logo (a shield with a sound wave) and verify that the developer is listed as "VoiceGuard Technologies, Inc."
+                            </div>
+                        </div>
+                        
+                        <div class="step-box">
+                            <h3><span class="step-number">3</span> Download the App</h3>
+                            <p>Tap the "GET" button next to the VoiceGuardAI app. You may be prompted to authenticate with Face ID, Touch ID, or your Apple ID password to confirm the download.</p>
+                            <p>If you've previously downloaded the app, you'll see a cloud icon instead of "GET." Tap the cloud icon to re-download.</p>
+                        </div>
+                        
+                        <div class="step-box">
+                            <h3><span class="step-number">4</span> Wait for Installation</h3>
+                            <p>The app will begin downloading and installing automatically. You'll see a progress indicator on the app icon on your home screen.</p>
+                            <div class="note">
+                                <strong>Note:</strong> If you're not connected to Wi-Fi, you may see a prompt asking if you want to download using cellular data. If the app is larger than 200 MB, you'll need to connect to Wi-Fi or change your App Store settings to download using cellular data.
+                            </div>
+                        </div>
+                        
+                        <div class="step-box">
+                            <h3><span class="step-number">5</span> Open VoiceGuardAI</h3>
+                            <p>Once the installation is complete, tap "OPEN" in the App Store or find the VoiceGuardAI icon on your home screen and tap it to launch the app.</p>
+                        </div>
+                        
+                        <div class="step-box">
+                            <h3><span class="step-number">6</span> Grant Permissions</h3>
+                            <p>When you first open the app, you'll be prompted to grant several permissions that VoiceGuardAI needs to function properly:</p>
+                            <ul>
+                                <li><strong>Microphone Access:</strong> Required to analyze voicemails for AI-generated voices</li>
+                                <li><strong>Notifications:</strong> To alert you about scan results and potential threats</li>
+                                <li><strong>Storage Access:</strong> To access saved voicemail files for analysis</li>
+                            </ul>
+                            <p>Tap "Allow" for each permission request. You can always adjust these permissions later in your device's Settings app.</p>
+                            <div class="warning">
+                                <strong>Important:</strong> VoiceGuardAI requires these permissions to function properly. If you deny any of these permissions, some features may not work correctly.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="android-content" class="platform-content">
+                        <div class="step-box">
+                            <h3><span class="step-number">1</span> Open the Google Play Store</h3>
+                            <p>Locate and tap the Google Play Store icon on your Android device's home screen or app drawer.</p>
+                        </div>
+                        
+                        <div class="step-box">
+                            <h3><span class="step-number">2</span> Search for VoiceGuardAI</h3>
+                            <p>Tap the search bar at the top of the screen and enter "VoiceGuardAI". Tap the search icon or press Enter on your keyboard.</p>
+                            <div class="tip">
+                                <strong>Tip:</strong> Make sure you're downloading the official VoiceGuardAI app. Look for our logo (a shield with a sound wave) and verify that the developer is listed as "VoiceGuard Technologies, Inc."
+                            </div>
+                        </div>
+                        
+                        <div class="step-box">
+                            <h3><span class="step-number">3</span> Download the App</h3>
+                            <p>Tap the "Install" button next to the VoiceGuardAI app. Review the app permissions if prompted, then tap "Accept" to continue.</p>
+                        </div>
+                        
+                        <div class="step-box">
+                            <h3><span class="step-number">4</span> Wait for Installation</h3>
+                            <p>The app will begin downloading and installing automatically. You'll see a progress indicator on the screen.</p>
+                            <div class="note">
+                                <strong>Note:</strong> If you're not connected to Wi-Fi, the app will download using your mobile data. If you prefer to download only on Wi-Fi, you can adjust this setting in the Google Play Store settings.
+                            </div>
+                        </div>
+                        
+                        <div class="step-box">
+                            <h3><span class="step-number">5</span> Open VoiceGuardAI</h3>
+                            <p>Once the installation is complete, tap "Open" in the Google Play Store or find the VoiceGuardAI icon in your app drawer and tap it to launch the app.</p>
+                        </div>
+                        
+                        <div class="step-box">
+                            <h3><span class="step-number">6</span> Grant Permissions</h3>
+                            <p>When you first open the app, you'll be prompted to grant several permissions that VoiceGuardAI needs to function properly:</p>
+                            <ul>
+                                <li><strong>Microphone Access:</strong> Required to analyze voicemails for AI-generated voices</li>
+                                <li><strong>Storage Access:</strong> To access saved voicemail files for analysis</li>
+                                <li><strong>Notification Access:</strong> To alert you about scan results and potential threats</li>
+                            </ul>
+                            <p>Tap "Allow" for each permission request. You can always adjust these permissions later in your device's Settings app.</p>
+                            <div class="warning">
+                                <strong>Important:</strong> VoiceGuardAI requires these permissions to function properly. If you deny any of these permissions, some features may not work correctly.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h2>Troubleshooting Installation Issues</h2>
+                    
+                    <h3>App Won't Download</h3>
+                    <p>If you're having trouble downloading the app, try these solutions:</p>
+                    <ul>
+                        <li><strong>Check your internet connection:</strong> Make sure you have a stable Wi-Fi or cellular connection.</li>
+                        <li><strong>Check available storage:</strong> Ensure you have enough free space on your device.</li>
+                        <li><strong>Update your operating system:</strong> Make sure your device meets the minimum requirements listed above.</li>
+                        <li><strong>Restart your device:</strong> Sometimes a simple restart can resolve download issues.</li>
+                    </ul>
+                    
+                    <h3>App Crashes After Installation</h3>
+                    <p>If the app crashes immediately after installation:</p>
+                    <ul>
+                        <li><strong>Restart your device:</strong> This can clear temporary issues that might be causing crashes.</li>
+                        <li><strong>Reinstall the app:</strong> Uninstall VoiceGuardAI and then reinstall it from the App Store or Google Play Store.</li>
+                        <li><strong>Update your operating system:</strong> Make sure your device is running the latest version of iOS or Android.</li>
+                    </ul>
+                    
+                    <h3>Permission Issues</h3>
+                    <p>If you accidentally denied a permission that VoiceGuardAI needs:</p>
+                    <ul>
+                        <li><strong>For iOS:</strong> Go to Settings > Privacy > [Permission Type] > VoiceGuardAI and toggle the permission on.</li>
+                        <li><strong>For Android:</strong> Go to Settings > Apps > VoiceGuardAI > Permissions and grant the necessary permissions.</li>
+                    </ul>
+                    
+                    <h2>Next Steps</h2>
+                    <p>After successfully installing VoiceGuardAI, you'll want to:</p>
+                    <ol>
+                        <li><a href="account-setup.html">Create an account and set up your profile</a></li>
+                        <li><a href="app-navigation.html">Familiarize yourself with the app interface</a></li>
+                        <li><a href="how-to-scan-voicemail.html">Learn how to scan your first voicemail</a></li>
+                    </ol>
+                    
+                    <div class="note">
+                        <strong>Note:</strong> VoiceGuardAI offers both free and premium versions. The free version includes basic voicemail scanning capabilities, while the premium version offers advanced features like unlimited scan history, detailed analysis reports, and priority support. You can upgrade to premium at any time from within the app.
+                    </div>
+                </div>
+                
+                <div class="article-navigation">
+                    <a href="../knowledge-base.html" class="prev">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Knowledge Base
+                    </a>
+                    <a href="account-setup.html" class="next">
+                        Account Setup & Registration
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <div class="related-articles">
+                    <h3>Related Articles</h3>
+                    <div class="related-articles-list">
+                        <div class="related-article">
+                            <h4><a href="account-setup.html">Account Setup & Registration</a></h4>
+                            <p>Creating your account and configuring your profile settings.</p>
+                        </div>
+                        <div class="related-article">
+                            <h4><a href="app-navigation.html">Navigating the App Interface</a></h4>
+                            <p>A tour of the VoiceGuardAI app interface and main features.</p>
+                        </div>
+                        <div class="related-article">
+                            <h4><a href="permissions-guide.html">App Permissions Guide</a></h4>
+                            <p>Understanding the permissions VoiceGuardAI needs and why they matter.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>VoiceGuardAI</h3>
+                    <p>Protecting your voice identity with advanced AI technology.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="../../../index.html">Home</a></li>
+                        <li><a href="../../../index.html#features">Features</a></li>
+                        <li><a href="../../../index.html#how-it-works">How It Works</a></li>
+                        <li><a href="../../../index.html#download">Download</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="../faqs.html">FAQs</a></li>
+                        <li><a href="../knowledge-base.html">Knowledge Base</a></li>
+                        <li><a href="../voice-scam-whitepaper.html">Voice Scam White Paper</a></li>
+                        <li><a href="../support.html">Support</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <ul class="footer-links">
+                        <li><a href="../../legal/privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="../../legal/terms-of-service.html">Terms of Service</a></li>
+                        <li><a href="../../legal/cookie-policy.html">Cookie Policy</a></li>
+                        <li><a href="../../legal/gdpr-compliance.html">GDPR Compliance</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2025 VoiceGuardAI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-toggle').addEventListener('click', function() {
+            document.getElementById('nav-links').classList.toggle('active');
+        });
+        
+        // Platform tabs
+        const platformTabs = document.querySelectorAll('.platform-tab');
+        const platformContents = document.querySelectorAll('.platform-content');
+        
+        platformTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const platform = tab.getAttribute('data-platform');
+                
+                // Remove active class from all tabs and contents
+                platformTabs.forEach(tab => tab.classList.remove('active'));
+                platformContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                document.getElementById(`${platform}-content`).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

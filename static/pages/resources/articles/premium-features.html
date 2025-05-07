@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Features Explained | VoiceGuardAI Knowledge Base</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Discover all the advanced features available with VoiceGuardAI Premium. Enhanced protection against voice scams with unlimited history, priority analysis, and more.">
+    <meta name="keywords" content="voiceguardai premium, voice security subscription, ai voice detection premium, voice scam protection features">
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="../../../images/favicon.svg" type="image/svg+xml">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../../css/styles.css">
+    
+    <style>
+        /* Page-specific styles */
+        .page-header {
+            padding: 120px 0 60px;
+            background: linear-gradient(90deg, #4263eb 0%, #60a5fa 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .page-content {
+            padding: 60px 0;
+        }
+        
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .article-meta {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            color: #718096;
+            font-size: 14px;
+        }
+        
+        .article-meta .date {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+        
+        .article-meta .date i {
+            margin-right: 5px;
+        }
+        
+        .article-meta .author {
+            display: flex;
+            align-items: center;
+        }
+        
+        .article-meta .author i {
+            margin-right: 5px;
+        }
+        
+        .article-content h2 {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-size: 1.8rem;
+        }
+        
+        .article-content h3 {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #4a5568;
+            font-size: 1.4rem;
+        }
+        
+        .article-content p {
+            margin-bottom: 20px;
+            line-height: 1.7;
+            color: #4a5568;
+        }
+        
+        .article-content ul, .article-content ol {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+        
+        .article-content li {
+            margin-bottom: 10px;
+            line-height: 1.7;
+        }
+        
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 30px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .article-content .note {
+            background: #f0f5ff;
+            border-left: 4px solid #4263eb;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .article-content .warning {
+            background: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .article-content .tip {
+            background: #f0fff4;
+            border-left: 4px solid #38a169;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .article-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .article-navigation a {
+            display: flex;
+            align-items: center;
+            color: #4263eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .article-navigation a:hover {
+            text-decoration: underline;
+        }
+        
+        .article-navigation .prev i {
+            margin-right: 8px;
+        }
+        
+        .article-navigation .next i {
+            margin-left: 8px;
+        }
+        
+        .related-articles {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .related-articles h3 {
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+        
+        .related-articles-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .related-articles-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .related-article {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .related-article:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .related-article h4 {
+            margin-bottom: 10px;
+            color: #2d3748;
+            font-size: 18px;
+        }
+        
+        .related-article p {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(66, 99, 235, 0.1);
+            color: #4263eb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            flex-shrink: 0;
+            font-size: 24px;
+        }
+        
+        .feature-content {
+            flex: 1;
+        }
+        
+        .feature-content h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+        
+        .feature-content p {
+            margin-bottom: 15px;
+            color: #4a5568;
+        }
+        
+        .feature-comparison {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+        }
+        
+        .feature-comparison th, .feature-comparison td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .feature-comparison th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .feature-comparison tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .feature-comparison td:first-child {
+            font-weight: 500;
+        }
+        
+        .feature-comparison .check {
+            color: #38a169;
+        }
+        
+        .feature-comparison .times {
+            color: #e53e3e;
+        }
+        
+        .feature-comparison .limited {
+            color: #dd6b20;
+        }
+        
+        .pricing-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+            border: 2px solid #4263eb;
+        }
+        
+        .pricing-card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #2d3748;
+            font-size: 24px;
+        }
+        
+        .pricing-amount {
+            font-size: 36px;
+            font-weight: 700;
+            color: #4263eb;
+            margin-bottom: 20px;
+        }
+        
+        .pricing-period {
+            font-size: 16px;
+            color: #718096;
+        }
+        
+        .pricing-features {
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .pricing-features li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .pricing-features li i {
+            color: #4263eb;
+            margin-right: 10px;
+        }
+        
+        .pricing-cta {
+            display: inline-block;
+            background: #4263eb;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+        
+        .pricing-cta:hover {
+            background: #3651c7;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header id="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="../../../index.html" class="logo">
+                    <img src="../../../images/logo.svg" alt="VoiceGuardAI Logo">
+                    VoiceGuardAI
+                </a>
+                
+                <button class="mobile-toggle" id="mobile-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="../../../index.html">Home</a></li>
+                    <li><a href="../../advocacy.html">Advocacy</a></li>
+                    <li><a href="../support.html">Support</a></li>
+                    <li><a href="../../../index.html#download" class="btn">Download</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Premium Features Explained</h1>
+            <p>Discover the advanced features and benefits of upgrading to VoiceGuardAI Premium</p>
+        </div>
+    </section>
+
+    <!-- Page Content -->
+    <section class="page-content">
+        <div class="container">
+            <div class="article-container">
+                <div class="article-meta">
+                    <div class="date">
+                        <i class="far fa-calendar-alt"></i>
+                        <span>Last Updated: May 7, 2025</span>
+                    </div>
+                    <div class="author">
+                        <i class="far fa-user"></i>
+                        <span>VoiceGuardAI Team</span>
+                    </div>
+                </div>
+                
+                <div class="article-content">
+                    <p>VoiceGuardAI offers both free and premium versions of our voice scam detection service. While the free version provides essential protection, upgrading to Premium unlocks a range of advanced features designed to enhance your security and improve your experience. This guide explains all the premium features in detail to help you decide if upgrading is right for you.</p>
+                    
+                    <h2>Premium Features Overview</h2>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-infinity"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Unlimited Scan History</h3>
+                            <p>Premium users can save and access their complete scan history without limitations. This allows you to keep track of all analyzed voicemails and their results indefinitely, making it easier to monitor patterns and identify recurring threats.</p>
+                            <p>Free users are limited to viewing their 10 most recent scans, with older scan results being automatically deleted after 30 days.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Advanced Analysis Reports</h3>
+                            <p>Premium users receive detailed analysis reports that go beyond the basic classification. These reports include:</p>
+                            <ul>
+                                <li>Comprehensive breakdown of acoustic features analyzed</li>
+                                <li>Specific indicators that contributed to the classification</li>
+                                <li>Confidence scores for individual detection metrics</li>
+                                <li>Comparison with known voice scam patterns</li>
+                            </ul>
+                            <p>These detailed reports help you better understand why a voicemail was flagged as suspicious and make more informed decisions about how to respond.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Priority Analysis</h3>
+                            <p>Premium users enjoy priority processing of their voicemail scans. During high-traffic periods, premium scans are placed at the front of the queue, ensuring faster results even when our system is experiencing heavy load.</p>
+                            <p>This feature is particularly valuable when you need to quickly determine if a suspicious voicemail is legitimate before taking action.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-user-friends"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Trusted Contacts Management</h3>
+                            <p>Premium users can create and manage a list of trusted contacts whose voicemails will automatically bypass scanning or receive special handling. This feature allows you to:</p>
+                            <ul>
+                                <li>Add up to 50 trusted contacts (compared to 5 for free users)</li>
+                                <li>Organize contacts into custom groups</li>
+                                <li>Set different handling rules for different contacts or groups</li>
+                                <li>Import contacts from your device's address book</li>
+                            </ul>
+                            <p>Trusted contacts management helps reduce false positives and streamlines the process of handling voicemails from people you know and trust.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-sliders-h"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Customizable Detection Sensitivity</h3>
+                            <p>Premium users can fine-tune the sensitivity of VoiceGuardAI's detection algorithms to match their specific needs. This includes:</p>
+                            <ul>
+                                <li>Adjusting the overall sensitivity level (Low, Medium, High, or Custom)</li>
+                                <li>Setting custom thresholds for specific detection metrics</li>
+                                <li>Creating different sensitivity profiles for different scenarios</li>
+                                <li>Scheduling automatic sensitivity changes based on time or location</li>
+                            </ul>
+                            <p>This level of customization allows you to balance security with convenience, reducing false positives while maintaining protection against genuine threats.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Advanced Notifications</h3>
+                            <p>Premium users have access to enhanced notification options, including:</p>
+                            <ul>
+                                <li>Custom notification sounds for different scan results</li>
+                                <li>Email notifications for suspicious voicemails</li>
+                                <li>Scheduled notification summaries</li>
+                                <li>Integration with third-party messaging apps</li>
+                                <li>Emergency contact alerts for high-confidence scam detections</li>
+                            </ul>
+                            <p>These advanced notification options ensure you never miss an important security alert, even when you're not actively using the app.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Priority Support</h3>
+                            <p>Premium users receive priority access to our support team, with guaranteed response times:</p>
+                            <ul>
+                                <li>Email support responses within 4 hours during business hours</li>
+                                <li>Live chat support during extended hours</li>
+                                <li>Priority handling of bug reports and feature requests</li>
+                                <li>Access to dedicated premium support specialists</li>
+                            </ul>
+                            <p>Our priority support ensures that any issues or questions you have are addressed quickly and efficiently, minimizing disruption to your protection.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Cloud Backup & Sync</h3>
+                            <p>Premium users can securely back up their scan history, settings, and trusted contacts to the cloud, enabling:</p>
+                            <ul>
+                                <li>Seamless synchronization across multiple devices</li>
+                                <li>Easy recovery when changing or resetting devices</li>
+                                <li>Automatic daily backups of all app data</li>
+                                <li>Manual backup and restore options</li>
+                            </ul>
+                            <p>Cloud backup and sync ensures you never lose your important security data and can maintain consistent protection across all your devices.</p>
+                        </div>
+                    </div>
+                    
+                    <h2>Feature Comparison</h2>
+                    <p>The following table provides a side-by-side comparison of features available in the free and premium versions of VoiceGuardAI:</p>
+                    
+                    <table class="feature-comparison">
+                        <tr>
+                            <th>Feature</th>
+                            <th>Free</th>
+                            <th>Premium</th>
+                        </tr>
+                        <tr>
+                            <td>Basic Voice Scan</td>
+                            <td><i class="fas fa-check check"></i></td>
+                            <td><i class="fas fa-check check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Scan History</td>
+                            <td><span class="limited">Limited (10 scans, 30 days)</span></td>
+                            <td><i class="fas fa-infinity check"></i> Unlimited</td>
+                        </tr>
+                        <tr>
+                            <td>Analysis Detail</td>
+                            <td>Basic</td>
+                            <td>Advanced</td>
+                        </tr>
+                        <tr>
+                            <td>Processing Priority</td>
+                            <td>Standard</td>
+                            <td>Priority</td>
+                        </tr>
+                        <tr>
+                            <td>Trusted Contacts</td>
+                            <td><span class="limited">Limited (5 contacts)</span></td>
+                            <td>Up to 50 contacts</td>
+                        </tr>
+                        <tr>
+                            <td>Detection Sensitivity</td>
+                            <td>Fixed</td>
+                            <td>Customizable</td>
+                        </tr>
+                        <tr>
+                            <td>Advanced Notifications</td>
+                            <td><i class="fas fa-times times"></i></td>
+                            <td><i class="fas fa-check check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Priority Support</td>
+                            <td><i class="fas fa-times times"></i></td>
+                            <td><i class="fas fa-check check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Cloud Backup & Sync</td>
+                            <td><i class="fas fa-times times"></i></td>
+                            <td><i class="fas fa-check check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Ads</td>
+                            <td>Yes</td>
+                            <td>No</td>
+                        </tr>
+                    </table>
+                    
+                    <h2>Premium Subscription Plans</h2>
+                    <p>VoiceGuardAI Premium is available in several subscription options to suit your needs:</p>
+                    
+                    <div class="pricing-card">
+                        <h3>VoiceGuardAI Premium</h3>
+                        <div class="pricing-amount">$4.99 <span class="pricing-period">/ month</span></div>
+                        <p>All premium features with monthly billing</p>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check-circle"></i> All premium features included</li>
+                            <li><i class="fas fa-check-circle"></i> Cancel anytime</li>
+                            <li><i class="fas fa-check-circle"></i> 7-day free trial for new users</li>
+                        </ul>
+                        <a href="../../../index.html#pricing" class="pricing-cta">Upgrade Now</a>
+                    </div>
+                    
+                    <p>We also offer annual and family plan options with additional savings. Visit our <a href="../../../index.html#pricing">pricing page</a> for complete details.</p>
+                    
+                    <h2>How to Upgrade</h2>
+                    <p>Upgrading to VoiceGuardAI Premium is quick and easy:</p>
+                    <ol>
+                        <li>Open the VoiceGuardAI app on your device</li>
+                        <li>Tap on your profile icon in the top-right corner</li>
+                        <li>Select "Upgrade to Premium"</li>
+                        <li>Choose your preferred subscription plan</li>
+                        <li>Complete the payment process using your App Store or Google Play account</li>
+                    </ol>
+                    
+                    <div class="note">
+                        <strong>Note:</strong> All new premium subscribers receive a 7-day free trial. You won't be charged until the trial period ends, and you can cancel anytime during the trial without being billed.
+                    </div>
+                    
+                    <h2>Frequently Asked Questions</h2>
+                    
+                    <h3>Can I switch between monthly and annual plans?</h3>
+                    <p>Yes, you can switch your subscription plan at any time. If you switch from monthly to annual, you'll immediately receive the discounted annual rate. If you switch from annual to monthly, the change will take effect at the end of your current billing cycle.</p>
+                    
+                    <h3>Will I lose my data if I downgrade from Premium to Free?</h3>
+                    <p>If you downgrade from Premium to Free, you'll retain access to your 10 most recent scan results, but older scan history will no longer be accessible. Your custom settings will be reset to the free tier defaults, but you can reconfigure them if you upgrade again in the future.</p>
+                    
+                    <h3>Is there a family or group discount available?</h3>
+                    <p>Yes, we offer a Family Plan that covers up to 5 family members at a discounted rate. We also offer special pricing for businesses and organizations. Contact our sales team for details on group discounts.</p>
+                    
+                    <h3>How do I cancel my Premium subscription?</h3>
+                    <p>To cancel your Premium subscription:</p>
+                    <ul>
+                        <li><strong>For iOS:</strong> Go to Settings > [your name] > Subscriptions > VoiceGuardAI > Cancel Subscription</li>
+                        <li><strong>For Android:</strong> Open Google Play Store > Menu > Subscriptions > VoiceGuardAI > Cancel Subscription</li>
+                    </ul>
+                    <p>Your Premium features will remain active until the end of your current billing period.</p>
+                    
+                    <div class="tip">
+                        <strong>Pro Tip:</strong> If you're experiencing any issues with the app that are making you consider cancelling, please contact our support team first. We may be able to resolve the issue or offer an alternative solution that meets your needs.
+                    </div>
+                </div>
+                
+                <div class="article-navigation">
+                    <a href="../knowledge-base.html" class="prev">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Knowledge Base
+                    </a>
+                    <a href="trusted-contacts.html" class="next">
+                        Setting Up Trusted Contacts
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <div class="related-articles">
+                    <h3>Related Articles</h3>
+                    <div class="related-articles-list">
+                        <div class="related-article">
+                            <h4><a href="trusted-contacts.html">Setting Up Trusted Contacts</a></h4>
+                            <p>How to create a list of trusted contacts that will bypass scanning.</p>
+                        </div>
+                        <div class="related-article">
+                            <h4><a href="sensitivity-settings.html">Adjusting Detection Sensitivity</a></h4>
+                            <p>How to customize the AI sensitivity settings for your specific needs.</p>
+                        </div>
+                        <div class="related-article">
+                            <h4><a href="scan-history.html">Managing Your Scan History</a></h4>
+                            <p>How to view, organize, and delete your previous voicemail scan results.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>VoiceGuardAI</h3>
+                    <p>Protecting your voice identity with advanced AI technology.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="../../../index.html">Home</a></li>
+                        <li><a href="../../../index.html#features">Features</a></li>
+                        <li><a href="../../../index.html#how-it-works">How It Works</a></li>
+                        <li><a href="../../../index.html#download">Download</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="../faqs.html">FAQs</a></li>
+                        <li><a href="../knowledge-base.html">Knowledge Base</a></li>
+                        <li><a href="../voice-scam-whitepaper.html">Voice Scam White Paper</a></li>
+                        <li><a href="../support.html">Support</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <ul class="footer-links">
+                        <li><a href="../../legal/privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="../../legal/terms-of-service.html">Terms of Service</a></li>
+                        <li><a href="../../legal/cookie-policy.html">Cookie Policy</a></li>
+                        <li><a href="../../legal/gdpr-compliance.html">GDPR Compliance</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2025 VoiceGuardAI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-toggle').addEventListener('click', function() {
+            document.getElementById('nav-links').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

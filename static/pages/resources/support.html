@@ -177,10 +177,9 @@
                 </button>
                 
                 <ul class="nav-links" id="nav-links">
-                    <li><a href="../../index.html#features">Features</a></li>
-                    <li><a href="../../index.html#how-it-works">How It Works</a></li>
-                    <li><a href="blog.html">Blog</a></li>
-                    <li><a href="support.html">Support</a></li>
+                    <li><a href="../../index.html">Home</a></li>
+                    <li><a href="../advocacy.html">Advocacy</a></li>
+                    <li><a href="support.html" class="active">Support</a></li>
                     <li><a href="../../index.html#download" class="btn">Download</a></li>
                 </ul>
             </nav>
@@ -206,25 +205,25 @@
                         </div>
                         <h3>Knowledge Base</h3>
                         <p>Browse our comprehensive guides and tutorials to learn how to use VoiceGuardAI effectively.</p>
-                        <a href="#" class="btn btn-outline">View Guides</a>
+                        <a href="knowledge-base.html" class="btn btn-outline">View Guides</a>
                     </div>
                     
                     <div class="support-option">
                         <div class="support-icon">
-                            <i class="fas fa-comments"></i>
+                            <i class="fas fa-envelope"></i>
                         </div>
-                        <h3>Live Chat</h3>
-                        <p>Chat with our support team in real-time for immediate assistance with your questions.</p>
-                        <a href="#" class="btn btn-outline">Start Chat</a>
+                        <h3>Email Support</h3>
+                        <p>Contact our support team via email for assistance with any questions or issues you may have.</p>
+                        <a href="mailto:support@voiceguardai.com" class="btn btn-outline">Email Support</a>
                     </div>
                     
                     <div class="support-option">
                         <div class="support-icon">
-                            <i class="fas fa-ticket-alt"></i>
+                            <i class="fas fa-question-circle"></i>
                         </div>
-                        <h3>Submit a Ticket</h3>
-                        <p>Create a support ticket for complex issues that require detailed investigation by our team.</p>
-                        <a href="#" class="btn btn-outline">Open Ticket</a>
+                        <h3>FAQs</h3>
+                        <p>Browse our frequently asked questions for quick answers to common inquiries about VoiceGuardAI.</p>
+                        <a href="faqs.html" class="btn btn-outline">View FAQs</a>
                     </div>
                 </div>
                 
@@ -247,14 +246,14 @@
                     
                     <div class="issue-card">
                         <h3><i class="fas fa-microphone-slash"></i> Microphone Access Problems</h3>
-                        <p>VoiceGuardAI requires microphone permissions to analyze speakerphone audio when you initiate a scan.</p>
+                        <p>VoiceGuardAI requires microphone permissions to access your voicemails when you share them for analysis.</p>
                         <div class="solution">
                             <h4>Solution:</h4>
                             <ol>
                                 <li>Go to your device's Settings > Apps > VoiceGuardAI > Permissions</li>
-                                <li>Ensure microphone access is enabled</li>
+                                <li>Ensure microphone and storage access are enabled</li>
                                 <li>For iOS: Settings > Privacy > Microphone > Enable for VoiceGuardAI</li>
-                                <li>For Android: Settings > Apps > VoiceGuardAI > Permissions > Microphone > Allow</li>
+                                <li>For Android: Settings > Apps > VoiceGuardAI > Permissions > Microphone & Storage > Allow</li>
                                 <li>Restart your device after changing permissions</li>
                             </ol>
                         </div>
@@ -262,13 +261,13 @@
                     
                     <div class="issue-card">
                         <h3><i class="fas fa-exclamation-triangle"></i> False Positive Detections</h3>
-                        <p>Sometimes VoiceGuardAI may incorrectly flag legitimate calls as potential scams during your scan.</p>
+                        <p>Sometimes VoiceGuardAI may incorrectly flag legitimate voicemails as potential scams during your analysis.</p>
                         <div class="solution">
                             <h4>Solution:</h4>
                             <ol>
-                                <li>Make sure the caller is on speakerphone and speaking clearly when you tap "Scan Caller"</li>
+                                <li>Ensure the voicemail audio is clear and has minimal background noise</li>
                                 <li>Update to the latest version which includes improved detection algorithms</li>
-                                <li>Add frequent contacts to your "Trusted Callers" list in the app settings</li>
+                                <li>Add frequent contacts to your "Trusted Contacts" list in the app settings</li>
                                 <li>Adjust the sensitivity level in Settings > Detection Sensitivity</li>
                                 <li>Report false positives through the app to help improve our AI model</li>
                             </ol>
@@ -291,16 +290,16 @@
                     </div>
                     
                     <div class="issue-card">
-                        <h3><i class="fas fa-volume-up"></i> Speakerphone Detection Issues</h3>
-                        <p>Some users may experience difficulty with the app detecting voice when using speakerphone.</p>
+                        <h3><i class="fas fa-file-audio"></i> Voicemail Upload Issues</h3>
+                        <p>Some users may experience difficulty when trying to upload voicemails for analysis.</p>
                         <div class="solution">
                             <h4>Solution:</h4>
                             <ol>
-                                <li>Ensure your phone's speaker volume is turned up to at least 70%</li>
-                                <li>Hold your phone 8-12 inches away from the caller's voice source</li>
-                                <li>Reduce background noise when performing a voice scan</li>
-                                <li>Wait until the caller has been speaking for at least 5 seconds before tapping "Scan Caller"</li>
-                                <li>If detection fails, try tapping "Scan Again" for a second sample</li>
+                                <li>Ensure your voicemail is saved in a compatible format (MP3, WAV, M4A, or AAC)</li>
+                                <li>Check that the voicemail file is not corrupted or too short (minimum 3 seconds)</li>
+                                <li>Verify you have a stable internet connection when uploading</li>
+                                <li>Make sure you have granted the app storage access permissions</li>
+                                <li>If upload fails, try saving the voicemail to your device first, then upload from your local storage</li>
                             </ol>
                         </div>
                     </div>
@@ -309,7 +308,7 @@
                 <div class="support-cta">
                     <h2>Still Need Help?</h2>
                     <p>Our dedicated support team is ready to assist you with any issues or questions you may have about VoiceGuardAI. We're committed to providing you with the best possible experience.</p>
-                    <a href="contact.html" class="btn">Contact Support Team</a>
+                    <a href="mailto:support@voiceguardai.com" class="btn">Email Support Team</a>
                 </div>
             </div>
         </div>
@@ -343,10 +342,11 @@
                 <div class="footer-column">
                     <h3>Resources</h3>
                     <ul class="footer-links">
-                        <li><a href="blog.html">Blog</a></li>
                         <li><a href="faqs.html">FAQs</a></li>
+                        <li><a href="knowledge-base.html">Knowledge Base</a></li>
+                        <li><a href="voice-scam-whitepaper.html">Voice Scam White Paper</a></li>
                         <li><a href="support.html">Support</a></li>
-                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="../advocacy.html">Advocacy</a></li>
                     </ul>
                 </div>
                 
