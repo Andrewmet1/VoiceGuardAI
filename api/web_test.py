@@ -253,9 +253,11 @@ def run_local_hf_inference(wav_path: str) -> Tuple[Optional[str], Optional[float
         
         # Run second model if available
         second_result = None
+        second_confidence = None
         if use_second_model:
             second_result, second_confidence = run_second_model_inference(wav_path)
-            logger.info(f"Second model result: {second_result} with confidence {second_confidence:.3f}")
+            if second_result and second_confidence is not None:
+                logger.info(f"Second model result: {second_result} with confidence {second_confidence:.3f}")
             
             # If both models agree it's AI, increase confidence
             if standardized_result == "AI" and second_result == "AI":
@@ -307,20 +309,29 @@ def run_second_model_inference(wav_path: str) -> Tuple[Optional[str], Optional[f
             range_ratio = (hidden_max - hidden_min) / (hidden_std + 1e-6)
             entropy_estimate = hidden_std / (abs(hidden_mean) + 1e-6)
             
+            # Normalize entropy estimate to a reasonable range (0-1)
+            # For WavLM, entropy estimates can be very high for human speech
+            normalized_entropy = min(1.0, entropy_estimate / 100.0)
+            
             # Real human speech tends to have higher entropy and variability
             # AI speech tends to be more regular with lower entropy
-            ai_score = 1.0 - min(1.0, (entropy_estimate / 10.0))
+            # Invert the normalized entropy to get AI score (higher = more likely AI)
+            ai_score = 1.0 - normalized_entropy
+            human_score = normalized_entropy
             
             logger.info(f"✅ WavLM analysis - mean: {hidden_mean:.3f}, std: {hidden_std:.3f}, range: {hidden_max-hidden_min:.3f}")
-            logger.info(f"WavLM entropy estimate: {entropy_estimate:.3f}, AI score: {ai_score:.3f}")
+            logger.info(f"WavLM entropy estimate: {entropy_estimate:.3f}, normalized: {normalized_entropy:.3f}")
+            logger.info(f"WavLM scores - Human: {human_score:.3f}, AI: {ai_score:.3f}")
             
             # Determine if it's AI or human based on our heuristic
             if ai_score > 0.65:  # Threshold can be adjusted based on testing
                 standardized_result = "AI"
+                confidence = ai_score
             else:
                 standardized_result = "Human"
+                confidence = human_score
                 
-            return standardized_result, ai_score
+            return standardized_result, confidence
     except Exception as e:
         logger.error(f"❌ WavLM model inference failed: {str(e)}")
         logger.error(traceback.format_exc())
@@ -484,8 +495,8 @@ async def predict(file: UploadFile):
         
         # Compute combined score
         if vg_genuine is not None and vg_spoof is not None:
-            # If we're using the second model, give it more weight (60%)
-            if use_second_model:
+            # If we're using the second model and have valid results, give it more weight (60%)
+            if use_second_model and second_result is not None and second_confidence is not None:
                 # 20% weight to Hugging Face, 20% weight to VoiceGuard, 60% to WavLM model
                 hf_genuine = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100
                 second_genuine = (second_confidence if second_result == "Human" else 1 - second_confidence) * 100
