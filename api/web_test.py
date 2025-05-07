@@ -476,7 +476,17 @@ async def predict(file: UploadFile):
         vg_audio_data = prepare_audio_for_voiceguard(wav_path)
         
         # Query VoiceGuard model
-        vg_result = query_voiceguard_model(vg_audio_data)
+        model = load_voiceguard_model()
+        if model:
+            try:
+                vg_genuine, vg_spoof = predict_voiceguard(vg_audio_data)
+                vg_result = {"genuine_percent": vg_genuine, "spoof_percent": vg_spoof}
+            except Exception as e:
+                logger.error(f"VoiceGuard prediction failed: {str(e)}")
+                logger.error(traceback.format_exc())
+                vg_result = {"genuine_percent": None, "spoof_percent": None}
+        else:
+            vg_result = {"genuine_percent": None, "spoof_percent": None}
         
         # Extract VoiceGuard scores
         vg_genuine = vg_result.get("genuine_percent")
