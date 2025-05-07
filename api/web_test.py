@@ -96,8 +96,8 @@ def prepare_audio_for_huggingface(audio_path: str) -> str:
         import librosa
         import soundfile as sf
         
-        # Load and resample audio - limit to 5 seconds for better performance
-        max_duration = 5  # seconds
+        # Load and resample audio - use 10 seconds for better detection
+        max_duration = 10  # seconds
         waveform, sr = librosa.load(audio_path, sr=SAMPLE_RATE, mono=True, duration=max_duration)
         encoded_wav = os.path.join(TEMP_DIR, "encoded_for_hf.wav")
         
@@ -229,8 +229,20 @@ def run_local_hf_inference(wav_path: str) -> Tuple[Optional[str], Optional[float
         logger.info(f"✅ Local HF model result: {result} with confidence {confidence:.3f}")
         
         # Standardize the result label to match expected format
-        standardized_result = "Human" if "human" in result.lower() else "AI"
-        logger.info(f"Standardized result: {standardized_result}")
+        # Apply a stricter threshold for Human classification to reduce false positives
+        HUMAN_CONFIDENCE_THRESHOLD = 0.97  # Require very high confidence for Human classification
+        
+        if "human" in result.lower() and confidence >= HUMAN_CONFIDENCE_THRESHOLD:
+            standardized_result = "Human"
+        else:
+            standardized_result = "AI"
+            
+        logger.info(f"Standardized result: {standardized_result} (threshold: {HUMAN_CONFIDENCE_THRESHOLD})")
+        
+        # Log if threshold changed the classification
+        if "human" in result.lower() and confidence < HUMAN_CONFIDENCE_THRESHOLD:
+            logger.warning(f"⚠️ Classification changed from Human to AI due to confidence threshold ({confidence:.3f} < {HUMAN_CONFIDENCE_THRESHOLD})")
+        
         
         return standardized_result, confidence
     except Exception as e:
@@ -584,8 +596,8 @@ def prepare_audio_for_voiceguard(audio_path: str) -> torch.Tensor:
     try:
         import librosa
         
-        # Load and resample audio - limit to 5 seconds for better performance
-        max_duration = 5  # seconds
+        # Load and resample audio - use 10 seconds for better detection
+        max_duration = 10  # seconds
         waveform, sr = librosa.load(audio_path, sr=SAMPLE_RATE, mono=True, duration=max_duration)
         
         # Extract MFCC features
