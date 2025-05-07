@@ -386,11 +386,14 @@ async def predict(file: UploadFile):
                 vg_confidence = max(vg_genuine, vg_spoof) / 100.0
                 logger.info(f"VoiceGuard result: {vg_result} with confidence {vg_confidence:.3f}")
                 
-                # Log agreement/disagreement between models
+                # Log agreement/disagreement between models with detailed scores
                 if vg_result == hf_result:
                     logger.info(f"✅ Models AGREE: Both predict {hf_result}")
                 else:
-                    logger.warning(f"⚠️ Models DISAGREE: HF={hf_result}, VG={vg_result}")
+                    logger.warning(f"⚠️ Models DISAGREE: HF={hf_result} ({hf_confidence:.3f}), VG={vg_result} ({vg_confidence:.3f})")
+                
+                # Log raw scores from both models for better diagnostics
+                logger.info(f"Raw scores - HF: {hf_result}={hf_confidence:.3f}, VG: Human={vg_genuine/100:.3f}, AI={vg_spoof/100:.3f}")
             except Exception as e:
                 logger.error(f"VoiceGuard prediction failed: {str(e)}")
                 logger.error(traceback.format_exc())
