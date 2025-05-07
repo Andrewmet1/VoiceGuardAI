@@ -356,16 +356,26 @@ def run_second_model_inference(wav_path: str) -> Tuple[Optional[str], Optional[f
             # - Higher pattern regularity suggests AI (weight: 20%)
             # - Lower prosody variation suggests AI (weight: 25%)
             # - Lower temporal variance suggests AI (weight: 25%)
-            ai_score = ((1.0 - normalized_entropy) * 0.3 + 
-                       pattern_score * 0.2 + 
-                       (1.0 - normalized_dim_variance) * 0.25 + 
-                       (1.0 - normalized_temporal_variance) * 0.25)
+            entropy_factor = 1.0 - normalized_entropy
+            pattern_factor = pattern_score
+            prosody_factor = 1.0 - normalized_dim_variance
+            temporal_factor = 1.0 - normalized_temporal_variance
             
-            # Apply a bias toward AI detection for robo-call scenarios
-            # This makes the system more aggressive in flagging potential AI voices
-            ai_bias = 0.15  # Bias factor
-            ai_score = min(1.0, ai_score + ai_bias)
-            human_score = 1.0 - ai_score
+            # Calculate final scores with a more balanced approach
+            # Normalize factors to prevent overweighting any single feature
+            entropy_factor = min(entropy_factor, 0.9)  # Cap entropy factor to prevent overweighting
+            combined_factors = (entropy_factor + pattern_factor + prosody_factor + temporal_factor) / 4
+            
+            # More balanced scoring formula with reduced bias
+            human_score = 0.5 - (0.4 * combined_factors)  # Reduced from 0.5 to 0.4 multiplier
+            ai_score = 1.0 - human_score
+            
+            # Apply a very small bias only for extremely regular patterns (clear AI indicator)
+            if pattern_factor > 0.8 and temporal_factor > 0.7:
+                logger.warning("Detected highly regular patterns - possible robo-call")
+                ai_bias = 0.03  # Reduced bias from 0.05 to 0.03
+                human_score = max(0.0, human_score - ai_bias)
+                ai_score = min(1.0, ai_score + ai_bias)
             
             logger.info(f"✅ WavLM analysis - mean: {hidden_mean:.3f}, std: {hidden_std:.3f}, range: {spectral_range:.3f}")
             logger.info(f"WavLM entropy: {entropy_estimate:.3f}, pattern: {pattern_score:.3f}, prosody: {normalized_dim_variance:.3f}, temporal: {normalized_temporal_variance:.3f}")
@@ -627,12 +637,14 @@ async def predict(file: UploadFile):
                                f"VG={vg_human_score:.1f}% (20%), WavLM={wavlm_human_score:.1f}% (60%)")
                     logger.info(f"Final combined score: {combined_genuine:.1f}% genuine, {100-combined_genuine:.1f}% AI")
                     
-                    # If WavLM strongly suggests AI but combined score still says Human, give it more weight
-                    if wavlm_human_score < 40 and combined_genuine > 50:
-                        logger.warning("WavLM strongly suggests AI - applying additional weight")
-                        # Increase WavLM influence for potential robo-calls
-                        combined_genuine = (combined_genuine * 0.7) + (wavlm_human_score * 0.3)
-                        logger.info(f"Adjusted score with WavLM bias: {combined_genuine:.1f}% genuine")
+                    # Only apply WavLM bias if both WavLM and HF models agree on AI
+                    # This helps prevent false positives on human voices
+                    if wavlm_human_score < 40 and hf_human_score < 40 and combined_genuine > 50:
+                        logger.warning("Both WavLM and HF suggest AI - applying careful bias adjustment")
+                        # Apply a very conservative adjustment to avoid misclassifying humans
+                        adjustment_strength = 0.15
+                        combined_genuine = (combined_genuine * (1 - adjustment_strength)) + (wavlm_human_score * adjustment_strength)
+                        logger.info(f"Adjusted score with conservative bias: {combined_genuine:.1f}% genuine")
                 else:
                     # Original 80/20 weighting if WavLM model isn't available
                     combined_genuine = (hf_human_score * 0.8) + (vg_human_score * 0.2)
@@ -648,13 +660,17 @@ async def predict(file: UploadFile):
             combined_spoof = 100.0 - combined_genuine
             
             # Make final decision with special handling for robo-calls
-            # If WavLM strongly indicates AI (confidence > 0.4), lower the threshold for AI detection
-            if second_result == "AI" and second_confidence > 0.4:
-                # Use a lower threshold (45% instead of 50%) when WavLM detects AI
-                final_result = "Human" if combined_genuine > 55 else "AI"
-                logger.info("Using lower threshold for AI detection due to WavLM prediction")
+            # Only adjust threshold if BOTH WavLM and HF models agree on AI
+            if second_result == "AI" and second_confidence > 0.5 and hf_result == "AI" and hf_confidence > 0.5:
+                # Use a modest threshold adjustment when both models agree on AI
+                threshold = 48.0  # Slightly favor AI detection when both models agree
+                final_result = "Human" if combined_genuine > threshold else "AI"
+                logger.info(f"Using adjusted threshold ({threshold}%) - both WavLM and HF models indicate AI")
             else:
-                final_result = "Human" if combined_genuine > combined_spoof else "AI"
+                # More conservative threshold (52%) to avoid false positives on human voices
+                threshold = 52.0
+                final_result = "Human" if combined_genuine > threshold else "AI"
+                logger.info(f"Using conservative threshold ({threshold}%) to avoid false positives")
             
             logger.info(f"✅ Scores - Genuine: {combined_genuine:.1f}%, Spoof: {combined_spoof:.1f}%")
 
