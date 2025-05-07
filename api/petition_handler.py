@@ -34,6 +34,9 @@ PETITION_FILE = os.path.join(DATA_DIR, 'petition_signatures.json')
 ADMIN_USERNAME = 'admin'
 ADMIN_PASSWORD = 'voiceguard2025'
 
+# You can change the admin credentials by modifying the values above
+# After changing, restart the API service for changes to take effect
+
 # Email configuration (replace with your actual email settings)
 EMAIL_ENABLED = False  # Set to True to enable email notifications
 EMAIL_SERVER = 'smtp.example.com'
