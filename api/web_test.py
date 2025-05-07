@@ -16,7 +16,7 @@ from datetime import datetime
 import tempfile
 import subprocess
 import traceback
-from transformers import Wav2Vec2FeatureExtractor, AutoModelForAudioClassification
+from transformers import Wav2Vec2FeatureExtractor, AutoModelForAudioClassification, WavLMModel, AutoFeatureExtractor
 
 # Configure logging
 logging.basicConfig(
@@ -166,8 +166,8 @@ async def test_hf_connection_endpoint():
     else:
         return {"status": "error", "message": "Failed to connect to Hugging Face API"}
 
-# Initialize HF model and processor for local inference
-# First, check if we have a local cached version
+# Initialize HF models for local inference
+# First model: Deepfake-audio-detection
 LOCAL_MODEL_DIR = os.path.join(PROJECT_ROOT, "hf_model_cache")
 os.makedirs(LOCAL_MODEL_DIR, exist_ok=True)
 
@@ -183,23 +183,42 @@ else:
     try:
         logger.info("Attempting to download and cache model for future use...")
         # Download and save to our custom cache directory
-        AutoProcessor.from_pretrained(HF_MODEL_PATH, cache_dir=LOCAL_MODEL_DIR)
+        Wav2Vec2FeatureExtractor.from_pretrained(HF_MODEL_PATH, cache_dir=LOCAL_MODEL_DIR)
         AutoModelForAudioClassification.from_pretrained(HF_MODEL_PATH, cache_dir=LOCAL_MODEL_DIR)
         logger.info(f"✅ Successfully cached model to {LOCAL_MODEL_DIR}")
     except Exception as e:
         logger.warning(f"⚠️ Could not cache model: {str(e)}")
 
+# Second model: WavLM-Large for deepfake detection
+SECOND_MODEL_ID = "microsoft/wavlm-large"
+LOCAL_MODEL_DIR_2 = os.path.join(PROJECT_ROOT, "hf_model_cache_2")
+os.makedirs(LOCAL_MODEL_DIR_2, exist_ok=True)
+
 try:
-    logger.info(f"Loading Hugging Face model from {HF_MODEL_PATH}...")
+    logger.info(f"Loading primary Hugging Face model from {HF_MODEL_PATH}...")
     hf_processor = Wav2Vec2FeatureExtractor.from_pretrained(HF_MODEL_PATH)
     hf_model = AutoModelForAudioClassification.from_pretrained(HF_MODEL_PATH)
     hf_model.eval()
-    logger.info(f"✅ Successfully loaded Hugging Face model locally")
+    logger.info(f"✅ Successfully loaded primary Hugging Face model locally")
+    
+    logger.info(f"Loading WavLM model from {SECOND_MODEL_ID}...")
+    try:
+        # Load WavLM model and processor
+        wavlm_processor = AutoFeatureExtractor.from_pretrained(SECOND_MODEL_ID)
+        wavlm_model = WavLMModel.from_pretrained(SECOND_MODEL_ID)
+        wavlm_model.eval()
+        logger.info(f"✅ Successfully loaded WavLM model")
+        use_second_model = True
+    except Exception as e:
+        logger.warning(f"⚠️ Could not load WavLM model: {str(e)}")
+        use_second_model = False
+    
     use_local_hf_model = True
 except Exception as e:
-    logger.error(f"❌ Failed to load Hugging Face model locally: {str(e)}")
+    logger.error(f"❌ Failed to load Hugging Face models locally: {str(e)}")
     logger.info("Falling back to Hugging Face API")
     use_local_hf_model = False
+    use_second_model = False
 
 # Initialize HF connection status (for API fallback)
 hf_api_ready = None
@@ -210,8 +229,8 @@ def run_local_hf_inference(wav_path: str) -> Tuple[Optional[str], Optional[float
     try:
         import librosa
         
-        # Load audio with 5 second duration limit
-        max_duration = 5  # seconds
+        # Load audio with 10 seconds for better detection
+        max_duration = 10  # seconds
         waveform, sr = librosa.load(wav_path, sr=16000, mono=True, duration=max_duration)
         
         # Process audio with the model's processor
@@ -226,17 +245,85 @@ def run_local_hf_inference(wav_path: str) -> Tuple[Optional[str], Optional[float
             confidence = float(probs[predicted_idx])
         
         # Map model output to expected format ("AI" or "Human")
-        logger.info(f"✅ Local HF model result: {result} with confidence {confidence:.3f}")
+        logger.info(f"✅ Primary HF model result: {result} with confidence {confidence:.3f}")
         
         # Standardize the result label to match expected format
         standardized_result = "Human" if "human" in result.lower() else "AI"
         logger.info(f"Standardized result: {standardized_result}")
         
+        # Run second model if available
+        second_result = None
+        if use_second_model:
+            second_result, second_confidence = run_second_model_inference(wav_path)
+            logger.info(f"Second model result: {second_result} with confidence {second_confidence:.3f}")
+            
+            # If both models agree it's AI, increase confidence
+            if standardized_result == "AI" and second_result == "AI":
+                logger.info("Both models agree this is AI-generated audio")
+                confidence = max(confidence, 0.95)  # Increase confidence when both agree it's AI
+            # If models disagree and second model says it's AI with high confidence
+            elif standardized_result == "Human" and second_result == "AI" and second_confidence > 0.8:
+                logger.info("Second model detected AI with high confidence, overriding primary model")
+                standardized_result = "AI"
+                confidence = second_confidence
         
         return standardized_result, confidence
     except Exception as e:
         logger.error(f"❌ Local HF model inference failed: {str(e)}")
         traceback.print_exc()
+        return None, None
+
+# Function to run inference with WavLM model
+def run_second_model_inference(wav_path: str) -> Tuple[Optional[str], Optional[float]]:
+    """Run inference using WavLM model for deepfake detection."""
+    try:
+        import librosa
+        import torch
+        import numpy as np
+        
+        # Load audio with 10 seconds for better detection
+        max_duration = 10  # seconds
+        waveform, sr = librosa.load(wav_path, sr=16000, mono=True, duration=max_duration)
+        
+        # Process audio with WavLM processor
+        inputs = wavlm_processor(waveform, sampling_rate=16000, return_tensors="pt")
+        
+        # Run WavLM model inference
+        with torch.no_grad():
+            outputs = wavlm_model(**inputs)
+            # Get the hidden states from the model
+            hidden_states = outputs.last_hidden_state
+            
+            # Calculate statistics on the hidden states
+            # Higher variance and entropy often indicate real human speech
+            # Lower variance and more predictable patterns often indicate AI-generated speech
+            hidden_mean = hidden_states.mean().item()
+            hidden_std = hidden_states.std().item()
+            hidden_max = hidden_states.max().item()
+            hidden_min = hidden_states.min().item()
+            
+            # Calculate a synthetic score based on these statistics
+            # This is a heuristic approach - in production you'd want to train a classifier on these features
+            range_ratio = (hidden_max - hidden_min) / (hidden_std + 1e-6)
+            entropy_estimate = hidden_std / (abs(hidden_mean) + 1e-6)
+            
+            # Real human speech tends to have higher entropy and variability
+            # AI speech tends to be more regular with lower entropy
+            ai_score = 1.0 - min(1.0, (entropy_estimate / 10.0))
+            
+            logger.info(f"✅ WavLM analysis - mean: {hidden_mean:.3f}, std: {hidden_std:.3f}, range: {hidden_max-hidden_min:.3f}")
+            logger.info(f"WavLM entropy estimate: {entropy_estimate:.3f}, AI score: {ai_score:.3f}")
+            
+            # Determine if it's AI or human based on our heuristic
+            if ai_score > 0.65:  # Threshold can be adjusted based on testing
+                standardized_result = "AI"
+            else:
+                standardized_result = "Human"
+                
+            return standardized_result, ai_score
+    except Exception as e:
+        logger.error(f"❌ WavLM model inference failed: {str(e)}")
+        logger.error(traceback.format_exc())
         return None, None
 
 # Modify the query_huggingface_api function to test connection if needed
@@ -397,8 +484,17 @@ async def predict(file: UploadFile):
         
         # Compute combined score
         if vg_genuine is not None and vg_spoof is not None:
-            # 80% weight to Hugging Face, 20% weight to VoiceGuard
-            combined_genuine = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100 * 0.8 + vg_genuine * 0.2
+            # If we're using the second model and it detected AI with high confidence, give it more weight
+            if use_second_model and second_result == "AI" and second_confidence > 0.8:
+                # 70% weight to Hugging Face, 20% weight to VoiceGuard, 10% to second model
+                hf_genuine = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100
+                second_genuine = (second_confidence if second_result == "Human" else 1 - second_confidence) * 100
+                combined_genuine = hf_genuine * 0.7 + vg_genuine * 0.2 + second_genuine * 0.1
+                logger.info(f"Using three-model weighted score: HF={hf_genuine:.1f}%, VG={vg_genuine:.1f}%, Second={second_genuine:.1f}%")
+            else:
+                # Original 80/20 weighting if second model isn't available or didn't detect AI
+                combined_genuine = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100 * 0.8 + vg_genuine * 0.2
+                
             combined_spoof = 100.0 - combined_genuine
             final_result = "Human" if combined_genuine > combined_spoof else "AI"
             
