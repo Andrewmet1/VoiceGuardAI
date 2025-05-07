@@ -229,19 +229,8 @@ def run_local_hf_inference(wav_path: str) -> Tuple[Optional[str], Optional[float
         logger.info(f"✅ Local HF model result: {result} with confidence {confidence:.3f}")
         
         # Standardize the result label to match expected format
-        # Apply a stricter threshold for Human classification to reduce false positives
-        HUMAN_CONFIDENCE_THRESHOLD = 0.97  # Require very high confidence for Human classification
-        
-        if "human" in result.lower() and confidence >= HUMAN_CONFIDENCE_THRESHOLD:
-            standardized_result = "Human"
-        else:
-            standardized_result = "AI"
-            
-        logger.info(f"Standardized result: {standardized_result} (threshold: {HUMAN_CONFIDENCE_THRESHOLD})")
-        
-        # Log if threshold changed the classification
-        if "human" in result.lower() and confidence < HUMAN_CONFIDENCE_THRESHOLD:
-            logger.warning(f"⚠️ Classification changed from Human to AI due to confidence threshold ({confidence:.3f} < {HUMAN_CONFIDENCE_THRESHOLD})")
+        standardized_result = "Human" if "human" in result.lower() else "AI"
+        logger.info(f"Standardized result: {standardized_result}")
         
         
         return standardized_result, confidence
