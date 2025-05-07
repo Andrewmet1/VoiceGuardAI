@@ -16,6 +16,7 @@ from datetime import datetime
 import tempfile
 import subprocess
 import traceback
+from transformers import Wav2Vec2FeatureExtractor, AutoModelForAudioClassification
 
 # Configure logging
 logging.basicConfig(
@@ -165,8 +166,72 @@ async def test_hf_connection_endpoint():
     else:
         return {"status": "error", "message": "Failed to connect to Hugging Face API"}
 
-# Initialize HF connection status
+# Initialize HF model and processor for local inference
+# First, check if we have a local cached version
+LOCAL_MODEL_DIR = os.path.join(PROJECT_ROOT, "hf_model_cache")
+os.makedirs(LOCAL_MODEL_DIR, exist_ok=True)
+
+# If we have a local cached version, use it; otherwise use the model ID
+if os.path.exists(os.path.join(LOCAL_MODEL_DIR, "config.json")):
+    HF_MODEL_PATH = LOCAL_MODEL_DIR
+    logger.info(f"Using locally cached model at {LOCAL_MODEL_DIR}")
+else:
+    HF_MODEL_PATH = "Heem2/Deepfake-audio-detection"
+    logger.info(f"Using model ID: {HF_MODEL_PATH}")
+    
+    # Try to download and cache the model locally for future use
+    try:
+        logger.info("Attempting to download and cache model for future use...")
+        # Download and save to our custom cache directory
+        AutoProcessor.from_pretrained(HF_MODEL_PATH, cache_dir=LOCAL_MODEL_DIR)
+        AutoModelForAudioClassification.from_pretrained(HF_MODEL_PATH, cache_dir=LOCAL_MODEL_DIR)
+        logger.info(f"✅ Successfully cached model to {LOCAL_MODEL_DIR}")
+    except Exception as e:
+        logger.warning(f"⚠️ Could not cache model: {str(e)}")
+
+try:
+    logger.info(f"Loading Hugging Face model from {HF_MODEL_PATH}...")
+    hf_processor = Wav2Vec2FeatureExtractor.from_pretrained(HF_MODEL_PATH)
+    hf_model = AutoModelForAudioClassification.from_pretrained(HF_MODEL_PATH)
+    hf_model.eval()
+    logger.info(f"✅ Successfully loaded Hugging Face model locally")
+    use_local_hf_model = True
+except Exception as e:
+    logger.error(f"❌ Failed to load Hugging Face model locally: {str(e)}")
+    logger.info("Falling back to Hugging Face API")
+    use_local_hf_model = False
+
+# Initialize HF connection status (for API fallback)
 hf_api_ready = None
+
+# Function to run local inference with Hugging Face model
+def run_local_hf_inference(wav_path: str) -> Tuple[Optional[str], Optional[float]]:
+    """Run local inference using Hugging Face audio classification model."""
+    try:
+        import librosa
+        
+        # Load audio with 5 second duration limit
+        max_duration = 5  # seconds
+        waveform, sr = librosa.load(wav_path, sr=16000, mono=True, duration=max_duration)
+        
+        # Process audio with the model's processor
+        inputs = hf_processor(waveform, sampling_rate=16000, return_tensors="pt")
+        
+        # Run model inference
+        with torch.no_grad():
+            logits = hf_model(**inputs).logits
+            probs = torch.nn.functional.softmax(logits, dim=1)[0]
+            predicted_idx = torch.argmax(probs).item()
+            result = hf_model.config.id2label[predicted_idx]
+            confidence = float(probs[predicted_idx])
+        
+        # Map model output to expected format ("AI" or "Human")
+        logger.info(f"✅ Local HF model result: {result} with confidence {confidence:.3f}")
+        return result, confidence
+    except Exception as e:
+        logger.error(f"❌ Local HF model inference failed: {str(e)}")
+        traceback.print_exc()
+        return None, None
 
 # Modify the query_huggingface_api function to test connection if needed
 def query_huggingface_api(audio_data: dict) -> Tuple[Optional[str], Optional[float]]:
@@ -267,16 +332,21 @@ async def predict(file: UploadFile):
         if not convert_to_wav(input_path, wav_path):
             raise HTTPException(status_code=500, detail="Failed to convert audio format")
         
-        # Process audio for Hugging Face API
-        hf_b64 = prepare_audio_for_huggingface(wav_path)
-        hf_payload = {"inputs": hf_b64}
+        # Use local Hugging Face model if available, otherwise fall back to API
+        if use_local_hf_model:
+            # Run local Hugging Face inference
+            logger.info("Using local Hugging Face model for inference")
+            hf_result, hf_confidence = run_local_hf_inference(wav_path)
+        else:
+            # Process audio for Hugging Face API
+            logger.info("Using Hugging Face API for inference")
+            hf_b64 = prepare_audio_for_huggingface(wav_path)
+            hf_payload = {"inputs": hf_b64}
+            hf_result, hf_confidence = query_huggingface_api(hf_payload)
         
-        # Query Hugging Face API - this ensures a fresh analysis for every request
-        hf_result, hf_confidence = query_huggingface_api(hf_payload)
-        
-        # If Hugging Face fails, return error with 503 status
+        # If Hugging Face inference fails (both local and API), return error
         if hf_result is None or hf_confidence is None:
-            logger.error("Hugging Face API unavailable - returning 503")
+            logger.error("Hugging Face model unavailable - returning 503")
             raise HTTPException(
                 status_code=503,
                 detail={"error": "HF model unavailable"}
