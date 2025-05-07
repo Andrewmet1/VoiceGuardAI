@@ -227,7 +227,12 @@ def run_local_hf_inference(wav_path: str) -> Tuple[Optional[str], Optional[float
         
         # Map model output to expected format ("AI" or "Human")
         logger.info(f"✅ Local HF model result: {result} with confidence {confidence:.3f}")
-        return result, confidence
+        
+        # Standardize the result label to match expected format
+        standardized_result = "Human" if "human" in result.lower() else "AI"
+        logger.info(f"Standardized result: {standardized_result}")
+        
+        return standardized_result, confidence
     except Exception as e:
         logger.error(f"❌ Local HF model inference failed: {str(e)}")
         traceback.print_exc()
