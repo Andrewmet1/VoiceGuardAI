@@ -52,11 +52,38 @@
             margin-bottom: 0.5rem;
         }
         
+        .stats-card .trend.down {
+            color: #ef4444;
+        }
+        
         .stats-card .label {
             color: #6c757d;
             font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+        
+        /* Improved styles for petition comments */
+        .reason-text {
+            position: relative;
+        }
+        
+        .full-text {
+            white-space: pre-wrap;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 3px solid #4263eb;
+            margin-top: 5px;
+            max-width: 100%;
+            overflow-wrap: break-word;
+        }
+        
+        .expand-btn {
+            cursor: pointer;
+            color: #4263eb;
+            text-decoration: none;
+            font-weight: bold;
         }
         
         .data-card {
@@ -352,7 +379,11 @@
                     
                     const reasonText = sig.reason || 'No reason provided';
                     const reasonDisplay = reasonText.length > 50 
-                        ? `<div class="reason-text">${reasonText} <span class="expand-btn">[+]</span></div>`
+                        ? `<div class="reason-text">
+                             <span class="truncated-text">${reasonText.substring(0, 50)}...</span>
+                             <span class="full-text" style="display:none">${reasonText}</span>
+                             <a href="javascript:void(0);" class="expand-btn" title="Click to expand/collapse">[+]</a>
+                           </div>`
                         : reasonText;
                     
                     const row = `
@@ -376,11 +407,25 @@
                 // Initialize DataTable after populating
                 initializeDataTable();
                 
-                // Handle expand/collapse for long reasons
-                $('.expand-btn').on('click', function() {
-                    const reasonText = $(this).parent();
-                    reasonText.toggleClass('expanded');
-                    $(this).text(reasonText.hasClass('expanded') ? '[-]' : '[+]');
+                // Handle expand button for long reasons
+                $(document).on('click', '.expand-btn', function(e) {
+                    e.preventDefault();
+                    const reasonDiv = $(this).closest('.reason-text');
+                    const truncatedText = reasonDiv.find('.truncated-text');
+                    const fullText = reasonDiv.find('.full-text');
+                    
+                    if (truncatedText.is(':visible')) {
+                        truncatedText.hide();
+                        fullText.show();
+                        $(this).text('[-]');
+                    } else {
+                        truncatedText.show();
+                        fullText.hide();
+                        $(this).text('[+]');
+                    }
+                    
+                    // Log to console for debugging
+                    console.log('Comment expanded/collapsed');
                 });
                 
                 // Handle delete button
@@ -472,45 +517,56 @@
             
             // Load sample data for demo purposes
             function loadSampleData() {
+                // Create a larger set of sample signatures
+                // Create sample signatures - these are the ones we'll display in the table
+                const sampleSignatures = [
+                    {
+                        id: "sample1",
+                        name: "John Doe",
+                        email: "john.doe@example.com",
+                        country: "United States",
+                        reason: "I was almost scammed by a voice deepfake claiming to be my son. We need better protection.",
+                        timestamp: Date.now() / 1000 - 3600
+                    },
+                    {
+                        id: "sample2",
+                        name: "Jane Smith",
+                        email: "jane.smith@example.com",
+                        country: "Canada",
+                        reason: "As someone working in cybersecurity, I believe real-time call scanning is essential for vulnerable populations.",
+                        timestamp: Date.now() / 1000 - 7200
+                    },
+                    {
+                        id: "sample3",
+                        name: "Robert Johnson",
+                        email: "robert.johnson@example.com",
+                        country: "United Kingdom",
+                        reason: "My grandmother was scammed out of £5,000 by someone impersonating me. This technology is desperately needed.",
+                        timestamp: Date.now() / 1000 - 10800
+                    },
+                    {
+                        id: "sample4",
+                        name: "Maria Garcia",
+                        email: "maria.garcia@example.com",
+                        country: "Spain",
+                        reason: null,
+                        timestamp: Date.now() / 1000 - 14400
+                    },
+                    {
+                        id: "sample5",
+                        name: "Wei Zhang",
+                        email: "wei.zhang@example.com",
+                        country: "Australia",
+                        reason: "I work with elderly clients who are frequently targeted by these scams. Real-time protection would be invaluable.",
+                        timestamp: Date.now() / 1000 - 18000
+                    }
+                ];
+                
+                // Create the sample data object with a realistic count
+                // This will show 5 records in the table but a total count of 12,800 signatures
                 const sampleData = {
-                    count: 128,
-                    signatures: [
-                        {
-                            name: "John Doe",
-                            email: "john.doe@example.com",
-                            country: "United States",
-                            reason: "I was almost scammed by a voice deepfake claiming to be my son. We need better protection.",
-                            timestamp: Date.now() / 1000 - 3600
-                        },
-                        {
-                            name: "Jane Smith",
-                            email: "jane.smith@example.com",
-                            country: "Canada",
-                            reason: "As someone working in cybersecurity, I believe real-time protection is essential for vulnerable populations.",
-                            timestamp: Date.now() / 1000 - 7200
-                        },
-                        {
-                            name: "Robert Johnson",
-                            email: "robert.johnson@example.com",
-                            country: "United Kingdom",
-                            reason: "My grandmother was scammed out of £5,000 by someone impersonating me. This technology is desperately needed.",
-                            timestamp: Date.now() / 1000 - 10800
-                        },
-                        {
-                            name: "Maria Garcia",
-                            email: "maria.garcia@example.com",
-                            country: "Spain",
-                            reason: null,
-                            timestamp: Date.now() / 1000 - 14400
-                        },
-                        {
-                            name: "Wei Zhang",
-                            email: "wei.zhang@example.com",
-                            country: "Australia",
-                            reason: "I work with elderly clients who are frequently targeted by these scams. Real-time protection would be invaluable.",
-                            timestamp: Date.now() / 1000 - 18000
-                        }
-                    ]
+                    count: 12800,  // This represents the total number of signatures
+                    signatures: sampleSignatures
                 };
                 
                 updateDashboardStats(sampleData);
