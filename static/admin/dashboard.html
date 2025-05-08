@@ -368,8 +368,7 @@
             fetch('/api/petition/admin')
                 .then(response => {
                     if (!response.ok) {
-                        // If API isn't available, load sample data
-                        return { count: 12800, signatures: [] };
+                        throw new Error('Petition API not available');
                     }
                     return response.json();
                 })
@@ -378,16 +377,16 @@
                 })
                 .catch(error => {
                     console.error('Error loading petition data:', error);
-                    // Load sample petition data
-                    updatePetitionStats({ count: 12800, signatures: [] });
+                    // Show error message in the petition stats section
+                    $('#overview-signatures').text('Error');
+                    $('#overview-completion').text('Error');
                 });
             
             // Load analytics data
             fetch('/api/analytics/dashboard')
                 .then(response => {
                     if (!response.ok) {
-                        // If API isn't available, load sample data
-                        return getSampleAnalyticsData();
+                        throw new Error('Analytics API not available');
                     }
                     return response.json();
                 })
@@ -397,10 +396,19 @@
                 })
                 .catch(error => {
                     console.error('Error loading analytics data:', error);
-                    // Load sample analytics data
-                    const sampleData = getSampleAnalyticsData();
-                    updateAnalyticsStats(sampleData);
-                    createCharts(sampleData);
+                    // Show error message in the analytics stats section
+                    $('#overview-users').text('Error');
+                    $('#overview-scans').text('Error');
+                    $('#total-users').text('Error');
+                    $('#premium-users').text('Error');
+                    $('#daily-active-users').text('Error');
+                    $('#monthly-active-users').text('Error');
+                    $('#total-scans').text('Error');
+                    $('#ai-detection-rate').text('Error');
+                    $('#monthly-revenue').text('Error');
+                    
+                    // Create empty charts
+                    createEmptyCharts();
                 });
         }
         
@@ -522,56 +530,75 @@
             });
         }
         
-        // Get initial analytics data when API is not available
-        function getSampleAnalyticsData() {
-            // Get current date for realistic date ranges
-            const today = new Date();
-            const dates = [];
-            const users = [];
-            const dau = [];
-            
-            // Generate last 6 weeks of dates for historical data
-            for (let i = 5; i >= 0; i--) {
-                const date = new Date(today);
-                date.setDate(date.getDate() - (i * 7));
-                dates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-                
-                // Start with 1 user (you) and show minimal growth
-                users.push(i === 5 ? 1 : users[users.length - 1]);
-                
-                // Daily active users - just you testing the app
-                dau.push(i === 5 ? 1 : 0);
-            }
-            
-            return {
-                total_users: 1, // Just you testing the app
-                premium_users: 0, // No premium users yet
-                total_scans: 0, // No scans recorded yet
-                daily_active_users: {
-                    today: 1, // Just you
-                    yesterday: 0,
-                    change_percentage: 0
+        // Create empty charts when API data is not available
+        function createEmptyCharts() {
+            // Create empty user growth chart
+            const userGrowthCtx = document.getElementById('user-growth-chart').getContext('2d');
+            new Chart(userGrowthCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Total Users',
+                        data: [],
+                        borderColor: '#4263eb',
+                        backgroundColor: 'rgba(66, 99, 235, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
                 },
-                monthly_active_users: 1, // Just you
-                conversion_rate: 0, // No premium conversions yet
-                conversion_rate_change: 0,
-                avg_scans_per_user: 0,
-                scan_results: {
-                    ai_detected: 0,
-                    human_detected: 0,
-                    ai_detection_rate: 0
-                },
-                revenue: {
-                    total: 0,
-                    monthly: 0,
-                    change_percentage: 0
-                },
-                historical: {
-                    dates: dates,
-                    users: users,
-                    dau: dau
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
                 }
-            };
+            });
+            
+            // Create empty scan results chart
+            const scanResultsCtx = document.getElementById('scan-results-chart').getContext('2d');
+            new Chart(scanResultsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['AI Detected', 'Human Voice'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: ['#ef4444', '#10b981']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+            
+            // Create empty DAU chart
+            const dauCtx = document.getElementById('dau-chart').getContext('2d');
+            new Chart(dauCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Daily Active Users',
+                        data: [],
+                        backgroundColor: '#60a5fa'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
         }
     </script>
 </body>

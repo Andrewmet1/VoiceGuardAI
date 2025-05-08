@@ -331,10 +331,10 @@
             
             // Load dashboard data
             function loadDashboardData() {
-                fetch('/api/petition/admin/data')
+                fetch('/api/petition/admin')
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error('Failed to fetch data');
+                            throw new Error('Petition API not available');
                         }
                         return response.json();
                     })
@@ -343,9 +343,12 @@
                         populateSignatureTable(data.signatures);
                     })
                     .catch(error => {
-                        console.error('Error loading dashboard data:', error);
-                        // For demo purposes, load sample data
-                        loadSampleData();
+                        console.error('Error:', error);
+                        // Show error message
+                        $('#total-signatures').text('Error');
+                        $('#completion-percentage').text('Error');
+                        $('#daily-signatures').text('Error');
+                        $('#signatures-tbody').html('<tr><td colspan="6" class="text-center">Error loading petition data. Please check API connection.</td></tr>');
                     });
             }
             
