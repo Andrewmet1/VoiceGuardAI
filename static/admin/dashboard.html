@@ -437,13 +437,15 @@
                 const count = data.signatures.length;
                 $('#overview-signatures').text(count.toLocaleString());
                 
-                const percentage = Math.min(Math.round((count / 50000) * 100), 100);
+                const rawPercentage = (count / 50000) * 100;
+                const percentage = count > 0 && rawPercentage < 1 ? 1 : Math.min(Math.round(rawPercentage), 100);
                 $('#overview-completion').text(percentage + '%');
             } else if (data.count) {
                 // Fallback to count property if available
                 $('#overview-signatures').text(data.count.toLocaleString());
                 
-                const percentage = Math.min(Math.round((data.count / 50000) * 100), 100);
+                const rawPercentage = (data.count / 50000) * 100;
+                const percentage = data.count > 0 && rawPercentage < 1 ? 1 : Math.min(Math.round(rawPercentage), 100);
                 $('#overview-completion').text(percentage + '%');
             } else {
                 // Handle unexpected data structure
