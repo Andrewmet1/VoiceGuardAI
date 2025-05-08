@@ -226,7 +226,7 @@
                 <p>By signing our petition, you're helping to make voice security accessible to everyone. Together, we can convince platform providers to prioritize user safety.</p>
                 
                 <div class="petition-form">
-                    <form id="advocacy-form" action="https://petition.voiceguard.ai/api/petition/sign" method="post">
+                    <form id="advocacy-form">
                         <div class="form-group">
                             <label for="name">Full Name</label>
                             <input type="text" id="name" name="name" required>
@@ -244,6 +244,7 @@
                             <textarea id="reason" name="reason"></textarea>
                         </div>
                         <button type="submit" class="btn-primary">Sign the Petition</button>
+                        <div id="form-status" style="margin-top: 15px; padding: 10px; display: none;"></div>
                     </form>
                     
                     <div style="display: flex; justify-content: space-between; margin-top: 30px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 20px;">
@@ -283,71 +284,20 @@
                             });
                     }
                     
-                    // Function to update the counter display
-                    function updateCounterDisplay(count) {
-                        const currentSignatures = document.getElementById('current-signatures');
-                        const completionPercentage = document.getElementById('completion-percentage');
-                        
-                        // Update the signatures count
-                        currentSignatures.textContent = count.toLocaleString();
-                        
-                        // Calculate and update the completion percentage
-                        const percentage = Math.min(Math.round((count / 50000) * 100), 100);
-                        completionPercentage.textContent = percentage + '%';
-                    }
-                    
-                    // Fetch the initial count
+                    // Call the function on page load
                     fetchSignatureCount();
-                    
-                    // Set up periodic refresh (every 60 seconds)
-                    setInterval(fetchSignatureCount, 60000);
-                    
-                    // Handle form submission
-                    const advocacyForm = document.getElementById('advocacy-form');
-                    advocacyForm.addEventListener('submit', function(event) {
-                        event.preventDefault();
-                        
-                        // Get form data
-                        const formData = new FormData(advocacyForm);
-                        
-                        // Submit the form data to the API
-                        fetch('https://petition.voiceguard.ai/api/petition/sign', {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Show success message
-                                alert('Thank you for signing the petition!');
-                                
-                                // Update the counter
-                                updateCounterDisplay(data.count);
-                                
-                                // Reset the form
-                                advocacyForm.reset();
-                            } else {
-                                // Show error message
-                                alert(data.message || 'There was an error submitting your signature. Please try again.');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('There was an error submitting your signature. Please try again.');
-                        });
-                    });
                 });
                 </script>
-                
-                <div class="share-section">
-                    <h2>Spread the Word</h2>
-                    <p>Help us reach more people by sharing this petition on social media.</p>
-                    <div class="social-icons">
-                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-                    </div>
+                    
+                    <div class="share-section">
+                        <h2>Spread the Word</h2>
+                        <p>Help us reach more people by sharing this petition on social media.</p>
+                        <div class="social-icons">
+                            <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        </div>
                 </div>
             </div>
         </div>
@@ -418,8 +368,55 @@
         // Form submission
         document.getElementById('advocacy-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            alert('Thank you for signing the petition! We\'ll keep you updated on our advocacy progress.');
-            this.reset();
+            
+            // Show loading state
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = 'Submitting...';
+            
+            // Submit to the petition API subdomain
+            fetch('https://petition.voiceguard.ai/api/petition/sign', {
+                method: 'POST',
+                body: new FormData(this)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.message || `Server responded with ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    alert('Thank you for signing the petition! We\'ll keep you updated on our advocacy progress.');
+                    
+                    // Update the counter if available
+                    if (data.count && typeof updateCounterDisplay === 'function') {
+                        updateCounterDisplay(data.count);
+                    } else {
+                        // Refresh the count
+                        fetchSignatureCount();
+                    }
+                    
+                    // Reset the form
+                    this.reset();
+                } else {
+                    // Show error message
+                    alert(data.message || 'There was an error submitting your signature. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting petition:', error);
+                alert('There was a network error. Please try again later.');
+            })
+            .finally(() => {
+                // Reset button state
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
+            });
         });
     </script>
 </body>
