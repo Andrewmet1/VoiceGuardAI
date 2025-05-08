@@ -628,15 +628,30 @@ def get_analytics_dashboard():
         # Get current date info
         today = datetime.now().strftime('%Y-%m-%d')
         
-        # Create a simplified response structure that matches what the dashboard expects
+        # Generate day labels for the past week
+        days = []
+        daily_users = []
+        daily_scans = []
+        
+        for i in range(6, -1, -1):
+            date = datetime.now() - timedelta(days=i)
+            day_name = date.strftime("%a")
+            days.append(day_name)
+            
+            # Get actual data if available, otherwise use sample data
+            date_str = date.strftime('%Y-%m-%d')
+            daily_users.append(analytics_data.get('daily_active_users', {}).get(date_str, random.randint(5, 40)))
+            daily_scans.append(analytics_data.get('daily_scans', {}).get(date_str, random.randint(20, 70)))
+        
+        # Create response in the exact format needed by the dashboard
         response = {
-            "total_users": analytics_data.get('total_users', 1280),
-            "total_scans": analytics_data.get('total_scans', 497),
-            "new_users_today": analytics_data.get('daily_signups', {}).get(today, 5),
-            "scans_today": analytics_data.get('daily_scans', {}).get(today, 20),
-            "daily_users": [5, 12, 22, 18, 25, 40, 30],  # Sample data for chart
-            "daily_scans": [20, 30, 45, 38, 60, 70, 65],  # Sample data for chart
-            "labels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]  # Sample labels for chart
+            "total_users": analytics_data.get('total_users', 0),
+            "total_scans": analytics_data.get('total_scans', 0),
+            "new_users_today": analytics_data.get('daily_signups', {}).get(today, 0),
+            "scans_today": analytics_data.get('daily_scans', {}).get(today, 0),
+            "daily_users": daily_users,
+            "daily_scans": daily_scans,
+            "labels": days
         }
         
         return jsonify(response)
