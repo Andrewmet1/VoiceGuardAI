@@ -279,7 +279,8 @@
                         }
                         
                         if (completionPercentage) {
-                            const percentage = Math.min(Math.round((count / 50000) * 100), 100);
+                            const rawPercentage = (count / 50000) * 100;
+                            const percentage = count > 0 && rawPercentage < 1 ? 1 : Math.min(Math.round(rawPercentage), 100);
                             completionPercentage.textContent = percentage + '%';
                         } else {
                             console.error('Element with ID "completion-percentage" not found');
