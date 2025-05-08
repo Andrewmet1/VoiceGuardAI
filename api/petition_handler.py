@@ -165,10 +165,17 @@ def sign_petition():
         "count": data["count"]
     })
 
-@app.route('/api/petition/admin/data', methods=['GET'])
+@app.route('/api/petition/admin', methods=['GET'])
 @require_admin
 def get_admin_data():
     """Return all petition data for admin dashboard"""
+    data = load_signatures()
+    return jsonify(data)
+
+@app.route('/api/petition/admin/data', methods=['GET'])
+@require_admin
+def get_admin_data_legacy():
+    """Legacy endpoint for backward compatibility"""
     data = load_signatures()
     return jsonify(data)
 
