@@ -226,7 +226,7 @@
                 <p>By signing our petition, you're helping to make voice security accessible to everyone. Together, we can convince platform providers to prioritize user safety.</p>
                 
                 <div class="petition-form">
-                    <form id="advocacy-form" action="/api/petition/sign" method="post">
+                    <form id="advocacy-form" action="https://petition.voiceguard.ai/api/petition/sign" method="post">
                         <div class="form-group">
                             <label for="name">Full Name</label>
                             <input type="text" id="name" name="name" required>
@@ -266,7 +266,7 @@
                 document.addEventListener('DOMContentLoaded', function() {
                     // Function to fetch signature count from server
                     function fetchSignatureCount() {
-                        fetch('/api/petition/count')
+                        fetch('https://petition.voiceguard.ai/api/petition/count')
                             .then(response => {
                                 // If the API isn't available yet, this will fail gracefully
                                 if (!response.ok) {
@@ -311,7 +311,7 @@
                         const formData = new FormData(advocacyForm);
                         
                         // Submit the form data to the API
-                        fetch('/api/petition/sign', {
+                        fetch('https://petition.voiceguard.ai/api/petition/sign', {
                             method: 'POST',
                             body: formData
                         })
