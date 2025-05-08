@@ -354,21 +354,31 @@
             
             // Update dashboard statistics
             function updateDashboardStats(data) {
-                $('#total-signatures').text(data.count.toLocaleString());
-                
-                const percentage = Math.min(Math.round((data.count / 50000) * 100), 100);
-                $('#completion-percentage').text(percentage + '%');
-                
-                // Calculate signatures today
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                
-                const todaySignatures = data.signatures.filter(sig => {
-                    const sigDate = new Date(sig.timestamp * 1000);
-                    return sigDate >= today;
-                }).length;
-                
-                $('#daily-signatures').text(todaySignatures);
+                // Handle the data structure from the server
+                if (data.signatures) {
+                    const count = data.signatures.length;
+                    $('#total-signatures').text(count.toLocaleString());
+                    
+                    const percentage = Math.min(Math.round((count / 50000) * 100), 100);
+                    $('#completion-percentage').text(percentage + '%');
+                    
+                    // Calculate signatures today
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    
+                    const todaySignatures = data.signatures.filter(sig => {
+                        const sigDate = new Date(sig.timestamp * 1000);
+                        return sigDate >= today;
+                    }).length;
+                    
+                    $('#daily-signatures').text(todaySignatures);
+                } else {
+                    // Handle unexpected data structure
+                    console.error('Unexpected data structure:', data);
+                    $('#total-signatures').text('Error');
+                    $('#completion-percentage').text('Error');
+                    $('#daily-signatures').text('Error');
+                }
             }
             
             // Populate signature table
