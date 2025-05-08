@@ -171,31 +171,33 @@ def get_admin_data():
     """Return all petition data for admin dashboard"""
     data = load_signatures()
     
-    # Ensure each signature has the required fields in the expected format
-    for sig in data.get('signatures', []):
+    # Normalize signature list to ensure consistent format
+    normalized = []
+    for sig in data.get("signatures", []):
         # Make sure timestamp is in seconds (Unix timestamp)
-        if 'timestamp' in sig and isinstance(sig['timestamp'], (int, float)):
-            # Already in the correct format
-            pass
-        elif 'date' in sig and not 'timestamp' in sig:
-            # Convert date string to timestamp
-            try:
-                date_obj = datetime.strptime(sig['date'], '%Y-%m-%d %H:%M:%S')
-                sig['timestamp'] = int(date_obj.timestamp())
-            except:
-                # If conversion fails, use current time
-                sig['timestamp'] = int(time.time())
-        else:
-            # Default to current time if no timestamp or date
-            sig['timestamp'] = int(time.time())
+        timestamp = sig.get("timestamp", None)
+        if timestamp is None or not isinstance(timestamp, (int, float)):
+            if 'date' in sig:
+                try:
+                    date_obj = datetime.strptime(sig['date'], '%Y-%m-%d %H:%M:%S')
+                    timestamp = int(date_obj.timestamp())
+                except:
+                    timestamp = int(time.time())
+            else:
+                timestamp = int(time.time())
         
-        # Ensure all required fields exist
-        sig['name'] = sig.get('name', 'Anonymous')
-        sig['email'] = sig.get('email', '')
-        sig['country'] = sig.get('country', '')
-        sig['reason'] = sig.get('reason', 'No reason provided')
+        # Create a normalized signature object with all required fields
+        normalized.append({
+            "id": sig.get("id", str(uuid.uuid4())),
+            "name": sig.get("name", "Anonymous"),
+            "email": sig.get("email", ""),
+            "country": sig.get("country", "-"),
+            "reason": sig.get("reason", "No reason provided"),
+            "timestamp": timestamp
+        })
     
-    return jsonify(data)
+    # Return just the signatures array as expected by the dashboard
+    return jsonify({"signatures": normalized})
 
 @app.route('/api/petition/admin/data', methods=['GET'])
 @require_admin
