@@ -364,8 +364,8 @@
         
         // Load dashboard data
         function loadDashboardData() {
-            // Load petition data
-            fetch('/api/petition/admin')
+            // Load petition data from the petition subdomain
+            fetch('https://petition.voiceguard.ai/api/petition/admin')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Petition API not available');
@@ -382,9 +382,9 @@
                     $('#overview-completion').text('Error');
                 });
             
-            // Load analytics data
-            console.log('Fetching analytics data from /api/analytics/dashboard');
-            fetch('/api/analytics/dashboard')
+            // Load analytics data from the analytics subdomain
+            console.log('Fetching analytics data from analytics subdomain');
+            fetch('https://analytics.voiceguard.ai/api/analytics/dashboard')
                 .then(response => {
                     console.log('Analytics API response status:', response.status);
                     if (!response.ok) {

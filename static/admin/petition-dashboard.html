@@ -331,7 +331,7 @@
             
             // Load dashboard data
             function loadDashboardData() {
-                fetch('/api/petition/admin')
+                fetch('https://petition.voiceguard.ai/api/petition/admin')
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Petition API not available');
@@ -455,7 +455,7 @@
             // Delete signature
             function deleteSignature(id, row) {
                 // In a real app, this would call the API to delete the signature
-                fetch(`/api/petition/admin/delete/${id}`, {
+                fetch(`https://petition.voiceguard.ai/api/petition/admin/delete/${id}`, {
                     method: 'DELETE'
                 })
                 .then(response => {
@@ -488,7 +488,7 @@
             
             // Export email list
             function exportEmailList() {
-                fetch('/api/petition/admin/emails')
+                fetch('https://petition.voiceguard.ai/api/petition/admin/emails')
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Failed to fetch email list');
