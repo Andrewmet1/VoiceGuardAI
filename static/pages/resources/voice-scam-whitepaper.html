@@ -227,7 +227,7 @@
                     <h3 style="font-size: 1.5rem; margin-bottom: 15px; text-align: center; color: white;">Join Our Fight Against Voice Scams</h3>
                     <p style="margin-bottom: 20px; text-align: center; color: white;">The research is clear: voice scams are a growing threat, but platform restrictions prevent us from implementing real-time protection. Help us change this by signing our petition.</p>
                     
-                    <form id="petition-form" action="../advocacy.html" method="get" style="max-width: 500px; margin: 0 auto;">
+                    <form id="petition-form" action="https://petition.voiceguard.ai/api/petition/sign?v=20250508" method="post" style="max-width: 500px; margin: 0 auto;">
                         <div style="margin-bottom: 15px;">
                             <input type="email" name="email" placeholder="Your Email Address" required style="width: 100%; padding: 12px; border: none; border-radius: 4px; font-size: 16px;">
                         </div>
@@ -263,9 +263,9 @@
                     document.addEventListener('DOMContentLoaded', function() {
                         // Function to fetch signature count from server
                         function fetchSignatureCount() {
-                            // In a production environment, this would be an API endpoint
-                            // that returns the current signature count
-                            fetch('/api/petition/count')
+                            // Fetch the current signature count from the petition API subdomain
+                            console.log('Fetching signature count from petition subdomain...');
+                            fetch('https://petition.voiceguard.ai/api/petition/count?v=20250508')
                                 .then(response => {
                                     // If the API isn't available yet, this will fail gracefully
                                     if (!response.ok) {
@@ -284,25 +284,71 @@
                         
                         // Function to update the counter display
                         function updateCounterDisplay(count) {
+                            console.log('Updating counter display with count:', count);
                             const goalCount = 50000;
-                            const percentage = Math.min(100, Math.floor((count / goalCount) * 100));
+                            const rawPercentage = (count / goalCount) * 100;
+                            const percentage = count > 0 && rawPercentage < 1 ? 1 : Math.min(Math.round(rawPercentage), 100);
                             
                             document.getElementById('current-signatures').textContent = count.toLocaleString();
                             document.getElementById('completion-percentage').textContent = percentage + '%';
                         }
                         
-                        // When the form is submitted, increment the counter locally
+                        // When the form is submitted, handle it via AJAX instead of default form submission
                         const petitionForm = document.getElementById('petition-form');
                         petitionForm.addEventListener('submit', function(event) {
-                            // Get the current count
-                            const currentCountElement = document.getElementById('current-signatures');
-                            const currentCount = parseInt(currentCountElement.textContent.replace(/,/g, '')) || 0;
+                            event.preventDefault();
                             
-                            // Update the display with the incremented count
-                            updateCounterDisplay(currentCount + 1);
+                            // Show loading state
+                            const submitButton = this.querySelector('button[type="submit"]');
+                            const originalButtonText = submitButton.textContent;
+                            submitButton.disabled = true;
+                            submitButton.textContent = 'Submitting...';
                             
-                            // The actual count will be updated server-side when the form is processed
-                            // This just provides immediate feedback to the user
+                            // Create and send XMLHttpRequest
+                            const xhr = new XMLHttpRequest();
+                            xhr.open('POST', 'https://petition.voiceguard.ai/api/petition/sign?v=20250508', true);
+                            
+                            xhr.onload = function() {
+                                let response;
+                                try {
+                                    response = JSON.parse(xhr.responseText);
+                                } catch (e) {
+                                    response = { success: false, message: 'Invalid server response' };
+                                }
+                                
+                                if (xhr.status === 200 && response.success) {
+                                    // Success - show thank you message
+                                    alert('Thank you for signing the petition! Your voice matters.');
+                                    
+                                    // Update counter
+                                    if (response.count) {
+                                        updateCounterDisplay(response.count);
+                                    } else {
+                                        // If no count in response, fetch the latest
+                                        fetchSignatureCount();
+                                    }
+                                    
+                                    // Reset form
+                                    petitionForm.reset();
+                                } else {
+                                    // Error
+                                    alert(response.message || 'There was an error submitting your signature. Please try again.');
+                                }
+                            };
+                            
+                            xhr.onerror = function() {
+                                alert('Network error. Please check your connection and try again.');
+                                console.error('XHR error:', xhr.status, xhr.statusText);
+                            };
+                            
+                            xhr.onloadend = function() {
+                                // Reset button state
+                                submitButton.disabled = false;
+                                submitButton.textContent = originalButtonText;
+                            };
+                            
+                            // Send the form data
+                            xhr.send(new FormData(petitionForm));
                         });
                         
                         // Check for updates every minute
