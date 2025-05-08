@@ -266,20 +266,43 @@
                 <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     // Function to fetch signature count from server
+                    // Function to update the counter display
+                    function updateCounterDisplay(count) {
+                        console.log('Updating counter display with count:', count);
+                        const currentSignatures = document.getElementById('current-signatures');
+                        const completionPercentage = document.getElementById('completion-percentage');
+                        
+                        if (currentSignatures) {
+                            currentSignatures.textContent = count.toLocaleString();
+                        } else {
+                            console.error('Element with ID "current-signatures" not found');
+                        }
+                        
+                        if (completionPercentage) {
+                            const percentage = Math.min(Math.round((count / 50000) * 100), 100);
+                            completionPercentage.textContent = percentage + '%';
+                        } else {
+                            console.error('Element with ID "completion-percentage" not found');
+                        }
+                    }
+                    
                     function fetchSignatureCount() {
+                        console.log('Fetching signature count...');
                         fetch('https://petition.voiceguard.ai/api/petition/count?v=20250508')
                             .then(response => {
                                 // If the API isn't available yet, this will fail gracefully
                                 if (!response.ok) {
+                                    console.error('API response not OK:', response.status);
                                     return { count: 0 };
                                 }
                                 return response.json();
                             })
                             .then(data => {
+                                console.log('Received count data:', data);
                                 updateCounterDisplay(data.count);
                             })
                             .catch(error => {
-                                console.log('Unable to fetch signature count:', error);
+                                console.error('Unable to fetch signature count:', error);
                                 // Keep displaying the current count
                             });
                     }
