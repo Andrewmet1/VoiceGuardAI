@@ -522,35 +522,54 @@
             });
         }
         
-        // Get sample analytics data for testing
+        // Get initial analytics data when API is not available
         function getSampleAnalyticsData() {
+            // Get current date for realistic date ranges
+            const today = new Date();
+            const dates = [];
+            const users = [];
+            const dau = [];
+            
+            // Generate last 6 weeks of dates for historical data
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - (i * 7));
+                dates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                
+                // Start with 1 user (you) and show minimal growth
+                users.push(i === 5 ? 1 : users[users.length - 1]);
+                
+                // Daily active users - just you testing the app
+                dau.push(i === 5 ? 1 : 0);
+            }
+            
             return {
-                total_users: 24680,
-                premium_users: 8750,
-                total_scans: 187432,
+                total_users: 1, // Just you testing the app
+                premium_users: 0, // No premium users yet
+                total_scans: 0, // No scans recorded yet
                 daily_active_users: {
-                    today: 4280,
-                    yesterday: 4150,
-                    change_percentage: 3.1
+                    today: 1, // Just you
+                    yesterday: 0,
+                    change_percentage: 0
                 },
-                monthly_active_users: 18540,
-                conversion_rate: 35.5,
-                conversion_rate_change: 2.8,
-                avg_scans_per_user: 7.6,
+                monthly_active_users: 1, // Just you
+                conversion_rate: 0, // No premium conversions yet
+                conversion_rate_change: 0,
+                avg_scans_per_user: 0,
                 scan_results: {
-                    ai_detected: 12485,
-                    human_detected: 174947,
-                    ai_detection_rate: 6.7
+                    ai_detected: 0,
+                    human_detected: 0,
+                    ai_detection_rate: 0
                 },
                 revenue: {
-                    total: 187500,
-                    monthly: 24800,
-                    change_percentage: 5.2
+                    total: 0,
+                    monthly: 0,
+                    change_percentage: 0
                 },
                 historical: {
-                    dates: ['Apr 1', 'Apr 8', 'Apr 15', 'Apr 22', 'Apr 29', 'May 6'],
-                    users: [18200, 19800, 21400, 22600, 23500, 24680],
-                    dau: [3200, 3600, 3800, 4000, 4150, 4280]
+                    dates: dates,
+                    users: users,
+                    dau: dau
                 }
             };
         }
