@@ -226,7 +226,7 @@
                 <p>By signing our petition, you're helping to make voice security accessible to everyone. Together, we can convince platform providers to prioritize user safety.</p>
                 
                 <div class="petition-form">
-                    <form id="advocacy-form">
+                    <form id="advocacy-form" action="https://petition.voiceguard.ai/api/petition/sign" method="post">
                         <div class="form-group">
                             <label for="name">Full Name</label>
                             <input type="text" id="name" name="name" required>
@@ -244,7 +244,7 @@
                             <textarea id="reason" name="reason"></textarea>
                         </div>
                         <button type="submit" class="btn-primary">Sign the Petition</button>
-                        <div id="form-status" style="margin-top: 15px; padding: 10px; display: none;"></div>
+                        <div id="form-status" class="form-status" style="margin-top: 15px; padding: 10px; display: none;"></div>
                     </form>
                     
                     <div style="display: flex; justify-content: space-between; margin-top: 30px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 20px;">
@@ -365,58 +365,79 @@
             document.getElementById('nav-links').classList.toggle('active');
         });
         
-        // Form submission
+        // Form submission using XMLHttpRequest for better form data handling
         document.getElementById('advocacy-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
             // Show loading state
-            const submitButton = this.querySelector('button[type="submit"]');
+            const form = this;
+            const formStatus = document.getElementById('form-status');
+            const submitButton = form.querySelector('button[type="submit"]');
             const originalButtonText = submitButton.textContent;
+            
             submitButton.disabled = true;
             submitButton.textContent = 'Submitting...';
+            formStatus.style.display = 'none';
             
-            // Submit to the petition API subdomain
-            fetch('https://petition.voiceguard.ai/api/petition/sign', {
-                method: 'POST',
-                body: new FormData(this)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        throw new Error(data.message || `Server responded with ${response.status}`);
-                    });
+            // Create and send XMLHttpRequest
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'https://petition.voiceguard.ai/api/petition/sign', true);
+            
+            xhr.onload = function() {
+                let response;
+                try {
+                    response = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    response = { success: false, message: 'Invalid server response' };
                 }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // Show success message
-                    alert('Thank you for signing the petition! We\'ll keep you updated on our advocacy progress.');
+                
+                if (xhr.status === 200 && response.success) {
+                    // Success
+                    formStatus.textContent = 'Thank you for signing the petition! We\'ll keep you updated on our advocacy progress.';
+                    formStatus.className = 'form-status success';
+                    formStatus.style.display = 'block';
+                    formStatus.style.backgroundColor = '#d4edda';
+                    formStatus.style.color = '#155724';
+                    formStatus.style.border = '1px solid #c3e6cb';
                     
-                    // Update the counter if available
-                    if (data.count && typeof updateCounterDisplay === 'function') {
-                        updateCounterDisplay(data.count);
+                    // Update counter
+                    if (response.count) {
+                        updateCounterDisplay(response.count);
                     } else {
-                        // Refresh the count
                         fetchSignatureCount();
                     }
                     
-                    // Reset the form
-                    this.reset();
+                    // Reset form
+                    form.reset();
                 } else {
-                    // Show error message
-                    alert(data.message || 'There was an error submitting your signature. Please try again.');
+                    // Error
+                    formStatus.textContent = response.message || 'There was an error submitting your signature. Please try again.';
+                    formStatus.className = 'form-status error';
+                    formStatus.style.display = 'block';
+                    formStatus.style.backgroundColor = '#f8d7da';
+                    formStatus.style.color = '#721c24';
+                    formStatus.style.border = '1px solid #f5c6cb';
                 }
-            })
-            .catch(error => {
-                console.error('Error submitting petition:', error);
-                alert('There was a network error. Please try again later.');
-            })
-            .finally(() => {
+            };
+            
+            xhr.onerror = function() {
+                formStatus.textContent = 'Network error. Please check your connection and try again.';
+                formStatus.className = 'form-status error';
+                formStatus.style.display = 'block';
+                formStatus.style.backgroundColor = '#f8d7da';
+                formStatus.style.color = '#721c24';
+                formStatus.style.border = '1px solid #f5c6cb';
+                console.error('XHR error:', xhr.status, xhr.statusText);
+            };
+            
+            xhr.onloadend = function() {
                 // Reset button state
                 submitButton.disabled = false;
                 submitButton.textContent = originalButtonText;
-            });
+            };
+            
+            // Send the form data
+            xhr.send(new FormData(form));
         });
     </script>
 </body>
