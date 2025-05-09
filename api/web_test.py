@@ -29,9 +29,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Get token from environment variable
-HF_API_TOKEN = os.environ.get('HF_API_TOKEN')
-logger.info(f"✅ HF_API_TOKEN: {HF_API_TOKEN[:10]}***" if HF_API_TOKEN else "❌ HF_API_TOKEN not loaded")
+# Get token directly from environment variable (hardcoded for debugging)
+HF_TOKEN = "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"
+logger.info(f"✅ HF_API_TOKEN: {HF_TOKEN[:10]}***" if HF_TOKEN else "❌ HF_API_TOKEN not loaded")
 
 # Import torch but delay loading heavy libraries
 import torch
@@ -136,7 +136,7 @@ def test_hf_connection() -> bool:
         test_payload = {"inputs": test_b64}
         
         # Test API
-        headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
+        headers = {"Authorization": f"Bearer {HF_TOKEN}"}
         logger.info(f"🔐 Authorization header: {headers['Authorization'][:20]}...")
         logger.info("Sending test request to Hugging Face API...")
         response = requests.post(HF_API_URL, headers=headers, json=test_payload)
@@ -190,18 +190,6 @@ else:
         logger.warning(f"⚠️ Could not cache model: {str(e)}")
 
 # Second model: WavLM-Large for deepfake detection
-# WavLM-Large is developed by Microsoft and is used under the Creative Commons Attribution-ShareAlike 3.0 Unported License
-# See: https://github.com/microsoft/unilm/tree/master/wavlm
-# Paper: "WavLM: Large-Scale Self-Supervised Pre-Training for Full Stack Speech Processing"
-# Original Authors: Sanyuan Chen, Chengyi Wang, Zhengyang Chen, Yu Wu, Shujie Liu, Zhuo Chen, Jinyu Li,
-#                  Naoyuki Kanda, Takuya Yoshioka, Xiong Xiao, Jian Wu, Long Zhou, Shuo Ren, Yanmin Qian,
-#                  Yao Qian, Jian Wu, Michael Zeng, Furu Wei
-# 
-# NOTICE: This implementation uses the WavLM model for AI voice detection, which is an adaptation
-# of the original work. The original work has been modified to extract hidden state statistics
-# for classifying human vs AI-generated speech. This derivative work is also licensed under the
-# Creative Commons Attribution-ShareAlike 3.0 Unported License.
-# Full license text: https://creativecommons.org/licenses/by-sa/3.0/legalcode
 SECOND_MODEL_ID = "microsoft/wavlm-large"
 LOCAL_MODEL_DIR_2 = os.path.join(PROJECT_ROOT, "hf_model_cache_2")
 os.makedirs(LOCAL_MODEL_DIR_2, exist_ok=True)
@@ -289,9 +277,7 @@ def run_local_hf_inference(wav_path: str) -> Tuple[Optional[str], Optional[float
 
 # Function to run inference with WavLM model
 def run_second_model_inference(wav_path: str) -> Tuple[Optional[str], Optional[float]]:
-    """Run inference using WavLM model for deepfake detection using a simple classifier.
-    Optimized for robo-call detection with empirically determined thresholds.
-    """
+    """Run inference using WavLM model for deepfake detection."""
     try:
         import librosa
         import torch
@@ -310,70 +296,100 @@ def run_second_model_inference(wav_path: str) -> Tuple[Optional[str], Optional[f
             # Get the hidden states from the model
             hidden_states = outputs.last_hidden_state
             
-            # Use a simple classifier based on the standard deviation and mean of hidden states
-            # This is a more straightforward approach that relies on the raw model output
-            hidden_std = hidden_states.std().item()
+            # Calculate statistics on the hidden states
+            # Higher variance and entropy often indicate real human speech
+            # Lower variance and more predictable patterns often indicate AI-generated speech
             hidden_mean = hidden_states.mean().item()
+            hidden_std = hidden_states.std().item()
+            hidden_max = hidden_states.max().item()
+            hidden_min = hidden_states.min().item()
             
-            # Calculate additional metrics that help with robo-call detection
-            temporal_variance = 0
+            # Calculate a synthetic score based on these statistics
+            # This is a heuristic approach - in production you'd want to train a classifier on these features
+            range_ratio = (hidden_max - hidden_min) / (hidden_std + 1e-6)
+            entropy_estimate = hidden_std / (abs(hidden_mean) + 1e-6)
+            
+            # Calculate additional features that might help with AI detection
+            # 1. Spectral flatness - AI voices often have more uniform spectral distribution
+            spectral_range = hidden_max - hidden_min
+            spectral_flatness = hidden_std / (spectral_range + 1e-6)
+            
+            # 2. Pattern regularity - AI voices often have more regular patterns
+            # Look at the autocorrelation of the hidden states
+            hidden_flat = hidden_states.flatten()
+            hidden_mean = hidden_flat.mean().item()
+            hidden_centered = hidden_flat - hidden_mean
+            
+            # Calculate a pattern regularity score
+            pattern_score = 0.0
+            if hidden_centered.shape[0] > 1:
+                # Use the standard deviation as a simple measure of regularity
+                # More regular patterns (AI) have lower std dev relative to their range
+                pattern_score = 1.0 - min(1.0, (hidden_std / (spectral_range + 1e-6) * 5.0))
+            
+            # Normalize entropy estimate to a reasonable range (0-1)
+            # For WavLM, entropy estimates can be very high for human speech
+            normalized_entropy = min(1.0, entropy_estimate / 100.0)
+            
+            # Calculate additional features specifically for robo-call detection
+            
+            # 1. Prosody variation - human speech has more natural prosody variation
+            # Calculate variance across different dimensions of hidden states
+            dim_variances = torch.var(hidden_states, dim=1).mean().item()
+            normalized_dim_variance = min(1.0, dim_variances * 10.0)  # Normalize to 0-1 range
+            
+            # 2. Temporal consistency - AI speech often has more consistent timing
+            # Calculate the variance of differences between adjacent time steps
             if hidden_states.shape[1] > 1:
-                # Calculate variance between adjacent time steps - helps detect robotic patterns
                 temporal_diffs = torch.diff(hidden_states, dim=1)
                 temporal_variance = torch.var(temporal_diffs).item()
+                normalized_temporal_variance = min(1.0, temporal_variance * 10.0)
+            else:
+                normalized_temporal_variance = 0.5  # Default if not enough time steps
             
-            # Log the raw statistics
-            logger.info(f"✅ WavLM raw stats - mean: {hidden_mean:.4f}, std: {hidden_std:.4f}, temporal_var: {temporal_variance:.4f}")
+            # 3. Formant analysis - AI speech often has less natural formant transitions
+            # Use the pattern score as a proxy for formant naturalness
+            formant_naturalness = pattern_score
             
-            # Tuned threshold for robo-call detection based on real-world testing
-            # Looking at both standard deviation and temporal variance patterns
-            # From testing: AI voice had std=0.2254, temporal_var=0.0217
-            #              Human voice had std=0.2303, temporal_var=0.0178
+            # Combine multiple factors for AI detection with weights optimized for robo-calls:
+            # - Lower entropy suggests AI (weight: 30%)
+            # - Higher pattern regularity suggests AI (weight: 20%)
+            # - Lower prosody variation suggests AI (weight: 25%)
+            # - Lower temporal variance suggests AI (weight: 25%)
+            entropy_factor = 1.0 - normalized_entropy
+            pattern_factor = pattern_score
+            prosody_factor = 1.0 - normalized_dim_variance
+            temporal_factor = 1.0 - normalized_temporal_variance
             
-            # Calculate a combined score that weighs multiple factors
-            # We need to be more precise with our pattern detection to avoid false positives
-            ai_pattern_score = 0
+            # Calculate final scores with a more balanced approach
+            # Normalize factors to prevent overweighting any single feature
+            entropy_factor = min(entropy_factor, 0.9)  # Cap entropy factor to prevent overweighting
+            combined_factors = (entropy_factor + pattern_factor + prosody_factor + temporal_factor) / 4
             
-            # From our test data:
-            # AI voice:     std=0.2254, temporal_var=0.0217
-            # Human voice1: std=0.2303, temporal_var=0.0178
-            # Human voice2: std=0.2263, temporal_var=0.0205
+            # More balanced scoring formula with reduced bias
+            human_score = 0.5 - (0.4 * combined_factors)  # Reduced from 0.5 to 0.4 multiplier
+            ai_score = 1.0 - human_score
             
-            # More precise pattern detection based on all test samples
-            # The key difference is that AI voices tend to have slightly lower std 
-            # and a specific ratio of temporal_variance to std
+            # Apply a very small bias only for extremely regular patterns (clear AI indicator)
+            if pattern_factor > 0.8 and temporal_factor > 0.7:
+                logger.warning("Detected highly regular patterns - possible robo-call")
+                ai_bias = 0.03  # Reduced bias from 0.05 to 0.03
+                human_score = max(0.0, human_score - ai_bias)
+                ai_score = min(1.0, ai_score + ai_bias)
             
-            # Calculate the ratio of temporal variance to standard deviation
-            variance_to_std_ratio = temporal_variance / hidden_std if hidden_std > 0 else 0
+            logger.info(f"✅ WavLM analysis - mean: {hidden_mean:.3f}, std: {hidden_std:.3f}, range: {spectral_range:.3f}")
+            logger.info(f"WavLM entropy: {entropy_estimate:.3f}, pattern: {pattern_score:.3f}, prosody: {normalized_dim_variance:.3f}, temporal: {normalized_temporal_variance:.3f}")
+            logger.info(f"WavLM scores with robo-call bias - Human: {human_score:.3f}, AI: {ai_score:.3f}")
             
-            # Log the ratio for analysis
-            logger.info(f"Variance to std ratio: {variance_to_std_ratio:.4f}")
-            
-            # AI pattern: specific std range AND variance-to-std ratio in a specific range
-            # Based on test data, AI has ratio ~0.096, humans have ~0.077 and ~0.090
-            if 0.224 < hidden_std < 0.226 and variance_to_std_ratio > 0.095:
-                ai_pattern_score += 0.8
-                logger.info(f"Detected AI pattern: specific std range with high variance-to-std ratio")
-            
-            # Standard thresholds for clear cases
-            if hidden_std < 0.21 or ai_pattern_score > 0.5:
+            # Very low threshold to be extremely sensitive to robo-calls
+            # We'd rather have false positives than miss AI-generated voices
+            if ai_score > 0.25:  # Very aggressive threshold
                 standardized_result = "AI"
-                # Scale confidence based on factors
-                if ai_pattern_score > 0:
-                    # Use pattern-based confidence
-                    base_confidence = 0.7 + ai_pattern_score * 0.25
-                else:
-                    # Use standard deviation based confidence
-                    base_confidence = 0.7 + (0.21 - hidden_std) * 5
-                
-                confidence = min(0.95, base_confidence)
+                confidence = ai_score
             else:
                 standardized_result = "Human"
-                # Scale confidence based on how far above threshold
-                confidence = min(0.95, 0.7 + (hidden_std - 0.21) * 5)
-            
-            logger.info(f"WavLM classifier result: {standardized_result} with confidence {confidence:.3f}")
-            
+                confidence = human_score
+                
             return standardized_result, confidence
     except Exception as e:
         logger.error(f"❌ WavLM model inference failed: {str(e)}")
@@ -396,11 +412,11 @@ def query_huggingface_api(audio_data: dict) -> Tuple[Optional[str], Optional[flo
     RETRY_DELAY = 5  # seconds
     
     # Ensure we have a token
-    if not HF_API_TOKEN:
+    if not HF_TOKEN:
         logger.error("❌ HF_API_TOKEN not set. Cannot query Hugging Face API.")
         return None, None
     
-    headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
+    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
     
     # Log audio payload size
     audio_size = len(audio_data.get("inputs", "")) if isinstance(audio_data.get("inputs"), str) else 0
@@ -467,7 +483,7 @@ def query_huggingface_api(audio_data: dict) -> Tuple[Optional[str], Optional[flo
 
 @app.post("/api/predict")
 async def predict(file: UploadFile):
-    """Analyze audio file using WavLM model only for improved accuracy."""
+    """Analyze audio file using Hugging Face API and VoiceGuard model."""
     try:
         # Save uploaded file
         input_path = os.path.join(TEMP_DIR, "input_audio")
@@ -480,84 +496,220 @@ async def predict(file: UploadFile):
             raise HTTPException(status_code=500, detail="Failed to convert audio format")
         
         # Initialize variables
-        wavlm_result = None
-        wavlm_confidence = None
+        hf_result = None
+        hf_confidence = None
+        second_result = None
+        second_confidence = None
         
-        # Run WavLM model for inference
-        if use_second_model:
+        # Try local model first, fall back to API if needed
+        if use_local_hf_model:
+            hf_result, hf_confidence = run_local_hf_inference(wav_path)
+            
+            # Run WavLM model if available (separately from the primary model)
+            if use_second_model:
+                try:
+                    second_result, second_confidence = run_second_model_inference(wav_path)
+                    if second_result and second_confidence is not None:
+                        logger.info(f"WavLM model result: {second_result} with confidence {second_confidence:.3f}")
+                except Exception as e:
+                    logger.error(f"Error running WavLM model: {str(e)}")
+                    second_result = None
+                    second_confidence = None
+        
+        # If local model failed, try the API
+        if hf_result is None:
+            # Check if we've already tested the API connection
+            if hf_api_ready is None:
+                test_hf_connection()
+            
+            if hf_api_ready:
+                # Prepare audio for Hugging Face API
+                hf_audio_data = prepare_audio_for_huggingface(wav_path)
+                
+                # Query Hugging Face API
+                hf_result, hf_confidence = query_huggingface_api(hf_audio_data)
+            else:
+                logger.warning("Skipping Hugging Face API due to connection issues")
+        
+        # Process the audio file for VoiceGuard model
+        vg_audio_data = prepare_audio_for_voiceguard(wav_path)
+        
+        # Query VoiceGuard model
+        model = load_voiceguard_model()
+        if model:
             try:
-                wavlm_result, wavlm_confidence = run_second_model_inference(wav_path)
-                if wavlm_result and wavlm_confidence is not None:
-                    logger.info(f"WavLM model result: {wavlm_result} with confidence {wavlm_confidence:.3f}")
+                vg_genuine, vg_spoof = predict_voiceguard(vg_audio_data)
+                vg_result = {"genuine_percent": vg_genuine, "spoof_percent": vg_spoof}
             except Exception as e:
-                logger.error(f"Error running WavLM model: {str(e)}")
+                logger.error(f"VoiceGuard prediction failed: {str(e)}")
                 logger.error(traceback.format_exc())
-                wavlm_result = None
-                wavlm_confidence = None
+                vg_result = {"genuine_percent": None, "spoof_percent": None}
         else:
-            logger.error("WavLM model not available")
-            raise HTTPException(status_code=500, detail="WavLM model not available")
+            vg_result = {"genuine_percent": None, "spoof_percent": None}
+        
+        # Extract VoiceGuard scores
+        vg_genuine = vg_result.get("genuine_percent")
+        vg_spoof = vg_result.get("spoof_percent")
+        
+        # Determine VoiceGuard result
+        if vg_genuine is not None and vg_spoof is not None:
+            vg_result_label = "Human" if vg_genuine > vg_spoof else "AI"
+            vg_confidence = vg_genuine / 100.0 if vg_result_label == "Human" else vg_spoof / 100.0
+            logger.info(f"VoiceGuard scores - Genuine: {vg_genuine:.1f}%, Spoof: {vg_spoof:.1f}%")
+            logger.info(f"VoiceGuard result: {vg_result_label} with confidence {vg_confidence:.3f}")
+        else:
+            vg_result_label = None
+            vg_confidence = None
+            logger.error("VoiceGuard model did not return valid scores")
+        
+        # Check if models agree
+        if hf_result and vg_result_label:
+            if hf_result == vg_result_label:
+                logger.info(f"✅ Models AGREE: Both predict {hf_result}")
+            else:
+                logger.warning(f"⚠️ Models DISAGREE: HF predicts {hf_result}, VG predicts {vg_result_label}")
             
-        # If WavLM failed, return error
-        if wavlm_result is None:
-            logger.error("WavLM model failed to produce a result")
-            raise HTTPException(status_code=500, detail="Failed to analyze audio")
+            # Add WavLM model agreement info if available
+            if second_result:
+                if second_result == hf_result and second_result == vg_result_label:
+                    logger.info(f"✅ All three models AGREE: They all predict {second_result}")
+                elif second_result != hf_result and second_result != vg_result_label:
+                    logger.warning(f"⚠️ WavLM disagrees with both models: WavLM predicts {second_result}")
+                else:
+                    # WavLM agrees with one model
+                    agreeing_model = "HF" if second_result == hf_result else "VG"
+                    logger.info(f"WavLM agrees with {agreeing_model} model: Both predict {second_result}")
+        
+        # Log raw scores
+        if hf_result == "Human":
+            logger.info(f"Raw scores - HF: Human={hf_confidence:.3f}, VG: Human={vg_genuine/100:.3f}, AI={vg_spoof/100:.3f}")
+        else:
+            logger.info(f"Raw scores - HF: AI={hf_confidence:.3f}, VG: Human={vg_genuine/100:.3f}, AI={vg_spoof/100:.3f}")
             
-        # No need for VoiceGuard or HF models - using WavLM exclusively
+        # Add WavLM scores to log if available
+        if second_result and second_confidence is not None:
+            logger.info(f"WavLM score: {second_result}={second_confidence:.3f}")
         
-        # Calculate human and AI confidence scores
-        human_confidence = wavlm_confidence if wavlm_result == "Human" else 1.0 - wavlm_confidence
-        ai_confidence = wavlm_confidence if wavlm_result == "AI" else 1.0 - wavlm_confidence
-        
-        # Log WavLM scores
-        logger.info(f"WavLM scores - Human: {human_confidence:.3f}, AI: {ai_confidence:.3f}")
-        logger.info(f"WavLM result: {wavlm_result} with confidence {wavlm_confidence:.3f}")
-        
-        # Create response with original format for compatibility
+        # Create response with all model results
         response = {
-            "result": wavlm_result,
-            "confidence": wavlm_confidence,
+            "result": hf_result,
+            "confidence": hf_confidence,
             "models": {
-                "wavlm": {
-                    "result": wavlm_result,
-                    "confidence": wavlm_confidence
+                "huggingface": {
+                    "result": hf_result,
+                    "confidence": hf_confidence
                 }
             }
         }
         
-        # Add combined score section to maintain compatibility
-        response["combined_score"] = {
-            "genuine_score": round(human_confidence, 4),
-            "spoof_score": round(ai_confidence, 4),
-            "result": wavlm_result
-        }
+        # Add VoiceGuard results if available
+        if vg_genuine is not None and vg_spoof is not None:
+            response["models"]["voiceguard"] = {
+                "result": vg_result_label,
+                "confidence": vg_confidence,
+                "genuine": vg_genuine / 100.0,
+                "spoof": vg_spoof / 100.0
+            }
+            
+        # Add WavLM results if available
+        if second_result and second_confidence is not None:
+            response["models"]["wavlm"] = {
+                "result": second_result,
+                "confidence": second_confidence
+            }
         
-        # Log detection confidence
-        if wavlm_result == "AI" and ai_confidence > 0.8:
-            logger.info("High confidence AI detection - likely robo-call")
-        
-        logger.info(f"✅ Final result: {response['result']} with confidence {response['confidence']:.3f}")
+        # Compute combined score
+        if vg_genuine is not None and vg_spoof is not None:
+            try:
+                # Calculate human confidence scores for each model (0-100 scale)
+                hf_human_score = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100
+                vg_human_score = vg_genuine  # Already on 0-100 scale
+                
+                # If WavLM model results are available, use the three-model weighted approach
+                if second_result is not None and second_confidence is not None:
+                    # Convert WavLM confidence to human score (0-100 scale)
+                    wavlm_human_score = (second_confidence if second_result == "Human" else 1 - second_confidence) * 100
+                    
+                    # Apply weights: 20% HF, 20% VG, 60% WavLM
+                    combined_genuine = (hf_human_score * 0.2) + (vg_human_score * 0.2) + (wavlm_human_score * 0.6)
+                    
+                    logger.info(f"Using three-model weighted score: HF={hf_human_score:.1f}% (20%), "
+                               f"VG={vg_human_score:.1f}% (20%), WavLM={wavlm_human_score:.1f}% (60%)")
+                    logger.info(f"Final combined score: {combined_genuine:.1f}% genuine, {100-combined_genuine:.1f}% AI")
+                    
+                    # Only apply WavLM bias if both WavLM and HF models agree on AI
+                    # This helps prevent false positives on human voices
+                    if wavlm_human_score < 40 and hf_human_score < 40 and combined_genuine > 50:
+                        logger.warning("Both WavLM and HF suggest AI - applying careful bias adjustment")
+                        # Apply a very conservative adjustment to avoid misclassifying humans
+                        adjustment_strength = 0.15
+                        combined_genuine = (combined_genuine * (1 - adjustment_strength)) + (wavlm_human_score * adjustment_strength)
+                        logger.info(f"Adjusted score with conservative bias: {combined_genuine:.1f}% genuine")
+                else:
+                    # Original 80/20 weighting if WavLM model isn't available
+                    combined_genuine = (hf_human_score * 0.8) + (vg_human_score * 0.2)
+                    logger.info(f"Using two-model weighted score: HF={hf_human_score:.1f}% (80%), VG={vg_human_score:.1f}% (20%)")
+            except Exception as e:
+                logger.error(f"Error in combined score calculation: {str(e)}")
+                logger.error(traceback.format_exc())
+                # Fallback to simple average if there's an error
+                hf_human_score = (hf_confidence if hf_result == "Human" else 1 - hf_confidence) * 100
+                combined_genuine = (hf_human_score * 0.5) + (vg_genuine * 0.5)
+                logger.info(f"Using fallback score calculation due to error: {combined_genuine:.1f}%")
+                
+            combined_spoof = 100.0 - combined_genuine
+            
+            # Make final decision with special handling for robo-calls
+            # Only adjust threshold if BOTH WavLM and HF models agree on AI
+            if second_result == "AI" and second_confidence > 0.5 and hf_result == "AI" and hf_confidence > 0.5:
+                # Use a modest threshold adjustment when both models agree on AI
+                threshold = 48.0  # Slightly favor AI detection when both models agree
+                final_result = "Human" if combined_genuine > threshold else "AI"
+                logger.info(f"Using adjusted threshold ({threshold}%) - both WavLM and HF models indicate AI")
+            else:
+                # More conservative threshold (52%) to avoid false positives on human voices
+                threshold = 52.0
+                final_result = "Human" if combined_genuine > threshold else "AI"
+                logger.info(f"Using conservative threshold ({threshold}%) to avoid false positives")
+            
+            logger.info(f"✅ Scores - Genuine: {combined_genuine:.1f}%, Spoof: {combined_spoof:.1f}%")
+
+            # Update the main response with the combined result
+            response["result"] = final_result
+            response["confidence"] = round(max(combined_genuine, combined_spoof) / 100, 4)
+            
+            # Add detailed combined scores to response
+            response["combined_score"] = {
+                "genuine_score": round(combined_genuine / 100, 4),
+                "spoof_score": round(combined_spoof / 100, 4),
+                "result": final_result
+            }
         
         # Log the response
         print("Returning API response:", response)
         
-        # Store in recent analyses for debugging (format compatible with original code)
+        # Store in recent analyses for debugging (includes both models when available)
         recent_analysis = {
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "wavlm": {
-                "result": wavlm_result,
-                "confidence": wavlm_confidence
+            "huggingface": {
+                "result": hf_result,
+                "confidence": hf_confidence
             }
         }
         
-        # Add combined score to recent analysis
-        if "combined_score" in response:
-            recent_analysis["combined"] = response["combined_score"]
-            
-        # Store the analysis
+        # Add VoiceGuard results if available
+        if vg_genuine is not None and vg_spoof is not None:
+            recent_analysis["voiceguard"] = {
+                "genuine": float(vg_genuine) / 100.0,  # Convert to 0-1 scale
+                "spoof": float(vg_spoof) / 100.0,
+                "result": vg_result,
+                "confidence": vg_confidence
+            }
+        
+        # Add to recent analyses
         recent_analyses.insert(0, recent_analysis)
         if len(recent_analyses) > 5:
-            recent_analyses.pop()  # Keep only the 5 most recent analyses (original limit)
+            recent_analyses.pop()
         
         return response
         
@@ -761,3 +913,4 @@ if __name__ == "__main__":
     import uvicorn
     logger.info(f"🚀 Starting VoiceGuard server on port {port}")
     uvicorn.run(app, host="0.0.0.0", port=port)
+
