@@ -1,0 +1,14 @@
+{
+  "signatures": [
+    {
+      "id": "1344f7a4-4026-4cd1-a893-04c5ae745980",
+      "name": "Andrew Metcalf",
+      "email": "AMETCALF33@GMAIL.COM",
+      "country": "United States",
+      "reason": "test",
+      "timestamp": 1746743874.1993241,
+      "ip_address": "127.0.0.1"
+    }
+  ],
+  "count": 1
+}

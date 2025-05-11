@@ -1,0 +1,20 @@
+{
+  "total_users": 0,
+  "premium_users": 0,
+  "total_scans": 0,
+  "daily_active_users": {},
+  "monthly_active_users": {},
+  "scan_results": {
+    "ai_detected": 0,
+    "human_detected": 0
+  },
+  "revenue": {
+    "total": 0,
+    "monthly": {}
+  },
+  "app_installs": {
+    "android": 0,
+    "ios": 0
+  },
+  "last_updated": 1746661108.6380093
+}
