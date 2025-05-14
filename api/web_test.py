@@ -8,7 +8,7 @@ import requests
 import socket
 import time
 from typing import Optional, Tuple
-from fastapi import FastAPI, UploadFile, HTTPException
+from fastapi import FastAPI, UploadFile, HTTPException, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -35,6 +35,9 @@ logger.info(f"✅ HF_API_TOKEN: {HF_TOKEN[:10]}***" if HF_TOKEN else "❌ HF_API
 
 # Import torch but delay loading heavy libraries
 import torch
+
+# Import routers
+from api.analytics_handler import router as analytics_router
 
 # Delay these imports - they'll be imported when needed
 # import librosa
@@ -79,6 +82,9 @@ if not os.path.exists(STATIC_DIR):
 
 # Mount static files
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+# Include routers
+app.include_router(analytics_router, prefix="/api/analytics")
 
 @app.get("/")
 async def root():
@@ -396,199 +402,42 @@ def run_second_model_inference(wav_path: str) -> Tuple[Optional[str], Optional[f
         logger.error(traceback.format_exc())
         return None, None
 
-# Modify the query_huggingface_api function to test connection if needed
-def query_huggingface_api(audio_data: dict) -> Tuple[Optional[str], Optional[float]]:
-    """Query Hugging Face API for deepfake detection.
-    Returns a tuple of (result, confidence) where result is either "AI" or "Human".
-    Returns (None, None) if the API call fails.
-    """
-    global hf_api_ready
-    
-    # If we haven't tested the connection yet, do it now
-    if hf_api_ready is None:
-        hf_api_ready = test_hf_connection()
-    
-    MAX_RETRIES = 3
-    RETRY_DELAY = 5  # seconds
-    
-    # Ensure we have a token
-    if not HF_TOKEN:
-        logger.error("❌ HF_API_TOKEN not set. Cannot query Hugging Face API.")
-        return None, None
-    
-    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
-    
-    # Log audio payload size
-    audio_size = len(audio_data.get("inputs", "")) if isinstance(audio_data.get("inputs"), str) else 0
-    logger.info(f"Audio payload size: {audio_size} bytes")
-    
-    for attempt in range(1, MAX_RETRIES + 1):
-        try:
-            logger.info(f"🎯 Attempt {attempt}/{MAX_RETRIES}: Querying Hugging Face API...")
-            
-            # Make request
-            response = requests.post(HF_API_URL, headers=headers, json=audio_data)
-            
-            # Log response
-            logger.info(f"📡 Response status: {response.status_code}")
-            logger.info(f"Response content: {response.text}")
-            
-            if response.status_code == 200:
-                # Parse response
-                result = response.json()
-                logger.info(f"Parsed response: {result}")
-                
-                # Extract scores from the format [{"label": "AIVoice", "score": 0.633}, {"label": "HumanVoice", "score": 0.367}]
-                ai_score = 0.0
-                human_score = 0.0
-                
-                for item in result:
-                    label = item.get("label", "").lower()
-                    score = item.get("score", 0.0)
-                    
-                    if "ai" in label or "fake" in label:
-                        ai_score = score
-                    elif "human" in label or "real" in label:
-                        human_score = score
-                
-                # Determine final result based on highest score
-                if ai_score > human_score:
-                    final_result = "AI"
-                    confidence = ai_score
-                else:
-                    final_result = "Human"
-                    confidence = human_score
-                
-                # Log the final result with rounded confidence for readability
-                logger.info(f"✅ Final result: {final_result} with confidence {round(confidence*100, 1)}%")
-                return final_result, confidence
-                
-            elif response.status_code == 503:
-                logger.warning(f"🕓 Model not ready (503). Attempt {attempt}/{MAX_RETRIES}. Waiting {RETRY_DELAY} seconds...")
-                if attempt < MAX_RETRIES:
-                    time.sleep(RETRY_DELAY)
-                else:
-                    logger.error("❌ Maximum retries reached. Giving up.")
-                    return None, None
-            else:
-                logger.error(f"❌ API error {response.status_code}: {response.text}")
-                return None, None
-                
-        except Exception as e:
-            logger.error(f"❌ Exception during request: {str(e)}")
-            logger.error(traceback.format_exc())
-            return None, None
-    
-    return None, None
-
-@app.post("/api/predict")
-async def predict(file: UploadFile):
-    """Analyze audio file using Hugging Face API and VoiceGuard model."""
+@app.get("/api/predict")
+async def predict(file: UploadFile = File(...)):
+    """Run deepfake detection on an audio file."""
     try:
-        # Save uploaded file
-        input_path = os.path.join(TEMP_DIR, "input_audio")
-        with open(input_path, "wb") as f:
-            f.write(await file.read())
+        # Save the file to a temporary location
+        temp_file = os.path.join(TEMP_DIR, file.filename)
+        with open(temp_file, 'wb') as f:
+            f.write(file.file.read())
         
-        # Convert to WAV format
-        wav_path = os.path.join(TEMP_DIR, "audio_16k.wav")
-        if not convert_to_wav(input_path, wav_path):
-            raise HTTPException(status_code=500, detail="Failed to convert audio format")
+        # Convert to WAV format if necessary
+        if not file.filename.endswith('.wav'):
+            wav_file = os.path.join(TEMP_DIR, 'audio_16k.wav')
+            if not convert_to_wav(temp_file, wav_file):
+                raise Exception("Failed to convert audio to WAV format")
+            temp_file = wav_file
         
-        # Initialize variables
-        hf_result = None
-        hf_confidence = None
+        # Run local inference
+        hf_result, hf_confidence = run_local_hf_inference(temp_file)
+        
+        # Run second model if available
         second_result = None
         second_confidence = None
-        
-        # Try local model first, fall back to API if needed
-        if use_local_hf_model:
-            hf_result, hf_confidence = run_local_hf_inference(wav_path)
+        if use_second_model:
+            second_result, second_confidence = run_second_model_inference(temp_file)
+            if second_result and second_confidence is not None:
+                logger.info(f"Second model result: {second_result} with confidence {second_confidence:.3f}")
             
-            # Run WavLM model if available (separately from the primary model)
-            if use_second_model:
-                try:
-                    second_result, second_confidence = run_second_model_inference(wav_path)
-                    if second_result and second_confidence is not None:
-                        logger.info(f"WavLM model result: {second_result} with confidence {second_confidence:.3f}")
-                except Exception as e:
-                    logger.error(f"Error running WavLM model: {str(e)}")
-                    second_result = None
-                    second_confidence = None
-        
-        # If local model failed, try the API
-        if hf_result is None:
-            # Check if we've already tested the API connection
-            if hf_api_ready is None:
-                test_hf_connection()
-            
-            if hf_api_ready:
-                # Prepare audio for Hugging Face API
-                hf_audio_data = prepare_audio_for_huggingface(wav_path)
-                
-                # Query Hugging Face API
-                hf_result, hf_confidence = query_huggingface_api(hf_audio_data)
-            else:
-                logger.warning("Skipping Hugging Face API due to connection issues")
-        
-        # Process the audio file for VoiceGuard model
-        vg_audio_data = prepare_audio_for_voiceguard(wav_path)
-        
-        # Query VoiceGuard model
-        model = load_voiceguard_model()
-        if model:
-            try:
-                vg_genuine, vg_spoof = predict_voiceguard(vg_audio_data)
-                vg_result = {"genuine_percent": vg_genuine, "spoof_percent": vg_spoof}
-            except Exception as e:
-                logger.error(f"VoiceGuard prediction failed: {str(e)}")
-                logger.error(traceback.format_exc())
-                vg_result = {"genuine_percent": None, "spoof_percent": None}
-        else:
-            vg_result = {"genuine_percent": None, "spoof_percent": None}
-        
-        # Extract VoiceGuard scores
-        vg_genuine = vg_result.get("genuine_percent")
-        vg_spoof = vg_result.get("spoof_percent")
-        
-        # Determine VoiceGuard result
-        if vg_genuine is not None and vg_spoof is not None:
-            vg_result_label = "Human" if vg_genuine > vg_spoof else "AI"
-            vg_confidence = vg_genuine / 100.0 if vg_result_label == "Human" else vg_spoof / 100.0
-            logger.info(f"VoiceGuard scores - Genuine: {vg_genuine:.1f}%, Spoof: {vg_spoof:.1f}%")
-            logger.info(f"VoiceGuard result: {vg_result_label} with confidence {vg_confidence:.3f}")
-        else:
-            vg_result_label = None
-            vg_confidence = None
-            logger.error("VoiceGuard model did not return valid scores")
-        
-        # Check if models agree
-        if hf_result and vg_result_label:
-            if hf_result == vg_result_label:
-                logger.info(f"✅ Models AGREE: Both predict {hf_result}")
-            else:
-                logger.warning(f"⚠️ Models DISAGREE: HF predicts {hf_result}, VG predicts {vg_result_label}")
-            
-            # Add WavLM model agreement info if available
-            if second_result:
-                if second_result == hf_result and second_result == vg_result_label:
-                    logger.info(f"✅ All three models AGREE: They all predict {second_result}")
-                elif second_result != hf_result and second_result != vg_result_label:
-                    logger.warning(f"⚠️ WavLM disagrees with both models: WavLM predicts {second_result}")
-                else:
-                    # WavLM agrees with one model
-                    agreeing_model = "HF" if second_result == hf_result else "VG"
-                    logger.info(f"WavLM agrees with {agreeing_model} model: Both predict {second_result}")
-        
-        # Log raw scores
-        if hf_result == "Human":
-            logger.info(f"Raw scores - HF: Human={hf_confidence:.3f}, VG: Human={vg_genuine/100:.3f}, AI={vg_spoof/100:.3f}")
-        else:
-            logger.info(f"Raw scores - HF: AI={hf_confidence:.3f}, VG: Human={vg_genuine/100:.3f}, AI={vg_spoof/100:.3f}")
-            
-        # Add WavLM scores to log if available
-        if second_result and second_confidence is not None:
-            logger.info(f"WavLM score: {second_result}={second_confidence:.3f}")
+            # If both models agree it's AI, increase confidence
+            if hf_result == "AI" and second_result == "AI":
+                logger.info("Both models agree this is AI-generated audio")
+                hf_confidence = max(hf_confidence, 0.95)  # Increase confidence when both agree it's AI
+            # If models disagree and second model says it's AI with high confidence
+            elif hf_result == "Human" and second_result == "AI" and second_confidence > 0.8:
+                logger.info("Second model detected AI with high confidence, overriding primary model")
+                hf_result = "AI"
+                hf_confidence = second_confidence
         
         # Create response with all model results
         response = {

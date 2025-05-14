@@ -1,3 +1,22 @@
 {
-  "users": []
+  "users": [
+    {
+      "device_id": "device_001",
+      "scan_count": 15,
+      "is_premium": true,
+      "subscription_expiry": 1746633600
+    },
+    {
+      "device_id": "device_002",
+      "scan_count": 8,
+      "is_premium": false,
+      "subscription_expiry": null
+    },
+    {
+      "device_id": "device_003",
+      "scan_count": 25,
+      "is_premium": true,
+      "subscription_expiry": 1751817600
+    }
+  ]
 }

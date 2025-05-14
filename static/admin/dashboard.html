@@ -4,33 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | VoiceGuardAI</title>
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8f9fa;
         }
-        
+
         .dashboard-header {
             background: linear-gradient(90deg, #4263eb 0%, #60a5fa 100%);
             color: white;
             padding: 2rem 0;
         }
-        
+
         .stats-card {
             background: white;
             border-radius: 8px;
@@ -39,35 +39,35 @@
             margin-bottom: 1.5rem;
             transition: transform 0.3s ease;
         }
-        
+
         .stats-card:hover {
             transform: translateY(-5px);
         }
-        
+
         .stats-card .number {
             font-size: 2.5rem;
             font-weight: 700;
             color: #4263eb;
         }
-        
+
         .stats-card .label {
             font-size: 1rem;
             color: #6b7280;
         }
-        
+
         .stats-card .trend {
             font-size: 0.875rem;
             margin-top: 0.5rem;
         }
-        
+
         .trend.up {
             color: #10b981;
         }
-        
+
         .trend.down {
             color: #ef4444;
         }
-        
+
         .chart-container {
             background: white;
             border-radius: 8px;
@@ -75,7 +75,7 @@
             padding: 1.5rem;
             margin-bottom: 1.5rem;
         }
-        
+
         .login-form {
             max-width: 400px;
             margin: 100px auto;
@@ -84,23 +84,23 @@
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
-        
+
         #dashboard-content {
             display: none;
         }
-        
+
         #login-container {
             display: block;
         }
-        
+
         .nav-pills .nav-link.active {
             background-color: #4263eb;
         }
-        
+
         .nav-pills .nav-link {
             color: #4b5563;
         }
-        
+
         .nav-pills .nav-link.active {
             color: white;
         }
@@ -140,7 +140,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="container">
             <!-- Navigation Tabs -->
             <ul class="nav nav-pills mb-4" id="dashboard-tabs" role="tablist">
@@ -153,14 +153,17 @@
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="analytics-tab" data-bs-toggle="pill" data-bs-target="#analytics" type="button" role="tab">App Analytics</button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="users-tab" data-bs-toggle="pill" data-bs-target="#users" type="button" role="tab">User Management</button>
+                </li>
             </ul>
-            
+
             <!-- Tab Content -->
             <div class="tab-content" id="dashboard-content-tabs">
                 <!-- Overview Tab -->
                 <div class="tab-pane fade show active" id="overview" role="tabpanel">
                     <h2 class="mb-4">Dashboard Overview</h2>
-                    
+
                     <div class="row">
                         <!-- Petition Stats -->
                         <div class="col-md-6 mb-4">
@@ -189,7 +192,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- App Stats -->
                         <div class="col-md-6 mb-4">
                             <div class="card">
@@ -219,16 +222,86 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Petition Tab -->
                 <div class="tab-pane fade" id="petition" role="tabpanel">
                     <iframe src="petition-dashboard.html" style="width: 100%; height: 800px; border: none;"></iframe>
                 </div>
-                
+
+                <!-- User Management Tab -->
+                <div class="tab-pane fade" id="users" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="mb-0">User Management</h2>
+                        <button id="refresh-users-btn" class="btn btn-outline-primary">
+                            <i class="fas fa-sync-alt"></i> Refresh Users
+                        </button>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="fas fa-users me-1"></i>
+                            User Management
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table" id="users-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Device ID</th>
+                                            <th>Scan Count</th>
+                                            <th>Premium Status</th>
+                                            <th>Subscription Expiry</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- User rows will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Edit User Modal -->
+                    <div class="modal fade" id="editUserModal" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Edit User</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="editUserForm">
+                                        <input type="hidden" id="editDeviceId">
+                                        <div class="mb-3">
+                                            <label class="form-label">Device ID</label>
+                                            <input type="text" class="form-control" id="displayDeviceId" disabled>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Scan Count</label>
+                                            <input type="number" class="form-control" id="editScanCount" min="0">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Premium Status</label>
+                                            <select class="form-select" id="editPremiumStatus">
+                                                <option value="false">Free User (10 scans/month)</option>
+                                                <option value="true">Premium User (Unlimited)</option>
+                                            </select>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-primary" id="saveUserBtn">Save Changes</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Analytics Tab -->
                 <div class="tab-pane fade" id="analytics" role="tabpanel">
                     <h2 class="mb-4">App Analytics</h2>
-                    
+
                     <div class="row">
                         <!-- User Stats -->
                         <div class="col-md-3 mb-4">
@@ -237,7 +310,7 @@
                                 <div class="label">Total Users</div>
                             </div>
                         </div>
-                        
+
                         <div class="col-md-3 mb-4">
                             <div class="stats-card text-center">
                                 <div class="number" id="premium-users">0</div>
@@ -245,7 +318,7 @@
                                 <div class="trend up" id="premium-trend"><i class="fas fa-arrow-up"></i> <span id="premium-percentage">0%</span></div>
                             </div>
                         </div>
-                        
+
                         <div class="col-md-3 mb-4">
                             <div class="stats-card text-center">
                                 <div class="number" id="daily-active-users">0</div>
@@ -253,7 +326,7 @@
                                 <div class="trend" id="dau-trend"><i class="fas fa-arrow-up"></i> <span id="dau-percentage">0%</span></div>
                             </div>
                         </div>
-                        
+
                         <div class="col-md-3 mb-4">
                             <div class="stats-card text-center">
                                 <div class="number" id="monthly-active-users">0</div>
@@ -261,7 +334,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="row">
                         <!-- Scan Stats -->
                         <div class="col-md-4 mb-4">
@@ -270,14 +343,14 @@
                                 <div class="label">Total Scans</div>
                             </div>
                         </div>
-                        
+
                         <div class="col-md-4 mb-4">
                             <div class="stats-card text-center">
                                 <div class="number" id="ai-detection-rate">0%</div>
                                 <div class="label">AI Detection Rate</div>
                             </div>
                         </div>
-                        
+
                         <div class="col-md-4 mb-4">
                             <div class="stats-card text-center">
                                 <div class="number">$<span id="monthly-revenue">0</span></div>
@@ -286,32 +359,8 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="row">
-                        <!-- Charts -->
-                        <div class="col-md-6 mb-4">
-                            <div class="chart-container">
-                                <h5>User Growth</h5>
-                                <canvas id="user-growth-chart"></canvas>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6 mb-4">
-                            <div class="chart-container">
-                                <h5>Scan Results</h5>
-                                <canvas id="scan-results-chart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-12 mb-4">
-                            <div class="chart-container">
-                                <h5>Daily Active Users</h5>
-                                <canvas id="dau-chart"></canvas>
-                            </div>
-                        </div>
-                    </div>
+
+
                 </div>
             </div>
         </div>
@@ -321,441 +370,450 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
+
     <script>
-        // Admin credentials (in a real app, this would be handled server-side)
-        // IMPORTANT: If you change these credentials, make sure to update them in the backend API (petition_handler.py) as well
         const ADMIN_USERNAME = 'admin';
         const ADMIN_PASSWORD = 'voiceguard2025';
-        
-        $(document).ready(function() {
-            // Handle login form submission
-            $('#login-form').on('submit', function(e) {
+        let isLoggedIn = false;
+
+        // Try to load cached credentials
+        function loadCachedCredentials() {
+            try {
+                const savedUsername = localStorage.getItem('admin_username');
+                const savedPassword = localStorage.getItem('admin_password');
+                if (savedUsername && savedPassword) {
+                    $('#username').val(savedUsername);
+                    $('#password').val(savedPassword);
+                    return true;
+                }
+            } catch (e) {
+                console.warn('Unable to access localStorage:', e);
+            }
+            return false;
+        }
+
+        // Save credentials to cache
+        function saveCredentials(username, password) {
+            try {
+                localStorage.setItem('admin_username', username);
+                localStorage.setItem('admin_password', password);
+            } catch (e) {
+                console.warn('Unable to save to localStorage:', e);
+            }
+        }
+
+        // Handle login process
+        function performLogin(username, password) {
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                isLoggedIn = true;
+                saveCredentials(username, password);
+                sessionStorage.setItem('autoLogged', 'true');
+                $('#login-container').hide();
+                $('#dashboard-content').show();
+
+                // 🌟 NEW: Force load users tab if it's active
+                const activeTab = document.querySelector('.tab-pane.active')?.id;
+                if (activeTab === 'users') {
+                    console.log('[AutoLogin] Users tab is active, loading users...');
+                    loadUsers();
+                } else {
+                    loadDashboardData();
+                }
+
+                return true;
+            }
+            return false;
+        }
+
+        $(document).ready(function () {
+            // Load cached credentials
+            const credentialsLoaded = loadCachedCredentials();
+            const alreadyAutoLogged = sessionStorage.getItem('autoLogged');
+
+            if (credentialsLoaded && !alreadyAutoLogged && !isLoggedIn) {
+                setTimeout(() => {
+                    if (!$('#dashboard-content').is(':visible')) {
+                        performLogin(ADMIN_USERNAME, ADMIN_PASSWORD);
+                    }
+                }, 300);
+            }
+
+            // 🔁 Always check if users tab is active on first render
+            const activeTabId = document.querySelector('.tab-pane.show.active')?.id;
+            if (activeTabId === 'users') {
+                console.log('[Initial Load] Detected users tab is active');
+                setTimeout(() => loadUsers(), 100);  // small delay to ensure DOM is ready
+            }
+
+
+
+            $('#login-form').on('submit', function (e) {
                 e.preventDefault();
-                
+                if (isLoggedIn) return;
+
                 const username = $('#username').val();
                 const password = $('#password').val();
-                
-                if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-                    // Hide login, show dashboard
-                    $('#login-container').hide();
-                    $('#dashboard-content').show();
-                    
-                    // Load dashboard data
-                    loadDashboardData();
-                } else {
+
+                if (!performLogin(username, password)) {
                     $('#login-error').show();
                 }
             });
-            
-            // Handle logout
-            $('#logout-btn').on('click', function() {
+
+            $('#logout-btn').on('click', function () {
+                isLoggedIn = false;
+                lastActiveTab = '';
                 $('#dashboard-content').hide();
                 $('#login-container').show();
                 $('#login-form')[0].reset();
                 $('#login-error').hide();
+                try {
+                    localStorage.removeItem('admin_username');
+                    localStorage.removeItem('admin_password');
+                    sessionStorage.removeItem('autoLogged');
+                } catch (e) {
+                    console.warn('Unable to clear localStorage:', e);
+                }
             });
-            
-            // Handle analytics button click
-            $('#view-analytics-btn').on('click', function() {
-                $('#analytics-tab').tab('show');
+
+            // Track active tab and ensure data is loaded
+            let lastActiveTab = '#overview'; // Set initial tab
+
+            // Use Bootstrap 5's tab events
+            document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+                tab.addEventListener('shown.bs.tab', function (e) {
+                    console.log('Tab switched to:', e.target.getAttribute('href'));
+                    const currentTab = e.target.getAttribute('href');
+                    if (currentTab === lastActiveTab) return;
+                    lastActiveTab = currentTab;
+
+                    // Clear any existing data
+                    if (currentTab === '#users') {
+                        console.log('Loading users table...');
+                        loadUsers();
+                    } else {
+                        loadDashboardData();
+                    }
+                });
+            });
+
+            // Initial load if dashboard is visible
+            if ($('#dashboard-content').is(':visible')) {
+                const overviewTab = document.querySelector('#overview-tab');
+                if (overviewTab) {
+                    new bootstrap.Tab(overviewTab).show();
+                }
+                loadDashboardData();
+            }
+
+            // Ensure data is loaded on initial render if dashboard is visible
+            if ($('#dashboard-content').is(':visible')) {
+                loadDashboardData();
+            }
+
+            // Handle direct navigation to tabs
+            const hash = window.location.hash;
+            if (hash) {
+                console.log('Initial hash:', hash);
+                const tab = $(`[href="${hash}"]`);
+                console.log('Found tab:', tab.length > 0);
+                tab.tab('show');
+                
+                // Ensure we load the correct data for the initial tab
+                if (hash === '#users') {
+                    console.log('Initial load of users table');
+                    setTimeout(() => loadUsers(), 100); // Small delay to ensure DOM is ready
+                } else {
+                    loadDashboardData();
+                }
+            } else {
+                $('[href="#overview"]').tab('show');
+                loadDashboardData();
+            }
+
+            $('#view-analytics-btn').on('click', function(e) {
+                e.preventDefault();
+                const analyticsTab = document.querySelector('#analytics-tab');
+                if (analyticsTab) {
+                    new bootstrap.Tab(analyticsTab).show();
+                    loadDashboardData();
+                }
+            });
+
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Add refresh button handler
+            document.getElementById('refresh-users-btn')?.addEventListener('click', () => {
+                console.log('[Manual Refresh] Refresh button clicked');
+                loadUsers();
             });
         });
-        
-        // Load dashboard data
+
+        // Show loading spinner
+        function showLoading() {
+            const fields = ['#overview-users', '#overview-scans', '#total-users', '#premium-users', '#daily-active-users', '#monthly-active-users', '#total-scans', '#ai-detection-rate', '#monthly-revenue'];
+            fields.forEach(f => $(f).html('<i class="fas fa-spinner fa-spin"></i>'));
+        }
+
+        let loadingPromise = null;
+        let lastLoadTime = 0;
+        const RELOAD_THRESHOLD = 5000; // 5 seconds
+
         function loadDashboardData() {
-            // Load petition data from the petition subdomain
-            fetch('https://petition.voiceguard.ai/api/petition/admin', {
+            console.log('Loading dashboard data...');
+            const now = Date.now();
+            if (loadingPromise) {
+                console.log('Already loading data, returning existing promise');
+                return loadingPromise;
+            }
+
+            // Prevent reloading too frequently
+            if (now - lastLoadTime < RELOAD_THRESHOLD) {
+                console.log('Too soon to reload, skipping');
+                return Promise.resolve();
+            }
+            lastLoadTime = now;
+            console.log('Starting new data load');
+
+            showLoading();
+            loadingPromise = Promise.all([
+                // Fetch admin analytics
+                fetch('/api/analytics/admin?username=' + ADMIN_USERNAME + '&password=' + ADMIN_PASSWORD),
+                // Fetch daily stats
+                fetch('/api/analytics/daily-stats'),
+                // Fetch historical data
+                fetch('/api/analytics/historical?username=' + ADMIN_USERNAME + '&password=' + ADMIN_PASSWORD + '&days=7')
+            ])
+            .then(responses => {
+                if (!responses.every(r => r.ok)) throw new Error('Analytics API error');
+                return Promise.all(responses.map(r => r.json()));
+            })
+            .then(([adminData, dailyData, historicalData]) => {
+                if (adminData.error) throw new Error(adminData.error);
+                updateAnalyticsStats(adminData, dailyData, historicalData);
+            })
+            .catch(error => {
+                console.error('Error loading analytics data:', error);
+                const fields = ['#overview-users', '#overview-scans', '#total-users', '#premium-users', '#daily-active-users', '#monthly-active-users', '#total-scans', '#ai-detection-rate', '#monthly-revenue'];
+                fields.forEach(f => $(f).text('Error'));
+            })
+            .finally(() => {
+                loadingPromise = null;
+            });
+
+            return loadingPromise;
+        }
+
+        function updateAnalyticsStats(adminData, dailyData, historicalData) {
+            console.log('Updating analytics with data:', { adminData, dailyData, historicalData });
+            try {
+                const safe = (val, fallback = 0) => (typeof val === 'number' && !isNaN(val) ? val : fallback);
+                const getPercent = val => (typeof val === 'number' ? val.toFixed(1) + '%' : '0%');
+
+                // Handle admin stats with fallbacks
+                const metrics = {
+                    'overview-users': safe(adminData.total_users),
+                    'overview-scans': safe(adminData.total_scans),
+                    'total-users': safe(adminData.total_users),
+                    'premium-users': safe(adminData.premium_users),
+                    'total-scans': safe(adminData.total_scans),
+                    'monthly-revenue': safe(adminData.revenue?.total)
+                };
+                
+                // Set defaults for missing data
+                adminData.scan_results = adminData.scan_results || { ai_detected: 0, human_detected: 0 };
+                adminData.daily_active_users = adminData.daily_active_users || {};
+                adminData.monthly_active_users = adminData.monthly_active_users || {};
+
+                // Handle daily stats
+                metrics['daily-active-users'] = safe(dailyData.active_users_today);
+                metrics['daily-scans'] = safe(dailyData.total_scans_today);
+                const scansToday = safe(dailyData.total_scans_today, 0);
+                metrics['ai-detection-rate'] = scansToday > 0 
+                    ? (safe(dailyData.ai_detected_today, 0) / scansToday) * 100 
+                    : 0;
+
+                // Handle historical stats
+                metrics['monthly-active-users'] = historicalData.monthly_active_users || 0;
+
+                // Update all metric fields
+                for (const [id, value] of Object.entries(metrics)) {
+                    const el = $(`#${id}`);
+                    if (id === 'ai-detection-rate' || id.endsWith('-percentage')) {
+                        el.text(getPercent(value));
+                    } else if (id === 'monthly-revenue') {
+                        el.text('$' + safe(value).toLocaleString());
+                    } else {
+                        el.text(safe(value).toLocaleString());
+                    }
+                }
+
+                // Handle petition stats
+                try {
+                    const signatures = safe(adminData.petition_signatures);
+                    const completion = safe(adminData.petition_completion);
+                    $('#overview-signatures').text(signatures.toLocaleString());
+                    $('#overview-completion').text(getPercent(completion));
+                } catch (e) {
+                    console.warn('Error parsing petition stats:', e);
+                    $('#overview-signatures').text('0');
+                    $('#overview-completion').text('0%');
+                }
+
+
+
+                // Update trends
+                const trends = {
+                    'premium-trend': safe(adminData.premium_trend),
+                    'dau-trend': safe(dailyData.active_users_today - (historicalData.daily_stats?.[5]?.active_users || 0)),
+                    'revenue-trend': safe(adminData.revenue_trend)
+                };
+
+                for (const [id, value] of Object.entries(trends)) {
+                    updateTrend(`#${id}`, value);
+                    $(`#${id.replace('-trend', '-percentage')}`).text(getPercent(value));
+                }
+
+            } catch (err) {
+                console.error('Error parsing dashboard data:', err);
+                const fields = ['#overview-users', '#overview-scans', '#total-users', '#premium-users', '#daily-active-users', '#monthly-active-users', '#total-scans', '#ai-detection-rate', '#monthly-revenue'];
+                fields.forEach(f => $(f).text('Error'));
+            }
+        }
+
+        function updateTrend(selector, value) {
+            const el = $(selector);
+            if (value > 0) {
+                el.removeClass('down').addClass('up').html(`<i class="fas fa-arrow-up"></i> ${value}%`);
+            } else if (value < 0) {
+                el.removeClass('up').addClass('down').html(`<i class="fas fa-arrow-down"></i> ${Math.abs(value)}%`);
+            } else {
+                el.removeClass('up down').html(`0%`);
+            }
+        }
+
+        function loadUsers() {
+            console.log('loadUsers() called');
+            const table = document.querySelector('#users-table');
+            console.log('Found table:', table);
+            const tbody = table?.querySelector('tbody');
+            console.log('Found tbody:', tbody);
+            
+            if (!tbody) {
+                console.error('Users table tbody not found');
+                return;
+            }
+
+            // Show loading state
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading users...</td></tr>';
+
+            fetch('/api/analytics/users?username=' + ADMIN_USERNAME + '&password=' + ADMIN_PASSWORD)
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to load users');
+                return response.json();
+            })
+            .then(data => {
+                console.log('Received users:', data);
+                tbody.innerHTML = '';
+                
+                if (!data.users || !Array.isArray(data.users)) {
+                    throw new Error('Invalid users data format');
+                }
+
+                if (data.users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center">No users found</td></tr>';
+                    return;
+                }
+
+                data.users.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.device_id || 'N/A'}</td>
+                        <td>${user.scan_count || 0}</td>
+                        <td>${user.is_premium ? '<span class="badge bg-success">Premium</span>' : '<span class="badge bg-secondary">Free</span>'}</td>
+                        <td>${user.subscription_expiry || 'N/A'}</td>
+                        <td><button class="btn btn-sm btn-primary edit-user" data-user='${JSON.stringify(user)}'>Edit</button></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                document.querySelectorAll('.edit-user').forEach(btn => {
+                    btn.addEventListener('click', () => openEditModal(JSON.parse(btn.dataset.user)));
+                });
+            })
+            .catch(error => {
+                console.error('Error loading users:', error);
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger"><i class="fas fa-exclamation-circle"></i> Failed to load users: ${error.message}</td></tr>`;
+            });
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return 'N/A';
+            try {
+                // Handle both Unix timestamps and ISO strings
+                const date = typeof timestamp === 'number' ?
+                    new Date(timestamp * 1000) :
+                    new Date(timestamp);
+                return date.toLocaleString();
+            } catch (e) {
+                console.error('Error parsing date:', e);
+                return 'Invalid Date';
+            }
+        }
+
+        function openEditModal(user) {
+            $('#editDeviceId').val(user.device_id);
+            $('#displayDeviceId').val(user.device_id);
+            $('#editScanCount').val(user.scan_count);
+            $('#editPremiumStatus').val(user.is_premium.toString());
+            new bootstrap.Modal(document.getElementById('editUserModal')).show();
+        }
+
+        $('#saveUserBtn').on('click', () => {
+            const deviceId = $('#editDeviceId').val();
+            const scanCount = parseInt($('#editScanCount').val(), 10);
+            const isPremium = $('#editPremiumStatus').val() === 'true';
+
+            // Calculate subscription expiry date if premium
+            let subscriptionExpiry = null;
+            if (isPremium) {
+                const date = new Date();
+                date.setMonth(date.getMonth() + 1); // 1 month from now
+                subscriptionExpiry = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+            }
+
+            fetch('/api/analytics/users/update?username=' + ADMIN_USERNAME + '&password=' + ADMIN_PASSWORD, {
+                method: 'POST',
                 headers: {
-                    'Authorization': 'Basic ' + btoa('admin:voiceguard2025')
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    device_id: deviceId,
+                    scan_count: scanCount,
+                    is_premium: isPremium,
+                    subscription_expiry: subscriptionExpiry
+                })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to update user');
+                return res.json();
+            })
+            .then(res => {
+                if (res.status === 'success') {
+                    bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+                    loadUsers();
                 }
             })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Petition API not available');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    updatePetitionStats(data);
-                })
-                .catch(error => {
-                    console.error('Error loading petition data:', error);
-                    // Show error message in the petition stats section
-                    $('#overview-signatures').text('Error');
-                    $('#overview-completion').text('Error');
-                });
-            
-            // Load analytics data from the analytics subdomain
-            console.log('Fetching analytics data from analytics subdomain');
-            fetch('https://analytics.voiceguard.ai/api/analytics/dashboard', {
-                headers: {
-                    'Authorization': 'Basic ' + btoa('admin:voiceguard2025')
-                }
-            })
-                .then(response => {
-                    console.log('Analytics API response status:', response.status);
-                    if (!response.ok) {
-                        throw new Error('Analytics API not available: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Analytics API data received:', data);
-                    
-                    // If API returns error message, handle it
-                    if (data.error) {
-                        throw new Error('API Error: ' + data.error);
-                    }
-                    
-                    // Use the comprehensive data from the dashboard endpoint
-                    updateAnalyticsStats(data);
-                    createCharts(data);
-                })
-                .catch(error => {
-                    console.error('Error loading analytics data:', error);
-                    // Show error message in the analytics stats section
-                    $('#overview-users').text('Error');
-                    $('#overview-scans').text('Error');
-                    $('#total-users').text('Error');
-                    $('#premium-users').text('Error');
-                    $('#daily-active-users').text('Error');
-                    $('#monthly-active-users').text('Error');
-                    $('#total-scans').text('Error');
-                    $('#ai-detection-rate').text('Error');
-                    $('#monthly-revenue').text('Error');
-                    
-                    // Create empty charts
-                    createEmptyCharts();
-                });
-        }
-        
-        // Update petition stats
-        function updatePetitionStats(data) {
-            // Check if data has signatures property (from admin endpoint)
-            if (data.signatures) {
-                const count = data.signatures.length;
-                $('#overview-signatures').text(count.toLocaleString());
-                
-                const rawPercentage = (count / 50000) * 100;
-                const percentage = count > 0 && rawPercentage < 1 ? 1 : Math.min(Math.round(rawPercentage), 100);
-                $('#overview-completion').text(percentage + '%');
-            } else if (data.count) {
-                // Fallback to count property if available
-                $('#overview-signatures').text(data.count.toLocaleString());
-                
-                const rawPercentage = (data.count / 50000) * 100;
-                const percentage = data.count > 0 && rawPercentage < 1 ? 1 : Math.min(Math.round(rawPercentage), 100);
-                $('#overview-completion').text(percentage + '%');
-            } else {
-                // Handle unexpected data structure
-                console.error('Unexpected data structure:', data);
-                $('#overview-signatures').text('Error');
-                $('#overview-completion').text('Error');
-            }
-        }
-        
-        // Update analytics stats
-        function updateAnalyticsStats(data) {
-            try {
-                console.log('Updating analytics stats with data:', data);
-                
-                // Overview tab
-                $('#overview-users').text(data.total_users.toLocaleString());
-                $('#overview-scans').text(data.total_scans.toLocaleString());
-                
-                // Analytics tab - use the comprehensive dashboard data structure
-                $('#total-users').text(data.total_users.toLocaleString());
-                $('#premium-users').text(data.premium_users.toLocaleString());
-                $('#daily-active-users').text(data.daily_active_users.today.toLocaleString());
-                $('#monthly-active-users').text(data.monthly_active_users.toLocaleString());
-                
-                $('#total-scans').text(data.total_scans.toLocaleString());
-                $('#ai-detection-rate').text(data.scan_results.ai_detection_rate + '%');
-                $('#monthly-revenue').text('$' + data.revenue.monthly.toLocaleString());
-                
-                // Update trends with actual percentage changes
-                updateTrend('#premium-trend', '#premium-percentage', data.conversion_rate_change);
-                updateTrend('#dau-trend', '#dau-percentage', data.daily_active_users.change_percentage);
-                updateTrend('#revenue-trend', '#revenue-percentage', data.revenue.change_percentage);
-            } catch (error) {
-                console.error('Error updating analytics stats:', error);
-                // Log the specific error and data structure
-                console.error('Error details:', error.message);
-                console.error('Data structure:', JSON.stringify(data, null, 2));
-            }
-        }
-        
-        // Update trend indicators
-        function updateTrend(trendSelector, percentageSelector, changePercentage) {
-            const trend = $(trendSelector);
-            const percentage = $(percentageSelector);
-            
-            if (changePercentage > 0) {
-                trend.removeClass('down').addClass('up');
-                trend.html(`<i class="fas fa-arrow-up"></i> ${changePercentage}%`);
-            } else if (changePercentage < 0) {
-                trend.removeClass('up').addClass('down');
-                trend.html(`<i class="fas fa-arrow-down"></i> ${Math.abs(changePercentage)}%`);
-            } else {
-                trend.removeClass('up down');
-                trend.html(`0%`);
-            }
-        }
-        
-        // Create charts
-        function createCharts(data) {
-            // User growth chart
-            const userGrowthCtx = document.getElementById('user-growth-chart').getContext('2d');
-            new Chart(userGrowthCtx, {
-                type: 'line',
-                data: {
-                    labels: data.historical.dates,
-                    datasets: [{
-                        label: 'Total Users',
-                        data: data.historical.users,
-                        borderColor: '#4263eb',
-                        backgroundColor: 'rgba(66, 99, 235, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    }
-                }
+            .catch(error => {
+                console.error('Error updating user:', error);
+                alert('Failed to update user. Please try again.');
             });
-            
-            // Scan results chart
-            const scanResultsCtx = document.getElementById('scan-results-chart').getContext('2d');
-            new Chart(scanResultsCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['AI Detected', 'Human Voice'],
-                    datasets: [{
-                        data: [data.scan_results.ai_detected, data.scan_results.human_detected],
-                        backgroundColor: ['#ef4444', '#10b981']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    }
-                }
-            });
-            
-            // DAU chart
-            const dauCtx = document.getElementById('dau-chart').getContext('2d');
-            new Chart(dauCtx, {
-                type: 'bar',
-                data: {
-                    labels: data.historical.dates,
-                    datasets: [{
-                        label: 'Daily Active Users',
-                        data: data.historical.dau,
-                        backgroundColor: '#60a5fa'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Create empty charts when API data is not available
-        function createEmptyCharts() {
-            // Create empty user growth chart
-            const userGrowthCtx = document.getElementById('user-growth-chart').getContext('2d');
-            new Chart(userGrowthCtx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Total Users',
-                        data: [],
-                        borderColor: '#4263eb',
-                        backgroundColor: 'rgba(66, 99, 235, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    }
-                }
-            });
-            
-            // Create empty scan results chart
-            const scanResultsCtx = document.getElementById('scan-results-chart').getContext('2d');
-            new Chart(scanResultsCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['AI Detected', 'Human Voice'],
-                    datasets: [{
-                        data: [0, 0],
-                        backgroundColor: ['#ef4444', '#10b981']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    }
-                }
-            });
-            
-            // Create empty DAU chart
-            const dauCtx = document.getElementById('dau-chart').getContext('2d');
-            new Chart(dauCtx, {
-                type: 'bar',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Daily Active Users',
-                        data: [],
-                        backgroundColor: '#60a5fa'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Create charts with the available data from the dashboard endpoint
-        function createCharts(data) {
-            try {
-                console.log('Creating charts with data:', data);
-                
-                // Extract historical data for charts
-                const historical = data.historical || {};
-                const dates = historical.dates || [];
-                const users = historical.users || [];
-                const dau = historical.dau || [];
-                
-                // If no historical data is available, generate some based on current values
-                if (dates.length === 0 || users.length === 0) {
-                    // Generate last 6 weeks of dates
-                    const today = new Date();
-                    for (let i = 5; i >= 0; i--) {
-                        const date = new Date(today);
-                        date.setDate(date.getDate() - (i * 7));
-                        dates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-                        
-                        // Create a growth curve for users
-                        const userCount = Math.max(1, Math.floor(data.total_users * (i / 5)));
-                        users.push(userCount);
-                        
-                        // Use daily active users data if available
-                        if (i === 0) {
-                            dau.push(data.daily_active_users.today);
-                        } else if (i === 1) {
-                            dau.push(data.daily_active_users.yesterday);
-                        } else {
-                            dau.push(Math.floor(data.daily_active_users.today * 0.8 * (1 - (i * 0.1))));
-                        }
-                    }
-                }
-                
-                // Create user growth chart
-                const userGrowthCtx = document.getElementById('user-growth-chart').getContext('2d');
-                new Chart(userGrowthCtx, {
-                    type: 'line',
-                    data: {
-                        labels: dates,
-                        datasets: [{
-                            label: 'Total Users',
-                            data: users,
-                            borderColor: '#4263eb',
-                            backgroundColor: 'rgba(66, 99, 235, 0.1)',
-                            tension: 0.3,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                            }
-                        }
-                    }
-                });
-                
-                // Create scan results chart using the actual AI detection data
-                const aiDetected = data.scan_results.ai_detected;
-                const humanDetected = data.scan_results.human_detected;
-                
-                const scanResultsCtx = document.getElementById('scan-results-chart').getContext('2d');
-                new Chart(scanResultsCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['AI Detected', 'Human Voice'],
-                        datasets: [{
-                            data: [aiDetected, humanDetected],
-                            backgroundColor: ['#ef4444', '#10b981']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                            }
-                        }
-                    }
-                });
-                
-                // Create DAU chart
-                const dauCtx = document.getElementById('dau-chart').getContext('2d');
-                new Chart(dauCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: dates,
-                        datasets: [{
-                            label: 'Daily Active Users',
-                            data: dau,
-                            backgroundColor: '#60a5fa'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                            }
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error('Error creating charts:', error);
-                console.error('Error details:', error.message);
-                createEmptyCharts();
-            }
-        }
+        });
+
+
     </script>
 </body>
 </html>
