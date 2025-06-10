@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Features Explained | VoiceGuardAI Knowledge Base</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Discover all the advanced features available with VoiceGuardAI. Enhanced protection against voice scams with unlimited history, detailed analysis, and more.">
+    <meta name="keywords" content="voiceguardai features, voice security features, ai voice detection features, voice scam protection features">
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="../../../images/favicon.svg" type="image/svg+xml">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../../css/styles.css">
+    
+    <style>
+        /* Page-specific styles */
+        .page-header {
+            padding: 120px 0 60px;
+            background: linear-gradient(90deg, #4263eb 0%, #60a5fa 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .page-content {
+            padding: 60px 0;
+        }
+        
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .article-meta {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            color: #718096;
+            font-size: 14px;
+        }
+        
+        .article-meta .date {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+        
+        .article-meta .date i {
+            margin-right: 5px;
+        }
+        
+        .article-meta .author {
+            display: flex;
+            align-items: center;
+        }
+        
+        .article-meta .author i {
+            margin-right: 5px;
+        }
+        
+        .article-content h2 {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-size: 1.8rem;
+        }
+        
+        .article-content h3 {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #4a5568;
+            font-size: 1.4rem;
+        }
+        
+        .article-content p {
+            margin-bottom: 20px;
+            line-height: 1.7;
+            color: #4a5568;
+        }
+        
+        .article-content ul, .article-content ol {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+        
+        .article-content li {
+            margin-bottom: 10px;
+            line-height: 1.7;
+        }
+        
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 30px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .article-content .note {
+            background: #f0f5ff;
+            border-left: 4px solid #4263eb;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .article-content .warning {
+            background: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .article-content .tip {
+            background: #f0fff4;
+            border-left: 4px solid #38a169;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .article-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .article-navigation a {
+            display: flex;
+            align-items: center;
+            color: #4263eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .article-navigation a:hover {
+            text-decoration: underline;
+        }
+        
+        .article-navigation .prev i {
+            margin-right: 8px;
+        }
+        
+        .article-navigation .next i {
+            margin-left: 8px;
+        }
+        
+        .feature-card {
+            display: flex;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 25px;
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(66, 99, 235, 0.1);
+            color: #4263eb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            flex-shrink: 0;
+            font-size: 1.5rem;
+        }
+        
+        .feature-content {
+            flex: 1;
+        }
+        
+        .feature-content h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header id="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="../../../index.html" class="logo">
+                    <img src="../../../images/logo.svg" alt="VoiceGuardAI Logo">
+                    VoiceGuardAI
+                </a>
+                
+                <button class="mobile-toggle" id="mobile-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="../../../index.html">Home</a></li>
+                    <li><a href="../../advocacy.html">Advocacy</a></li>
+                    <li><a href="../support.html">Support</a></li>
+                    <li><a href="../../../index.html#download" class="btn">Download</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Content -->
+    <section class="page-content">
+        <div class="container">
+            <div class="article-container">
+                <div class="article-meta">
+                    <div class="date">
+                        <i class="far fa-calendar-alt"></i>
+                        <span>Last Updated: May 7, 2025</span>
+                    </div>
+                    <div class="author">
+                        <i class="far fa-user"></i>
+                        <span>VoiceGuardAI Team</span>
+                    </div>
+                </div>
+                
+                <div class="article-content">
+                    <p>VoiceGuardAI offers a comprehensive set of advanced features designed to protect you from voice scams. All features are available to every user at no cost, as we believe voice security should be accessible to everyone. This guide explains all the advanced features in detail to help you get the most out of VoiceGuardAI.</p>
+                    
+                    <h2>Advanced Features Overview</h2>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-infinity"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Unlimited Voicemail Scanning</h3>
+                            <p>Scan as many voicemails as you need without any limits. Our advanced AI can analyze any number of voicemails to detect potential scams, giving you peace of mind with every message you receive.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Complete Scan History</h3>
+                            <p>Access your entire scan history at any time. VoiceGuardAI keeps a record of all your previous scans, allowing you to review past results and track patterns in scam attempts over time.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Detailed Analysis Reports</h3>
+                            <p>Get comprehensive reports for each scan, including risk factors, confidence scores, and specific indicators of potential scams. These detailed insights help you understand why a voicemail was flagged as suspicious.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Trusted Contacts List</h3>
+                            <p>Create a list of trusted contacts whose voicemails will be automatically verified. This helps reduce false positives and streamlines the scanning process for messages from people you know and trust.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Custom Notifications</h3>
+                            <p>Configure how and when you receive alerts about potential scams. Customize notification settings to suit your preferences and ensure you never miss important security alerts.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Priority Support</h3>
+                            <p>Access our dedicated support team whenever you need assistance. Our experts are available to help you with any questions or issues you may encounter while using VoiceGuardAI.</p>
+                        </div>
+                    </div>
+                    
+                    <h2>Frequently Asked Questions</h2>
+                    
+                    <h3>How do I access these advanced features?</h3>
+                    <p>All features are available to every user immediately after installing and setting up the VoiceGuardAI app. There are no hidden fees or premium tiers - everything is included for free.</p>
+                    
+                    <h3>Are there any usage limits?</h3>
+                    <p>No, there are no limits on any features. You can scan as many voicemails as you need, store unlimited scan history, and use all advanced features without restrictions.</p>
+                    
+                    <h3>How is VoiceGuardAI able to offer all these features for free?</h3>
+                    <p>VoiceGuardAI is supported through grants, partnerships with organizations committed to fighting digital fraud, and community support. We believe that protection against voice scams should be accessible to everyone, which is why we've made all features available at no cost.</p>
+                    
+                    <h3>Will these features always remain free?</h3>
+                    <p>Yes, we are committed to keeping all VoiceGuardAI features free for all users. Our mission is to protect everyone from voice scams without any barriers.</p>
+                    
+                    <div class="note">
+                        <p><strong>Note:</strong> To get the most out of VoiceGuardAI, we recommend keeping your app updated to the latest version. This ensures you have access to the newest features and security improvements.</p>
+                    </div>
+                </div>
+                
+                <div class="article-navigation">
+                    <a href="../knowledge-base.html" class="prev">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Knowledge Base
+                    </a>
+                    <a href="how-to-scan-voicemail.html" class="next">
+                        How to Scan a Voicemail
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>VoiceGuardAI</h3>
+                    <p>Protecting your voice identity with advanced AI technology.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="../../../index.html">Home</a></li>
+                        <li><a href="../../../index.html#features">Features</a></li>
+                        <li><a href="../../../index.html#how-it-works">How It Works</a></li>
+                        <li><a href="../../../index.html#download">Download</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="../faqs.html">FAQs</a></li>
+                        <li><a href="../knowledge-base.html">Knowledge Base</a></li>
+                        <li><a href="../support.html">Support</a></li>
+                        <li><a href="../contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <ul class="footer-links">
+                        <li><a href="../../legal/privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="../../legal/terms-of-service.html">Terms of Service</a></li>
+                        <li><a href="../../legal/cookie-policy.html">Cookie Policy</a></li>
+                        <li><a href="../../legal/gdpr-compliance.html">GDPR Compliance</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2025 VoiceGuardAI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile Navigation Toggle
+        const mobileToggle = document.getElementById('mobile-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+        mobileToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            mobileToggle.innerHTML = navLinks.classList.contains('active') 
+                ? '<i class="fas fa-times"></i>' 
+                : '<i class="fas fa-bars"></i>';
+        });
+        
+        // Header scroll effect
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('header-scrolled');
+            } else {
+                header.classList.remove('header-scrolled');
+            }
+        });
+    </script>
+</body>
+</html>
